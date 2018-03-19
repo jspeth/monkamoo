@@ -3,80 +3,88 @@
 import json
 import uuid
 
-WORLD = {"rooms": {"0": {"id": "0", "description": "This is the beginning of the world."}}}
-CURRENT = WORLD["rooms"]["0"]
 
-def load(path="world.json"):
-    global WORLD
-    global CURRENT
-    data = open(path, "r").read()
-    WORLD = json.loads(data)
-    CURRENT = WORLD["rooms"]["0"]
+class World:
+    path = "world.json"
 
-def save(path="world.json", world=None):
-    if world is None:
-        world = WORLD
-    data = json.dumps(world, sort_keys=True, indent=2, separators=(',', ': '))
-    f = open(path, "w")
-    f.write(data)
-    f.close()
+    def __init__(self):
+        self.rooms = {}
 
-def look(room=None):
-    if room is None:
-        room = CURRENT
-    name = room.get("name")
+    def load(self):
+        data = open(self.path, "r").read()
+        world = json.loads(data)
+        rooms = {}
+        for room_id, room_dict in world["rooms"].iteritems():
+            rooms[room_id] = Room(**room_dict)
+        self.rooms = rooms
+
+    def save(self):
+        data = json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=2, separators=(',', ': '))
+        with open(self.path, "w") as f:
+            f.write(data)
+
+
+class Room:
+    def __init__(self, id=None, name=None, description=None, exits=None):
+        self.id = id or str(uuid.uuid4())
+        self.name = name
+        self.description = description
+        self.exits = exits or {}
+
+    def look(self):
+        if self.name:
+            print "* " + self.name + " *"
+        print self.description or "You see nothing here."
+        if self.exits:
+            print "You can go " + ", ".join(self.exits.keys()) + "."
+
+
+def load():
+    world.load()
+
+def save():
+    world.save()
+
+def look():
+    here.look()
+
+def name(name=None):
     if name:
-        print "* " + name + " *"
-    description = room.get("description", "You see nothing here.")
-    if description:
-        print description
-    exits = room.get("exits")
-    if exits:
-        print "You can go " + ", ".join(exits.keys()) + "."
-
-def name(name=None, room=None):
-    if room is None:
-        room = CURRENT
-    if name is None:
-        name = room.get("name")
-        if name:
-            print "* " + name + " *"
+        here.name = name
+    else:
+        if here.name:
+            print "* " + here.name + " *"
         else:
             print "This room has no name."
-    else:
-        room["name"] = name
 
-def describe(description=None, room=None):
-    if room is None:
-        room = CURRENT
-    if description is None:
-        description = room.get("description")
-        if description:
-            print description
+def describe(description=None):
+    if description:
+        here.description = description
+    else:
+        if here.description:
+            print here.description
         else:
             print "This room has no description."
-    else:
-        room["description"] = description
 
-def go(direction, room=None):
-    global CURRENT
-    if room is None:
-        room = CURRENT
-    exits = room.setdefault("exits", {})
-    if direction in exits:
-        CURRENT = WORLD["rooms"][exits[direction]]
-        look()
+def go(direction):
+    global here
+    if direction in here.exits:
+        here = world.rooms[here.exits[direction]]
+        here.look()
     else:
         print "You can't go that way."
 
-def dig(direction, back="back", room=None):
-    global CURRENT
-    if room is None:
-        room = CURRENT
-    new_room = {"id": str(uuid.uuid4()), "exits": {back: room["id"]}}
-    WORLD["rooms"][new_room["id"]] = new_room
-    exits = room.setdefault("exits", {})
-    exits[direction] = new_room["id"]
-    CURRENT = new_room
+def dig(direction, back="back"):
+    global here
+    new_room = Room(exits={back: here.id})
+    world.rooms[new_room.id] = new_room
+    here.exits[direction] = new_room.id
+    here = new_room
 
-print "Welcome!"
+
+print "Welcome to MonkaMOO!"
+
+world = World()
+world.load()
+here = world.rooms["0"]
+here.look()
