@@ -3,12 +3,12 @@
 import json
 import uuid
 
-
+## World
 class World:
     path = "world.json"
 
     def __init__(self):
-        self.rooms = {}
+        self.rooms = {"0": Room(id="0", description="This is the beginning of the world.")}
 
     def load(self):
         data = open(self.path, "r").read()
@@ -24,6 +24,7 @@ class World:
             f.write(data)
 
 
+## Room
 class Room:
     def __init__(self, id=None, name=None, description=None, exits=None):
         self.id = id or str(uuid.uuid4())
@@ -38,6 +39,8 @@ class Room:
         if self.exits:
             print "You can go " + ", ".join(self.exits.keys()) + "."
 
+
+## Commands
 
 def load():
     world.load()
@@ -81,6 +84,8 @@ def dig(direction, back="back"):
     here.exits[direction] = new_room.id
     here = new_room
 
+
+## Start MonkaMOO
 
 print "Welcome to MonkaMOO!"
 
