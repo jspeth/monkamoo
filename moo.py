@@ -3,20 +3,20 @@
 import json
 import uuid
 
-WORLD = {}
-CURRENT = WORLD
+WORLD = {"rooms": {"0": {"id": "0", "description": "This is the beginning of the world."}}}
+CURRENT = WORLD["rooms"]["0"]
 
 def load(path="world.json"):
     global WORLD
     global CURRENT
     data = open(path, "r").read()
     WORLD = json.loads(data)
-    CURRENT = WORLD["rooms"][WORLD["start"]]
+    CURRENT = WORLD["rooms"]["0"]
 
 def save(path="world.json", world=None):
     if world is None:
         world = WORLD
-    data = json.dumps(world, sort_keys=True, indent=4, separators=(',', ': '))
+    data = json.dumps(world, sort_keys=True, indent=2, separators=(',', ': '))
     f = open(path, "w")
     f.write(data)
     f.close()
