@@ -37,7 +37,16 @@ class Room:
             print "* " + self.name + " *"
         print self.description or "You see nothing here."
         if self.exits:
-            print "You can go " + ", ".join(self.exits.keys()) + "."
+            directions = self.exits.keys()
+            if len(directions) == 1:
+                # one direction: "You can go up."
+                print "You can go " + directions[0] + "."
+            elif len(directions) == 2:
+                # two directions: "You can go east or west."
+                print "You can go " + directions[0] + " or " + directions[1] + "."
+            else:
+                # lots of directions: "You can go up, east, or west."
+                print "You can go " + ", ".join(directions[:-1]) + ", or " + directions[-1] + "."
 
 
 ## Commands
