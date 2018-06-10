@@ -49,6 +49,21 @@ class Room:
                 print "You can go " + ", ".join(directions[:-1]) + ", or " + directions[-1] + "."
 
 
+## Player
+class Player:
+    def __init__(self, id=None, name=None, description=None):
+        self.id = id or str(uuid.uuid4())
+        self.name = name
+        self.description = description
+        self.room = None
+
+    def say(self, message):
+        print self.name + " says, \"" + message + "\""
+
+    def emote(self, message):
+        print self.name + " " + message
+
+
 ## Commands
 
 def load():
@@ -102,3 +117,6 @@ world = World()
 world.load()
 here = world.rooms["0"]
 here.look()
+
+charlotte = Player(name="Charlotte")
+jim = Player(name="Jim")
