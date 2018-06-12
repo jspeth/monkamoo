@@ -52,6 +52,41 @@ class Room:
                 # lots of directions: 'You can go up, east, or west.'
                 print 'You can go ' + ', '.join(directions[:-1]) + ', or ' + directions[-1] + '.'
 
+    def go(self, direction=None):
+        if direction in self.exits:
+            room = world.rooms[self.exits[direction]]
+            room.look()
+            return room
+        else:
+            print "You can't go that way."
+
+    def dig(self, direction=None, back='back'):
+        if direction is None:
+            print 'You must give a direction.'
+        elif direction in self.exits:
+            print 'That direction already exists.'
+        else:
+            room = Room(exits={back: self.id})
+            world.rooms[room.id] = room
+            self.exits[direction] = room.id
+            return room
+
+    def set_name(self, name=None):
+        if name:
+            self.name = name
+        elif self.name:
+            print '* ' + self.name + ' *'
+        else:
+            print 'This room has no name.'
+
+    def set_description(self, description=None):
+        if description:
+            self.description = description
+        elif self.description:
+            print self.description
+        else:
+            print 'This room has no description.'
+
 
 ## Player
 class Player:
@@ -85,49 +120,25 @@ def look():
 @click.command()
 @click.argument('name', required=False)
 def name(name=None):
-    if name:
-        here.name = name
-    else:
-        if here.name:
-            print '* ' + here.name + ' *'
-        else:
-            print 'This room has no name.'
+    here.set_name(name)
 
 @click.command()
 @click.argument('description', required=False)
 def describe(description=None):
-    if description:
-        here.description = description
-    else:
-        if here.description:
-            print here.description
-        else:
-            print 'This room has no description.'
+    here.set_description(description)
 
 @click.command()
 @click.argument('direction', required=False)
 def go(direction=None):
     global here
-    if direction in here.exits:
-        here = world.rooms[here.exits[direction]]
-        here.look()
-    else:
-        print "You can't go that way."
+    here = here.go(direction) or here
 
 @click.command()
 @click.argument('direction', required=False)
 @click.argument('back', required=False, default='back')
 def dig(direction=None, back='back'):
     global here
-    if direction is None:
-        print 'You must give a direction.'
-    elif direction in here.exits:
-        print 'That direction already exists.'
-    else:
-        new_room = Room(exits={back: here.id})
-        world.rooms[new_room.id] = new_room
-        here.exits[direction] = new_room.id
-        here = new_room
+    here = here.dig(direction, back) or here
 
 
 ## Start MonkaMOO
