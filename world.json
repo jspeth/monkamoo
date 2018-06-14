@@ -1,4 +1,18 @@
 {
+  "players": {
+    "5f2db66e-a79e-49db-9105-dda9522f81ec": {
+      "description": null,
+      "id": "5f2db66e-a79e-49db-9105-dda9522f81ec",
+      "name": "Jim",
+      "room": "0"
+    },
+    "63646a7b-0e78-4038-ae30-e49f1fc4906c": {
+      "description": null,
+      "id": "63646a7b-0e78-4038-ae30-e49f1fc4906c",
+      "name": "Charlotte",
+      "room": "0"
+    }
+  },
   "rooms": {
     "0": {
       "description": "This is the beginning of the world.",
@@ -8,7 +22,21 @@
         "up": "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9"
       },
       "id": "0",
-      "name": null
+      "name": null,
+      "players": {
+        "5f2db66e-a79e-49db-9105-dda9522f81ec": {
+          "description": null,
+          "id": "5f2db66e-a79e-49db-9105-dda9522f81ec",
+          "name": "Jim",
+          "room": "0"
+        },
+        "63646a7b-0e78-4038-ae30-e49f1fc4906c": {
+          "description": null,
+          "id": "63646a7b-0e78-4038-ae30-e49f1fc4906c",
+          "name": "Charlotte",
+          "room": "0"
+        }
+      }
     },
     "2b1ff39c-3d7d-4c5d-a74d-6f400dc7e3da": {
       "description": "it is pink with stripes",
@@ -16,7 +44,8 @@
         "southwest": "0"
       },
       "id": "2b1ff39c-3d7d-4c5d-a74d-6f400dc7e3da",
-      "name": null
+      "name": null,
+      "players": {}
     },
     "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9": {
       "description": "You are in a dusty attic, filled with old books and instruments.",
@@ -24,7 +53,8 @@
         "down": "0"
       },
       "id": "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9",
-      "name": null
+      "name": null,
+      "players": {}
     },
     "693edf69-ba73-4d4e-812f-8d133cbb40c0": {
       "description": "We are in a room with wallpaper, and the pictures on the wallpaper are of Mom.",
@@ -32,7 +62,8 @@
         "up": "b0abac34-1bf7-4b27-af6b-edda0922d0a8"
       },
       "id": "693edf69-ba73-4d4e-812f-8d133cbb40c0",
-      "name": null
+      "name": null,
+      "players": {}
     },
     "7735f8c6-ac97-4b67-8566-dd8da901dc48": {
       "description": "You are in a field of bright orange poppies, swaying gently in the warm breeze.",
@@ -40,7 +71,8 @@
         "south": "0"
       },
       "id": "7735f8c6-ac97-4b67-8566-dd8da901dc48",
-      "name": null
+      "name": null,
+      "players": {}
     },
     "b0abac34-1bf7-4b27-af6b-edda0922d0a8": {
       "description": "This room is made out of love.",
@@ -49,7 +81,8 @@
         "south": "0"
       },
       "id": "b0abac34-1bf7-4b27-af6b-edda0922d0a8",
-      "name": null
+      "name": null,
+      "players": {}
     }
   }
 }
