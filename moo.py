@@ -82,8 +82,7 @@ class Room:
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'exits': self.exits,
-            'players': self.players
+            'exits': self.exits
         }
 
     def print_line(self, player, message):
