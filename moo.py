@@ -83,7 +83,7 @@ class Room:
             # JGS - add player to room
             return room
         else:
-            player.print_line("You can't go that way.")
+            player.print_line('You can\'t go that way.')
 
     def dig(self, player, direction=None, back='back'):
         if direction is None:
@@ -123,7 +123,10 @@ class Player:
         self.room = room
 
     def print_line(self, message):
-        print message
+        if self.stdout:
+            self.stdout.write(message + '\n')
+        else:
+            print message
 
     def get_room(self):
         return world.rooms[self.room]
@@ -232,6 +235,7 @@ class Shell(cmd.Cmd):
     intro = 'Welcome to MonkaMOO!'
     prompt = 'moo> '
     file = None
+    use_rawinput = 0
 
     def do_pass(self, arg):
         pass
@@ -242,9 +246,12 @@ class Shell(cmd.Cmd):
             sys.exit(0)
         args = line.split(' ')
         try:
+            me.stdout = self.stdout
             cli.main(args, standalone_mode=False)
-        except:
-            pass
+        except click.UsageError as ex:
+            me.print_line('I didn\'t understand that.')
+        except Exception as ex:
+            me.print_line('Error: ' + `ex`)
         return 'pass'
 
 

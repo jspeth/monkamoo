@@ -10,8 +10,6 @@ class MonkaMOOServer(socketserver.SocketServer):
 
     def on_message(self, client, message):
         print 'Client Sent Message: '' + `message` + '''
-        # Sending message to all clients
-        #self.broadcast(message)
         if message[-1] == '\n':
             message = message[:-1]
         if message[-1] == '\r':
@@ -19,11 +17,14 @@ class MonkaMOOServer(socketserver.SocketServer):
         args = message.split(' ')
         try:
             moo.cli.main(args, standalone_mode=False)
-        except:
-            pass
+        except Exception as ex:
+            print 'Error:', `ex`
 
     def on_open(self, client):
         print 'Client Connected'
+        self.file = client.makefile()
+        self.shell = moo.Shell(stdin=self.file, stdout=self.file)
+        self.shell.cmdloop()
 
     def on_close(self, client):
         print 'Client Disconnected'
