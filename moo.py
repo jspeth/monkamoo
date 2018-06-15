@@ -10,6 +10,15 @@ import uuid
 
 import server
 
+## Helper for joining strings
+def join_strings(items, word='and'):
+    if len(items) == 1:
+        return items[0]
+    if len(items) == 2:
+        return items[0] + ' ' + word + ' ' + items[1]
+    return ', '.join(items[:-1]) + ', ' + word + ' ' + items[-1]
+
+
 ## World
 class World:
     path = 'world.json'
@@ -44,6 +53,11 @@ class World:
         player.room = room_id
         self.rooms[room_id].players[player.id] = player
 
+    def move_player(self, player, new_room):
+        old_room = self.rooms[player.room]
+        del old_room.players[player.id]
+        new_room.players[player.id] = player
+
     def find_player(self, name):
         for player in self.players.values():
             if player.name == name:
@@ -60,27 +74,27 @@ class Room:
         self.exits = exits or {}
         self.players = players or {}
 
+    def print_line(self, player, message):
+        for other in self.players.values():
+            other.print_line(message)
+
     def look(self, player):
         if self.name:
             player.print_line('* ' + self.name + ' *')
         player.print_line(self.description or 'You see nothing here.')
         if self.exits:
             directions = self.exits.keys()
-            if len(directions) == 1:
-                # one direction: 'You can go up.'
-                player.print_line('You can go ' + directions[0] + '.')
-            elif len(directions) == 2:
-                # two directions: 'You can go east or west.'
-                player.print_line('You can go ' + directions[0] + ' or ' + directions[1] + '.')
-            else:
-                # lots of directions: 'You can go up, east, or west.'
-                player.print_line('You can go ' + ', '.join(directions[:-1]) + ', or ' + directions[-1] + '.')
+            player.print_line('You can go ' + join_strings(directions, 'or') + '.')
+        if self.players:
+            names = [other.name for other in self.players.values()]
+            isAre = len(self.players) > 1 and 'are' or 'is'
+            player.print_line(join_strings(names, 'and') + ' ' + isAre + ' here.')
 
     def go(self, player, direction=None):
         if direction in self.exits:
             room = world.rooms[self.exits[direction]]
+            world.move_player(player, room)
             room.look(player)
-            # JGS - add player to room
             return room
         else:
             player.print_line('You can\'t go that way.')
@@ -94,7 +108,7 @@ class Room:
             room = Room(exits={back: self.id})
             world.rooms[room.id] = room
             self.exits[direction] = room.id
-            # JGS - add player to room
+            world.move_player(player, room)
             return room
 
     def set_name(self, player, name=None):
@@ -123,7 +137,7 @@ class Player:
         self.room = room
 
     def print_line(self, message):
-        if self.stdout:
+        if hasattr(self, 'stdout'):
             self.stdout.write(message + '\n')
         else:
             print message
@@ -131,14 +145,14 @@ class Player:
     def get_room(self):
         return world.rooms[self.room]
 
-    def say(self, message):
-        self.print_line(self.name + ' says, \'' + message + '\'')
-
-    def emote(self, message):
-        self.print_line(self.name + ' ' + message)
-
     def look(self):
         self.get_room().look(self)
+
+    def say(self, message):
+        self.get_room().print_line(self, self.name + ' says, "' + message + '".')
+
+    def emote(self, message):
+        self.get_room().print_line(self, self.name + ' ' + message)
 
     def set_name(self, name=None):
         self.get_room().set_name(self, name)
@@ -170,6 +184,16 @@ def save():
 @click.command()
 def look():
     me.look()
+
+@click.command()
+@click.argument('message', required=False)
+def say(message=None):
+    me.say(message)
+
+@click.command()
+@click.argument('message', required=False)
+def emote(message=None):
+    me.emote(message)
 
 @click.command()
 @click.argument('name', required=False)
@@ -225,7 +249,7 @@ def quit():
 for command in [interact, help, quit]:
     cli.add_command(command)
 
-for command in [load, save, look, name, describe, go, dig]:
+for command in [load, save, look, say, emote, name, describe, go, dig]:
     cli.add_command(command)
 
 
