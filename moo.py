@@ -216,6 +216,19 @@ def go(direction=None):
 def dig(direction=None, back='back'):
     me.dig(direction, back)
 
+@click.command()
+@click.argument('name', required=False)
+def player(name=None):
+    global me
+    if name is None:
+        return
+    player = world.find_player(name)
+    if player:
+        me = player
+    else:
+        me = Player(name=name)
+        world.add_player(me)
+
 
 ## Start MonkaMOO
 
@@ -249,7 +262,7 @@ def quit():
 for command in [interact, help, quit]:
     cli.add_command(command)
 
-for command in [load, save, look, say, emote, name, describe, go, dig]:
+for command in [load, save, look, say, emote, name, describe, go, dig, player]:
     cli.add_command(command)
 
 
