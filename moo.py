@@ -76,15 +76,16 @@ class Room:
                 # lots of directions: 'You can go up, east, or west.'
                 print 'You can go ' + ', '.join(directions[:-1]) + ', or ' + directions[-1] + '.'
 
-    def go(self, direction=None):
+    def go(self, player, direction=None):
         if direction in self.exits:
             room = world.rooms[self.exits[direction]]
             room.look()
+            # JGS - add player to room
             return room
         else:
             print "You can't go that way."
 
-    def dig(self, direction=None, back='back'):
+    def dig(self, player, direction=None, back='back'):
         if direction is None:
             print 'You must give a direction.'
         elif direction in self.exits:
@@ -93,6 +94,7 @@ class Room:
             room = Room(exits={back: self.id})
             world.rooms[room.id] = room
             self.exits[direction] = room.id
+            # JGS - add player to room
             return room
 
     def set_name(self, name=None):
@@ -120,11 +122,36 @@ class Player:
         self.description = description
         self.room = room
 
+    def print_line(self, message):
+        print message
+
+    def get_room(self):
+        return world.rooms[self.room]
+
     def say(self, message):
-        print self.name + ' says, \'' + message + '\''
+        self.print_line(self.name + ' says, \'' + message + '\'')
 
     def emote(self, message):
-        print self.name + ' ' + message
+        self.print_line(self.name + ' ' + message)
+
+    def look(self):
+        self.get_room().look()
+
+    def set_name(self, name=None):
+        self.get_room().set_name(name)
+
+    def set_description(self, description=None):
+        self.get_room().set_description(description)
+
+    def go(self, direction=None):
+        room = self.get_room()
+        room = room.go(self, direction) or room
+        self.room = room.id
+
+    def dig(self, direction=None, back='back'):
+        room = self.get_room()
+        room = room.dig(self, direction, back) or room
+        self.room = room.id
 
 
 ## Commands
@@ -139,43 +166,38 @@ def save():
 
 @click.command()
 def look():
-    here.look()
+    me.look()
 
 @click.command()
 @click.argument('name', required=False)
 def name(name=None):
-    here.set_name(name)
+    me.set_name(name)
 
 @click.command()
 @click.argument('description', required=False)
 def describe(description=None):
-    here.set_description(description)
+    me.set_description(description)
 
 @click.command()
 @click.argument('direction', required=False)
 def go(direction=None):
-    global here
-    here = here.go(direction) or here
+    me.go(direction)
 
 @click.command()
 @click.argument('direction', required=False)
 @click.argument('back', required=False, default='back')
 def dig(direction=None, back='back'):
-    global here
-    here = here.dig(direction, back) or here
+    me.dig(direction, back)
 
 
 ## Start MonkaMOO
 
 world = World()
 world.load()
-here = world.rooms['0']
-
-#print 'Welcome to MonkaMOO!'
-#here.look()
 
 charlotte = world.find_player('Charlotte')
 jim = world.find_player('Jim')
+me = jim
 
 
 ## Command Parsing
