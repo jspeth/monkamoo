@@ -60,36 +60,36 @@ class Room:
         self.exits = exits or {}
         self.players = players or {}
 
-    def look(self):
+    def look(self, player):
         if self.name:
-            print '* ' + self.name + ' *'
-        print self.description or 'You see nothing here.'
+            player.print_line('* ' + self.name + ' *')
+        player.print_line(self.description or 'You see nothing here.')
         if self.exits:
             directions = self.exits.keys()
             if len(directions) == 1:
                 # one direction: 'You can go up.'
-                print 'You can go ' + directions[0] + '.'
+                player.print_line('You can go ' + directions[0] + '.')
             elif len(directions) == 2:
                 # two directions: 'You can go east or west.'
-                print 'You can go ' + directions[0] + ' or ' + directions[1] + '.'
+                player.print_line('You can go ' + directions[0] + ' or ' + directions[1] + '.')
             else:
                 # lots of directions: 'You can go up, east, or west.'
-                print 'You can go ' + ', '.join(directions[:-1]) + ', or ' + directions[-1] + '.'
+                player.print_line('You can go ' + ', '.join(directions[:-1]) + ', or ' + directions[-1] + '.')
 
     def go(self, player, direction=None):
         if direction in self.exits:
             room = world.rooms[self.exits[direction]]
-            room.look()
+            room.look(player)
             # JGS - add player to room
             return room
         else:
-            print "You can't go that way."
+            player.print_line("You can't go that way.")
 
     def dig(self, player, direction=None, back='back'):
         if direction is None:
-            print 'You must give a direction.'
+            player.print_line('You must give a direction.')
         elif direction in self.exits:
-            print 'That direction already exists.'
+            player.print_line('That direction already exists.')
         else:
             room = Room(exits={back: self.id})
             world.rooms[room.id] = room
@@ -97,21 +97,21 @@ class Room:
             # JGS - add player to room
             return room
 
-    def set_name(self, name=None):
+    def set_name(self, player, name=None):
         if name:
             self.name = name
         elif self.name:
-            print '* ' + self.name + ' *'
+            player.print_line('* ' + self.name + ' *')
         else:
-            print 'This room has no name.'
+            player.print_line('This room has no name.')
 
-    def set_description(self, description=None):
+    def set_description(self, player, description=None):
         if description:
             self.description = description
         elif self.description:
-            print self.description
+            player.print_line(self.description)
         else:
-            print 'This room has no description.'
+            player.print_line('This room has no description.')
 
 
 ## Player
@@ -135,13 +135,13 @@ class Player:
         self.print_line(self.name + ' ' + message)
 
     def look(self):
-        self.get_room().look()
+        self.get_room().look(self)
 
     def set_name(self, name=None):
-        self.get_room().set_name(name)
+        self.get_room().set_name(self, name)
 
     def set_description(self, description=None):
-        self.get_room().set_description(description)
+        self.get_room().set_description(self, description)
 
     def go(self, direction=None):
         room = self.get_room()
