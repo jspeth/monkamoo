@@ -27,6 +27,9 @@ class World:
         self.rooms = {'0': Room(id='0', description='This is the beginning of the world.')}
         self.players = {}
 
+    def json_dictionary(self):
+        return {'rooms': self.rooms, 'players': self.players}
+
     def load(self):
         data = open(self.path, 'r').read()
         world = json.loads(data)
@@ -42,19 +45,19 @@ class World:
                 self.add_player(Player(**player_dict))
 
     def save(self):
-        data = json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=2, separators=(',', ': '))
+        data = json.dumps(self, default=lambda o: o.json_dictionary(), sort_keys=True, indent=2, separators=(',', ': '))
         with open(self.path, 'w') as f:
             f.write(data)
 
     def add_player(self, player):
         if player.id not in self.players:
             self.players[player.id] = player
-        room_id = player.room or '0'
-        player.room = room_id
+        room_id = player.room_id or '0'
+        player.room_id = room_id
         self.rooms[room_id].players[player.id] = player
 
     def move_player(self, player, new_room):
-        old_room = self.rooms[player.room]
+        old_room = self.rooms[player.room_id]
         del old_room.players[player.id]
         new_room.players[player.id] = player
 
@@ -73,6 +76,15 @@ class Room:
         self.description = description
         self.exits = exits or {}
         self.players = players or {}
+
+    def json_dictionary(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'exits': self.exits,
+            'players': self.players
+        }
 
     def print_line(self, player, message):
         for other in self.players.values():
@@ -130,11 +142,19 @@ class Room:
 
 ## Player
 class Player:
-    def __init__(self, id=None, name=None, description=None, room=None):
+    def __init__(self, id=None, name=None, description=None, room_id=None):
         self.id = id or str(uuid.uuid4())
         self.name = name
         self.description = description
-        self.room = room
+        self.room_id = room_id
+
+    def json_dictionary(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'room_id': self.room_id
+        }
 
     def print_line(self, message):
         if hasattr(self, 'stdout'):
@@ -143,7 +163,7 @@ class Player:
             print message
 
     def get_room(self):
-        return world.rooms[self.room]
+        return world.rooms[self.room_id]
 
     def look(self):
         self.get_room().look(self)
@@ -163,12 +183,12 @@ class Player:
     def go(self, direction=None):
         room = self.get_room()
         room = room.go(self, direction) or room
-        self.room = room.id
+        self.room_id = room.id
 
     def dig(self, direction=None, back='back'):
         room = self.get_room()
         room = room.dig(self, direction, back) or room
-        self.room = room.id
+        self.room_id = room.id
 
 
 ## Commands
