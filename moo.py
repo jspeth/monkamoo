@@ -125,7 +125,7 @@ class Room:
             world.move_player(player, room)
             return room
 
-    def set_name(self, player, name=None):
+    def do_name(self, player, name=None):
         if name:
             self.name = name
         elif self.name:
@@ -133,7 +133,7 @@ class Room:
         else:
             player.print_line('This room has no name.')
 
-    def set_description(self, player, description=None):
+    def do_describe(self, player, description=None):
         if description:
             self.description = description
         elif self.description:
@@ -176,11 +176,11 @@ class Player:
         if message:
             self.room.print_line(self, self.name + ' ' + message)
 
-    def set_name(self, name=None):
-        self.room.set_name(self, name)
+    def do_name(self, name=None):
+        self.room.do_name(self, name)
 
-    def set_description(self, description=None):
-        self.room.set_description(self, description)
+    def do_describe(self, description=None):
+        self.room.do_describe(self, description)
 
     def go(self, direction=None):
         self.room = self.room.go(self, direction) or self.room
@@ -188,13 +188,19 @@ class Player:
     def dig(self, direction=None, back='back'):
         self.room = self.room.dig(self, direction, back) or self.room
 
-    def do_command(self, line):
+    def find_verb(self, verb):
+        for verb in [verb, 'do_' + verb]:
+            method = getattr(self, verb, None)
+            if method and callable(method):
+                return method
+        return None
+
+    def parse_command(self, line):
         args = line.split(' ', 1)
-        verb = args[0]
-        method = getattr(self, verb, None)
-        if method and callable(method):
+        verb = self.find_verb(args[0])
+        if verb:
             arg = len(args) > 1 and args[1] or None
-            method(arg)
+            verb(arg)
         else:
             self.print_line('I didn\'t understand that.')
 
@@ -234,7 +240,7 @@ class Shell(cmd.Cmd):
             self.stdout.write('Type "player [name]" to choose a player.\n')
             return
         if arg:
-            self.player.do_command(arg)
+            self.player.parse_command(arg)
 
     def do_load(self, arg):
         world.load()
