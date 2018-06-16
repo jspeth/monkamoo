@@ -51,18 +51,17 @@ class World:
     def add_player(self, player):
         if player.id not in self.players:
             self.players[player.id] = player
-        room_id = player.room_id or '0'
-        player.room_id = room_id
-        self.rooms[room_id].players[player.id] = player
+        if not player.room:
+            player.room = self.rooms['0']
+        self.rooms[player.room.id].players[player.id] = player
 
     def move_player(self, player, new_room):
-        old_room = self.rooms[player.room_id]
-        del old_room.players[player.id]
+        del player.room.players[player.id]
         new_room.players[player.id] = player
 
     def find_player(self, name):
         for player in self.players.values():
-            if player.name == name:
+            if player.name.lower() == name.lower():
                 return player
         return None
 
@@ -151,14 +150,14 @@ class Player:
         self.id = id or str(uuid.uuid4())
         self.name = name
         self.description = description
-        self.room_id = room_id
+        self.room = room_id and world.rooms[room_id] or None
 
     def json_dictionary(self):
         return {
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'room_id': self.room_id
+            'room_id': self.room.id
         }
 
     def print_line(self, message):
@@ -166,35 +165,28 @@ class Player:
             self.stdout.write(message + '\n')
             self.stdout.flush()
 
-    def get_room(self):
-        return world.rooms[self.room_id]
-
     def look(self, args=None):
-        self.get_room().look(self)
+        self.room.look(self)
 
     def say(self, message=None):
         if message:
-            self.get_room().print_line(self, self.name + ' says, "' + message + '"')
+            self.room.print_line(self, self.name + ' says, "' + message + '"')
 
     def emote(self, message=None):
         if message:
-            self.get_room().print_line(self, self.name + ' ' + message)
+            self.room.print_line(self, self.name + ' ' + message)
 
     def set_name(self, name=None):
-        self.get_room().set_name(self, name)
+        self.room.set_name(self, name)
 
     def set_description(self, description=None):
-        self.get_room().set_description(self, description)
+        self.room.set_description(self, description)
 
     def go(self, direction=None):
-        room = self.get_room()
-        room = room.go(self, direction) or room
-        self.room_id = room.id
+        self.room = self.room.go(self, direction) or self.room
 
     def dig(self, direction=None, back='back'):
-        room = self.get_room()
-        room = room.dig(self, direction, back) or room
-        self.room_id = room.id
+        self.room = self.room.dig(self, direction, back) or self.room
 
     def do_command(self, line):
         args = line.split(' ', 1)
