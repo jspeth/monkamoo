@@ -84,8 +84,10 @@ class Room:
             'exits': self.exits
         }
 
-    def print_line(self, player, message):
+    def print_line(self, player, message, exclude_player=False):
         for other in self.players.values():
+            if exclude_player and other is player:
+                continue
             other.print_line(message)
 
     def look(self, player):
@@ -103,7 +105,9 @@ class Room:
     def go(self, player, direction=None):
         if direction in self.exits:
             room = world.rooms[self.exits[direction]]
+            self.print_line(player, player.name + ' exits to the ' + direction + '.', exclude_player=True)
             world.move_player(player, room)
+            room.print_line(player, player.name + ' enters the room.', exclude_player=True)
             room.look(player)
             return room
         else:
