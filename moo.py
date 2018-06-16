@@ -224,9 +224,9 @@ class Shell(cmd.Cmd):
             print
             sys.exit(0)
         if line.startswith('"'):
-            line = line.replace('"', 'say ')
-        if line.startswith(':'):
-            line = line.replace(':', 'emote ')
+            line = 'say ' + line.strip('" ')
+        elif line.startswith(':'):
+            line = 'emote ' + line.strip(': ')
         return line
 
     def default(self, arg):
