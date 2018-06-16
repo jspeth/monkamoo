@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import argparse
-import click
 import cmd
 import code
 import json
@@ -141,6 +140,8 @@ class Room:
 
 ## Player
 class Player:
+    stdout = None
+
     def __init__(self, id=None, name=None, description=None, room_id=None):
         self.id = id or str(uuid.uuid4())
         self.name = name
@@ -156,22 +157,23 @@ class Player:
         }
 
     def print_line(self, message):
-        if hasattr(self, 'stdout'):
+        if self.stdout:
             self.stdout.write(message + '\n')
-        else:
-            print message
+            self.stdout.flush()
 
     def get_room(self):
         return world.rooms[self.room_id]
 
-    def look(self):
+    def look(self, args=None):
         self.get_room().look(self)
 
-    def say(self, message):
-        self.get_room().print_line(self, self.name + ' says, "' + message + '".')
+    def say(self, message=None):
+        if message:
+            self.get_room().print_line(self, self.name + ' says, "' + message + '"')
 
-    def emote(self, message):
-        self.get_room().print_line(self, self.name + ' ' + message)
+    def emote(self, message=None):
+        if message:
+            self.get_room().print_line(self, self.name + ' ' + message)
 
     def set_name(self, name=None):
         self.get_room().set_name(self, name)
@@ -189,129 +191,79 @@ class Player:
         room = room.dig(self, direction, back) or room
         self.room_id = room.id
 
-
-## Commands
-
-@click.command()
-def load():
-    world.load()
-
-@click.command()
-def save():
-    world.save()
-
-@click.command()
-def look():
-    me.look()
-
-@click.command()
-@click.argument('message', required=False)
-def say(message=None):
-    me.say(message)
-
-@click.command()
-@click.argument('message', required=False)
-def emote(message=None):
-    me.emote(message)
-
-@click.command()
-@click.argument('name', required=False)
-def name(name=None):
-    me.set_name(name)
-
-@click.command()
-@click.argument('description', required=False)
-def describe(description=None):
-    me.set_description(description)
-
-@click.command()
-@click.argument('direction', required=False)
-def go(direction=None):
-    me.go(direction)
-
-@click.command()
-@click.argument('direction', required=False)
-@click.argument('back', required=False, default='back')
-def dig(direction=None, back='back'):
-    me.dig(direction, back)
-
-@click.command()
-@click.argument('name', required=False)
-def player(name=None):
-    global me
-    if name is None:
-        return
-    player = world.find_player(name)
-    if player:
-        me = player
-    else:
-        me = Player(name=name)
-        world.add_player(me)
-
-
-## Start MonkaMOO
-
-world = World()
-world.load()
-
-charlotte = world.find_player('Charlotte')
-jim = world.find_player('Jim')
-me = jim
-
-
-## Command Parsing
-
-@click.group()
-def cli():
-    pass
-
-@click.command()
-def interact():
-    # see https://docs.python.org/2/library/code.html?highlight=interpreter
-    code.interact(local=globals())
-
-@click.command()
-def help():
-    print 'help'
-
-@click.command()
-def quit():
-    sys.exit(0)
-
-for command in [interact, help, quit]:
-    cli.add_command(command)
-
-for command in [load, save, look, say, emote, name, describe, go, dig, player]:
-    cli.add_command(command)
+    def do_command(self, line):
+        args = line.split(' ', 1)
+        verb = args[0]
+        method = getattr(self, verb, None)
+        if method and callable(method):
+            arg = len(args) > 1 and args[1] or None
+            method(arg)
+        else:
+            self.print_line('I didn\'t understand that.')
 
 
 ## Shell
 
 class Shell(cmd.Cmd):
     intro = 'Welcome to MonkaMOO!'
-    prompt = 'moo> '
+    prompt = ''
     file = None
     use_rawinput = 0
+    player = None
 
-    def do_pass(self, arg):
-        pass
+    def __init__(self, player=None, stdin=None, stdout=None):
+        cmd.Cmd.__init__(self, stdin=stdin, stdout=stdout)
+        self.set_player(player)
+
+    def set_player(self, player):
+        if self.player:
+            self.player.stdout = None
+        self.player = player
+        if self.player:
+            self.player.stdout = self.stdout
 
     def precmd(self, line):
         if line == 'EOF':
             print
             sys.exit(0)
-        args = line.split(' ')
-        try:
-            me.stdout = self.stdout
-            cli.main(args, standalone_mode=False)
-        except click.UsageError as ex:
-            me.print_line('I didn\'t understand that.')
-        except Exception as ex:
-            me.print_line('Error: ' + `ex`)
-        return 'pass'
+        if line.startswith('"'):
+            line = line.replace('"', 'say ')
+        if line.startswith(':'):
+            line = line.replace(':', 'emote ')
+        return line
+
+    def default(self, arg):
+        if not self.player:
+            self.stdout.write('Type "player [name]" to choose a player.\n')
+            return
+        if arg:
+            self.player.do_command(arg)
+
+    def do_load(self, arg):
+        world.load()
+
+    def do_save(self, arg):
+        world.save()
+
+    def do_interact(self, arg):
+        # see https://docs.python.org/2/library/code.html?highlight=interpreter
+        code.interact(local=globals())
+
+    def do_player(self, arg):
+        player = world.find_player(arg)
+        if not player:
+            player = Player(name=arg)
+            world.add_player(player)
+        self.set_player(player)
+
+    def do_quit(self, arg):
+        sys.exit(0)
 
 
 ## Launch
+
+world = World()
+world.load()
 
 def main():
     parser = argparse.ArgumentParser(description='MonkaMOO')
@@ -325,7 +277,8 @@ def main():
         moo_server = server.MonkaMOOServer()
         moo_server.run()
     else:
-        Shell().cmdloop()
+        me = world.find_player('Jim')
+        Shell(me).cmdloop()
 
 if __name__ == '__main__':
     main()
