@@ -97,9 +97,10 @@ class Room:
         if self.exits:
             directions = self.exits.keys()
             player.print_line('You can go ' + join_strings(directions, 'or') + '.')
-        if self.players:
-            names = [other.name for other in self.players.values()]
-            isAre = len(self.players) > 1 and 'are' or 'is'
+        players = [p for p in self.players.values() if p != player]
+        if players:
+            names = [p.name for p in players]
+            isAre = len(players) > 1 and 'are' or 'is'
             player.print_line(join_strings(names, 'and') + ' ' + isAre + ' here.')
 
     def go(self, player, direction=None):
