@@ -4,7 +4,7 @@
       "description": null,
       "id": "5f2db66e-a79e-49db-9105-dda9522f81ec",
       "name": "Jim",
-      "room_id": "0"
+      "room_id": "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9"
     },
     "63646a7b-0e78-4038-ae30-e49f1fc4906c": {
       "description": null,
@@ -38,7 +38,7 @@
         "down": "0"
       },
       "id": "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9",
-      "name": null
+      "name": "Attic"
     },
     "693edf69-ba73-4d4e-812f-8d133cbb40c0": {
       "description": "We are in a room with wallpaper, and the pictures on the wallpaper are of Mom.",

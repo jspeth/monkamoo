@@ -59,6 +59,12 @@ class World:
         del player.room.players[player.id]
         new_room.players[player.id] = player
 
+    def find_room(self, name):
+        for room in self.rooms.values():
+            if room.name and room.name.lower() == name.lower():
+                return room
+        return None
+
     def find_player(self, name):
         for player in self.players.values():
             if player.name.lower() == name.lower():
@@ -165,32 +171,9 @@ class Player:
             self.stdout.write(message + '\n')
             self.stdout.flush()
 
-    def look(self, args=None):
-        self.room.look(self)
-
-    def say(self, message=None):
-        if message:
-            self.room.print_line(self, self.name + ' says, "' + message + '"')
-
-    def emote(self, message=None):
-        if message:
-            self.room.print_line(self, self.name + ' ' + message)
-
-    def do_name(self, name=None):
-        self.room.do_name(self, name)
-
-    def do_describe(self, description=None):
-        self.room.do_describe(self, description)
-
-    def go(self, direction=None):
-        self.room = self.room.go(self, direction) or self.room
-
-    def dig(self, direction=None, back='back'):
-        self.room = self.room.dig(self, direction, back) or self.room
-
     def find_verb(self, verb):
-        for verb in [verb, 'do_' + verb]:
-            method = getattr(self, verb, None)
+        for key in [verb, 'do_' + verb]:
+            method = getattr(self, key, None)
             if method and callable(method):
                 return method
         return None
@@ -204,6 +187,62 @@ class Player:
         else:
             self.print_line('I didn\'t understand that.')
 
+    def look(self, args=None):
+        self.room.look(self)
+
+    def say(self, message=None):
+        if message:
+            self.room.print_line(self, self.name + ' says, "' + message + '"')
+
+    def tell(self, message=None):
+        parts = message.split(' ', 1)
+        if len(parts) < 2:
+            self.print_line('What do you want to tell them?')
+            return
+        name, message = parts
+        player = world.find_player(name)
+        if player and message:
+            player.print_line(self.name + ' whispers, "' + message + '"')
+
+    def emote(self, message=None):
+        if message:
+            self.room.print_line(self, self.name + ' ' + message)
+
+    def do_name(self, name=None):
+        self.room.do_name(self, name)
+
+    def do_describe(self, description=None):
+        self.room.do_describe(self, description)
+
+    def find(self, name=None):
+        player = world.find_player(name)
+        if player and player.room:
+            if player.room.name:
+                self.print_line(player.name + ' is in ' + player.room.name + '.')
+            else:
+                self.print_line(player.name + ' is in a room with no name.')
+                self.print_line('It looks like:\n' + player.room.description or '?')
+        else:
+            self.print_line('I couldn\'t find ' + name + '.')
+
+    def go(self, direction=None):
+        self.room = self.room.go(self, direction) or self.room
+
+    def jump(self, room_name=None):
+        room = world.find_room(room_name)
+        if room:
+            # JGS - clean this up
+            self.room.print_line(self, self.name + ' exits the room.', exclude_player=True)
+            world.move_player(self, room)
+            room.print_line(self, self.name + ' enters the room.', exclude_player=True)
+            self.room = room
+            self.look()
+        else:
+            self.print_line('I couldn\'t find ' + room_name + '.')
+
+    def dig(self, direction=None, back='back'):
+        self.room = self.room.dig(self, direction, back) or self.room
+
 
 ## Shell
 
@@ -213,6 +252,13 @@ class Shell(cmd.Cmd):
     file = None
     use_rawinput = 0
     player = None
+
+    shortcuts = {
+        '"': 'say',
+        '@': 'tell',
+        ':': 'emote',
+        '#': 'jump'
+    }
 
     def __init__(self, player=None, stdin=None, stdout=None):
         cmd.Cmd.__init__(self, stdin=stdin, stdout=stdout)
@@ -229,10 +275,10 @@ class Shell(cmd.Cmd):
         if line == 'EOF':
             print
             sys.exit(0)
-        if line.startswith('"'):
-            line = 'say ' + line.strip('" ')
-        elif line.startswith(':'):
-            line = 'emote ' + line.strip(': ')
+        for key in self.shortcuts:
+            if line.startswith(key):
+                line = self.shortcuts[key] + ' ' + line.strip(key + ' ')
+                break
         return line
 
     def default(self, arg):
