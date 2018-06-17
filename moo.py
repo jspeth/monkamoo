@@ -48,17 +48,6 @@ class World:
         with open(self.path, 'w') as f:
             f.write(data)
 
-    def add_player(self, player):
-        if player.id not in self.players:
-            self.players[player.id] = player
-        if not player.room:
-            player.room = self.rooms['0']
-        self.rooms[player.room.id].players[player.id] = player
-
-    def move_player(self, player, new_room):
-        del player.room.players[player.id]
-        new_room.players[player.id] = player
-
     def find_room(self, name):
         for room in self.rooms.values():
             if room.name and room.name.lower() == name.lower():
@@ -70,6 +59,13 @@ class World:
             if player.name.lower() == name.lower():
                 return player
         return None
+
+    def add_player(self, player):
+        if player.id not in self.players:
+            self.players[player.id] = player
+        if not player.room:
+            player.room = self.rooms['0']
+        self.rooms[player.room.id].players[player.id] = player
 
 
 ## Room
@@ -95,6 +91,17 @@ class Room:
                 continue
             other.print_line(message)
 
+    def on_enter(self, player, direction=None):
+        self.print_line(player, player.name + ' enters the room.', exclude_player=True)
+        self.look(player)
+
+    def on_exit(self, player, direction=None):
+        if direction:
+            message = player.name + ' exits ' + direction + '.'
+        else:
+            message = player.name + ' exits the room.'
+        self.print_line(player, message, exclude_player=True)
+
     def look(self, player):
         if self.name:
             player.print_line('* ' + self.name + ' *')
@@ -107,29 +114,6 @@ class Room:
             names = [p.name for p in players]
             isAre = len(players) > 1 and 'are' or 'is'
             player.print_line(join_strings(names, 'and') + ' ' + isAre + ' here.')
-
-    def go(self, player, direction=None):
-        if direction in self.exits:
-            room = world.rooms[self.exits[direction]]
-            self.print_line(player, player.name + ' exits to the ' + direction + '.', exclude_player=True)
-            world.move_player(player, room)
-            room.print_line(player, player.name + ' enters the room.', exclude_player=True)
-            room.look(player)
-            return room
-        else:
-            player.print_line('You can\'t go that way.')
-
-    def dig(self, player, direction=None, back='back'):
-        if direction is None:
-            player.print_line('You must give a direction.')
-        elif direction in self.exits:
-            player.print_line('That direction already exists.')
-        else:
-            room = Room(exits={back: self.id})
-            world.rooms[room.id] = room
-            self.exits[direction] = room.id
-            world.move_player(player, room)
-            return room
 
     def do_name(self, player, name=None):
         if name:
@@ -187,8 +171,47 @@ class Player:
         else:
             self.print_line('I didn\'t understand that.')
 
+    def set_room(self, room):
+        self.room.on_exit(self)
+        del self.room.players[self.id]
+        self.room = room
+        room.players[self.id] = self
+        room.on_enter(self)
+
+    def go(self, direction=None):
+        if direction not in self.room.exits:
+            self.print_line('You can\'t go that way.')
+            return
+        room = world.rooms[self.room.exits[direction]]
+        self.set_room(room)
+
+    def jump(self, room_name=None):
+        room = world.find_room(room_name)
+        if not room:
+            self.print_line('I couldn\'t find ' + room_name + '.')
+            return
+        self.set_room(room)
+
+    def dig(self, direction=None, back='back'):
+        if direction is None:
+            self.print_line('You must give a direction.')
+            return
+        if direction in self.room.exits:
+            self.print_line('That direction already exists.')
+            return
+        room = Room(exits={back: self.room.id})
+        world.rooms[room.id] = room
+        self.room.exits[direction] = room.id
+        self.set_room(room)
+
     def look(self, args=None):
         self.room.look(self)
+
+    def do_name(self, name=None):
+        self.room.do_name(self, name)
+
+    def do_describe(self, description=None):
+        self.room.do_describe(self, description)
 
     def say(self, message=None):
         if message:
@@ -208,12 +231,6 @@ class Player:
         if message:
             self.room.print_line(self, self.name + ' ' + message)
 
-    def do_name(self, name=None):
-        self.room.do_name(self, name)
-
-    def do_describe(self, description=None):
-        self.room.do_describe(self, description)
-
     def find(self, name=None):
         player = world.find_player(name)
         if player and player.room:
@@ -224,24 +241,6 @@ class Player:
                 self.print_line('It looks like:\n' + player.room.description or '?')
         else:
             self.print_line('I couldn\'t find ' + name + '.')
-
-    def go(self, direction=None):
-        self.room = self.room.go(self, direction) or self.room
-
-    def jump(self, room_name=None):
-        room = world.find_room(room_name)
-        if room:
-            # JGS - clean this up
-            self.room.print_line(self, self.name + ' exits the room.', exclude_player=True)
-            world.move_player(self, room)
-            room.print_line(self, self.name + ' enters the room.', exclude_player=True)
-            self.room = room
-            self.look()
-        else:
-            self.print_line('I couldn\'t find ' + room_name + '.')
-
-    def dig(self, direction=None, back='back'):
-        self.room = self.room.dig(self, direction, back) or self.room
 
 
 ## Shell
