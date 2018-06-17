@@ -171,8 +171,8 @@ class Player:
         else:
             self.print_line('I didn\'t understand that.')
 
-    def set_room(self, room):
-        self.room.on_exit(self)
+    def set_room(self, room, direction=None):
+        self.room.on_exit(self, direction)
         del self.room.players[self.id]
         self.room = room
         room.players[self.id] = self
@@ -183,7 +183,7 @@ class Player:
             self.print_line('You can\'t go that way.')
             return
         room = world.rooms[self.room.exits[direction]]
-        self.set_room(room)
+        self.set_room(room, direction)
 
     def jump(self, room_name=None):
         room = world.find_room(room_name)
@@ -202,7 +202,7 @@ class Player:
         room = Room(exits={back: self.room.id})
         world.rooms[room.id] = room
         self.room.exits[direction] = room.id
-        self.set_room(room)
+        self.set_room(room, direction)
 
     def look(self, args=None):
         self.room.look(self)
