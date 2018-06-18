@@ -4,7 +4,6 @@ TODO
 * rooms command
 * look up verbs on player, room, etc. (search path)
 * parsing direct object and preposition
-* interact over server
 * create objects / player and room contents
 * change to generic location/contents properties
 * save the world periodically
@@ -19,3 +18,4 @@ Done
 * "find" command to find room that a player is in
 * "jump" command (#room or @player)
 * direct messages (/m or tell @player)
+* interact over server

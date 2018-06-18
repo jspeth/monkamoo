@@ -2,11 +2,11 @@
 
 import argparse
 import cmd
-import code
 import json
 import sys
 import uuid
 
+import interpreter
 import server
 
 ## Helper for joining strings
@@ -294,8 +294,7 @@ class Shell(cmd.Cmd):
         world.save()
 
     def do_interact(self, arg):
-        # see https://docs.python.org/2/library/code.html?highlight=interpreter
-        code.interact(local=globals())
+        interpreter.interact(local=globals(), stdin=self.stdin, stdout=self.stdout)
 
     def do_player(self, arg):
         player = world.find_player(arg)
@@ -319,7 +318,7 @@ def main():
     parser.add_argument('-s', '--server', action='store_true', help='Start moo server')
     args = parser.parse_args()
     if args.interact:
-        code.interact(local=globals())
+        interpreter.interact(local=globals())
     elif args.server:
         print 'Starting server...'
         moo_server = server.MonkaMOOServer()
