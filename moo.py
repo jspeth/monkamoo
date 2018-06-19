@@ -19,15 +19,17 @@ def join_strings(items, word='and'):
 
 
 ## World
+
 class World:
     path = 'world.json'
 
     def __init__(self):
         self.rooms = {'0': Room(id='0', description='This is the beginning of the world.')}
         self.players = {}
+        self.objects = {}
 
     def json_dictionary(self):
-        return {'rooms': self.rooms, 'players': self.players}
+        return {'rooms': self.rooms, 'players': self.players, 'objects': self.objects}
 
     def load(self):
         data = open(self.path, 'r').read()
@@ -42,6 +44,10 @@ class World:
         if 'players' in world:
             for player_id, player_dict in world['players'].iteritems():
                 self.add_player(Player(**player_dict))
+        # objects
+        if 'objects' in world:
+            for object_id, object_dict in world['objects'].iteritems():
+                self.add_object(Object(**object_dict))
 
     def save(self):
         data = json.dumps(self, default=lambda o: o.json_dictionary(), sort_keys=True, indent=2, separators=(',', ': '))
@@ -67,9 +73,18 @@ class World:
             player.room = self.rooms['0']
         self.rooms[player.room.id].players[player.id] = player
 
+    def add_object(self, obj):
+        if obj.id not in self.objects:
+            self.objects[obj.id] = obj
+        if not obj.location:
+            obj.location = self.rooms['0']
+        obj.location.contents[obj.name] = obj
+
 
 ## Room
+
 class Room:
+
     def __init__(self, id=None, name=None, description=None, exits=None, players=None, contents=None):
         self.id = id or str(uuid.uuid4())
         self.name = name
@@ -136,6 +151,7 @@ class Room:
 
 
 ## Player
+
 class Player:
     stdout = None
 
@@ -264,6 +280,7 @@ class Player:
             self.print_line('There is no ' + name + ' here.')
             return
         self.contents[name] = self.room.contents[name]
+        self.contents[name].location = self
         del self.room.contents[name]
         self.print_line('You take ' + name + '.')
         self.room.print_line(self, self.name + ' takes ' + name + '.', exclude_player=True)
@@ -273,30 +290,44 @@ class Player:
             self.print_line('You are not carrying ' + name + '.')
             return
         self.room.contents[name] = self.contents[name]
+        self.room.contents[name].location = self.room
         del self.contents[name]
         self.print_line('You drop ' + name + '.')
         self.room.print_line(self, self.name + ' drops ' + name + '.', exclude_player=True)
 
 
 ## Objects
+
 class Object:
     name = None
     description = None
+    location = None
+
+    def __init__(self, id=None, name=None, description=None, location_id=None):
+        self.id = id or str(uuid.uuid4())
+        self.name = name
+        self.description = description
+        self.location = location_id and world.rooms[location_id] or None
+
+    def json_dictionary(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'location_id': self.location and self.location.id or None
+        }
+
 
 class Ball(Object):
     name = 'ball'
     description = 'A super bouncy red rubber ball.'
 
-ball = Ball()
-
-rainbox = Object()
-rainbox.description = 'A small wooden box with a metal lock, with water seeping out of its edges.'
-
-waterfall = Object()
-waterfall.description = 'A beautiful waterfall with a glorious rainbow behind it.'
-
-hotdog = Object()
-hotdog.description = 'Hotdog, hotdog, hot-diggity-dog.'
+    def __init__(self, id=None, name=None, description=None):
+        if name is None:
+            name = Ball.name
+        if description is None:
+            description = Ball.description
+        Object.__init__(self, id, name, description)
 
 
 ## Shell
@@ -367,11 +398,6 @@ class Shell(cmd.Cmd):
 
 world = World()
 world.load()
-
-world.rooms['0'].contents['ball'] = ball
-world.rooms['0'].contents['waterfall'] = waterfall
-world.rooms['0'].contents['hotdog'] = hotdog
-world.find_room('attic').contents['rainbox'] = rainbox
 
 def main():
     parser = argparse.ArgumentParser(description='MonkaMOO')

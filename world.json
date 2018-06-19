@@ -1,4 +1,30 @@
 {
+  "objects": {
+    "02bc8630-5136-43e6-972c-bb81d193b4ed": {
+      "description": "Hotdog, hotdog, hot-diggity-dog.",
+      "id": "02bc8630-5136-43e6-972c-bb81d193b4ed",
+      "location_id": "0",
+      "name": "hotdog"
+    },
+    "02dfbfa1-1426-4784-bc55-370d7a243231": {
+      "description": "A small wooden box with a metal lock, with water seeping out of its edges.",
+      "id": "02dfbfa1-1426-4784-bc55-370d7a243231",
+      "location_id": "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9",
+      "name": "rainbox"
+    },
+    "6a8148f9-7436-4e66-9ddc-1ab3781b4218": {
+      "description": "A super bouncy red rubber ball.",
+      "id": "6a8148f9-7436-4e66-9ddc-1ab3781b4218",
+      "location_id": "0",
+      "name": "ball"
+    },
+    "92d58b46-a243-48c3-b2ce-41952025ada9": {
+      "description": "A beautiful waterfall with a glorious rainbow behind it.",
+      "id": "92d58b46-a243-48c3-b2ce-41952025ada9",
+      "location_id": "0",
+      "name": "waterfall"
+    }
+  },
   "players": {
     "5f2db66e-a79e-49db-9105-dda9522f81ec": {
       "description": null,
