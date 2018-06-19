@@ -70,12 +70,13 @@ class World:
 
 ## Room
 class Room:
-    def __init__(self, id=None, name=None, description=None, exits=None, players=None):
+    def __init__(self, id=None, name=None, description=None, exits=None, players=None, contents=None):
         self.id = id or str(uuid.uuid4())
         self.name = name
         self.description = description
         self.exits = exits or {}
         self.players = players or {}
+        self.contents = contents or {}
 
     def json_dictionary(self):
         return {
@@ -114,6 +115,8 @@ class Room:
             names = [p.name for p in players]
             isAre = len(players) > 1 and 'are' or 'is'
             player.print_line(join_strings(names, 'and') + ' ' + isAre + ' here.')
+        if self.contents:
+            player.print_line('There is ' + join_strings(self.contents.keys(), 'and') + ' here.')
 
     def do_name(self, player, name=None):
         if name:
@@ -136,11 +139,12 @@ class Room:
 class Player:
     stdout = None
 
-    def __init__(self, id=None, name=None, description=None, room_id=None):
+    def __init__(self, id=None, name=None, description=None, room_id=None, contents=None):
         self.id = id or str(uuid.uuid4())
         self.name = name
         self.description = description
         self.room = room_id and world.rooms[room_id] or None
+        self.contents = contents or {}
 
     def json_dictionary(self):
         return {
@@ -204,8 +208,21 @@ class Player:
         self.room.exits[direction] = room.id
         self.set_room(room, direction)
 
-    def look(self, args=None):
-        self.room.look(self)
+    def look(self, name=None):
+        if name is None or name == 'here':
+            self.room.look(self)
+        elif name == 'me' or name == self.name:
+            self.print_line(self.description or 'You see nothing special.')
+            if self.contents:
+                self.print_line('You have ' + join_strings(self.contents.keys(), 'and') + '.')
+        elif name in self.contents:
+            obj = self.contents[name]
+            self.print_line(obj.description or 'You see nothing special.')
+        elif name in self.room.contents:
+            obj = self.room.contents[name]
+            self.print_line(obj.description or 'You see nothing special.')
+        else:
+            self.print_line('There is no ' + name + ' here.')
 
     def do_name(self, name=None):
         self.room.do_name(self, name)
@@ -241,6 +258,45 @@ class Player:
                 self.print_line('It looks like:\n' + player.room.description or '?')
         else:
             self.print_line('I couldn\'t find ' + name + '.')
+
+    def take(self, name=None):
+        if name not in self.room.contents:
+            self.print_line('There is no ' + name + ' here.')
+            return
+        self.contents[name] = self.room.contents[name]
+        del self.room.contents[name]
+        self.print_line('You take ' + name + '.')
+        self.room.print_line(self, self.name + ' takes ' + name + '.', exclude_player=True)
+
+    def drop(self, name=None):
+        if name not in self.contents:
+            self.print_line('You are not carrying ' + name + '.')
+            return
+        self.room.contents[name] = self.contents[name]
+        del self.contents[name]
+        self.print_line('You drop ' + name + '.')
+        self.room.print_line(self, self.name + ' drops ' + name + '.', exclude_player=True)
+
+
+## Objects
+class Object:
+    name = None
+    description = None
+
+class Ball(Object):
+    name = 'ball'
+    description = 'A super bouncy red rubber ball.'
+
+ball = Ball()
+
+rainbox = Object()
+rainbox.description = 'A small wooden box with a metal lock, with water seeping out of its edges.'
+
+waterfall = Object()
+waterfall.description = 'A beautiful waterfall with a glorious rainbow behind it.'
+
+hotdog = Object()
+hotdog.description = 'Hotdog, hotdog, hot-diggity-dog.'
 
 
 ## Shell
@@ -311,6 +367,11 @@ class Shell(cmd.Cmd):
 
 world = World()
 world.load()
+
+world.rooms['0'].contents['ball'] = ball
+world.rooms['0'].contents['waterfall'] = waterfall
+world.rooms['0'].contents['hotdog'] = hotdog
+world.find_room('attic').contents['rainbox'] = rainbox
 
 def main():
     parser = argparse.ArgumentParser(description='MonkaMOO')
