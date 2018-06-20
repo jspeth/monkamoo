@@ -54,6 +54,13 @@ class World:
         with open(self.path, 'w') as f:
             f.write(data)
 
+    def get_location(self, location_id):
+        if location_id in self.rooms:
+            return self.rooms[location_id]
+        if location_id in self.players:
+            return self.players[location_id]
+        return None
+
     def find_room(self, name):
         for room in self.rooms.values():
             if room.name and room.name.lower() == name.lower():
@@ -307,7 +314,7 @@ class Object:
         self.id = id or str(uuid.uuid4())
         self.name = name
         self.description = description
-        self.location = location_id and world.rooms[location_id] or None
+        self.location = location_id and world.get_location(location_id) or None
 
     def json_dictionary(self):
         return {
