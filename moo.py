@@ -47,7 +47,11 @@ class World:
         # objects
         if 'objects' in world:
             for object_id, object_dict in world['objects'].iteritems():
-                self.add_object(Object(**object_dict))
+                cls = Object
+                if 'type' in object_dict:
+                    cls = globals().get(object_dict['type'])
+                    del object_dict['type']
+                self.add_object(cls(**object_dict))
 
     def save(self):
         data = json.dumps(self, default=lambda o: o.json_dictionary(), sort_keys=True, indent=2, separators=(',', ': '))
@@ -318,6 +322,7 @@ class Object:
 
     def json_dictionary(self):
         return {
+            'type': self.__class__.__name__,
             'id': self.id,
             'name': self.name,
             'description': self.description,
@@ -329,12 +334,12 @@ class Ball(Object):
     name = 'ball'
     description = 'A super bouncy red rubber ball.'
 
-    def __init__(self, id=None, name=None, description=None):
+    def __init__(self, id=None, name=None, description=None, location_id=None):
         if name is None:
             name = Ball.name
         if description is None:
             description = Ball.description
-        Object.__init__(self, id, name, description)
+        Object.__init__(self, id, name, description, location_id)
 
 
 ## Shell
