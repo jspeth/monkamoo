@@ -10,12 +10,12 @@ import interpreter
 import server
 
 ## Helper for joining strings
-def join_strings(items, word='and'):
+def join_strings(items, conj='and'):
     if len(items) == 1:
         return items[0]
     if len(items) == 2:
-        return items[0] + ' ' + word + ' ' + items[1]
-    return ', '.join(items[:-1]) + ', ' + word + ' ' + items[-1]
+        return '{first} {conj} {last}'.format(first=items[0], last=items[1], conj=conj)
+    return '{list}, {conj} {last}'.format(list=', '.join(items[:-1]), last=items[-1], conj=conj)
 
 
 ## World
@@ -119,36 +119,35 @@ class Room:
             other.print_line(message)
 
     def on_enter(self, player, direction=None):
-        self.print_line(player, player.name + ' enters the room.', exclude_player=True)
+        self.print_line(player, '{name} enters the room.'.format(name=player.name), exclude_player=True)
         self.look(player)
 
     def on_exit(self, player, direction=None):
         if direction:
-            message = player.name + ' exits ' + direction + '.'
+            message = '{name} exits {direction}.'.format(name=player.name, direction=direction)
         else:
-            message = player.name + ' exits the room.'
+            message = '{name} exits the room.'.format(name=player.name)
         self.print_line(player, message, exclude_player=True)
 
     def look(self, player):
         if self.name:
-            player.print_line('* ' + self.name + ' *')
+            player.print_line('*** {name} ***'.format(name=self.name))
         player.print_line(self.description or 'You see nothing here.')
         if self.exits:
             directions = self.exits.keys()
-            player.print_line('You can go ' + join_strings(directions, 'or') + '.')
+            player.print_line('You can go {directions}.'.format(directions=join_strings(directions, 'or')))
         players = [p for p in self.players.values() if p != player]
         if players:
             names = [p.name for p in players]
-            isAre = len(players) > 1 and 'are' or 'is'
-            player.print_line(join_strings(names, 'and') + ' ' + isAre + ' here.')
+            player.print_line('{names} {are} here.'.format(names=join_strings(names, 'and'), are=len(players) > 1 and 'are' or 'is'))
         if self.contents:
-            player.print_line('There is ' + join_strings(self.contents.keys(), 'and') + ' here.')
+            player.print_line('There is {contents} here.'.format(contents=join_strings(self.contents.keys(), 'and')))
 
     def do_name(self, player, name=None):
         if name:
             self.name = name
         elif self.name:
-            player.print_line('* ' + self.name + ' *')
+            player.print_line('*** {name} ***'.format(name=self.name))
         else:
             player.print_line('This room has no name.')
 
@@ -219,7 +218,7 @@ class Player:
     def jump(self, room_name=None):
         room = world.find_room(room_name)
         if not room:
-            self.print_line('I couldn\'t find ' + room_name + '.')
+            self.print_line('I couldn\'t find {name}.'.format(name=room_name))
             return
         self.set_room(room)
 
@@ -241,7 +240,7 @@ class Player:
         elif name == 'me' or name == self.name:
             self.print_line(self.description or 'You see nothing special.')
             if self.contents:
-                self.print_line('You have ' + join_strings(self.contents.keys(), 'and') + '.')
+                self.print_line('You have {contents}.'.format(contents=join_strings(self.contents.keys(), 'and')))
         elif name in self.contents:
             obj = self.contents[name]
             self.print_line(obj.description or 'You see nothing special.')
@@ -249,7 +248,7 @@ class Player:
             obj = self.room.contents[name]
             self.print_line(obj.description or 'You see nothing special.')
         else:
-            self.print_line('There is no ' + name + ' here.')
+            self.print_line('There is no {name} here.'.format(name=name))
 
     def do_name(self, name=None):
         self.room.do_name(self, name)
@@ -259,7 +258,7 @@ class Player:
 
     def say(self, message=None):
         if message:
-            self.room.print_line(self, self.name + ' says, "' + message + '"')
+            self.room.print_line(self, '{name} says, "{message}"'.format(name=self.name, message=message))
 
     def tell(self, message=None):
         parts = message.split(' ', 1)
@@ -269,42 +268,42 @@ class Player:
         name, message = parts
         player = world.find_player(name)
         if player and message:
-            player.print_line(self.name + ' whispers, "' + message + '"')
+            player.print_line('{name} whispers, "{message}"'.format(name=self.name, message=message))
 
     def emote(self, message=None):
         if message:
-            self.room.print_line(self, self.name + ' ' + message)
+            self.room.print_line(self, '{name} {message}'.format(name=self.name, message=message))
 
     def find(self, name=None):
         player = world.find_player(name)
         if player and player.room:
             if player.room.name:
-                self.print_line(player.name + ' is in ' + player.room.name + '.')
+                self.print_line('{name} is in {room}.'.format(name=player.name, room=player.room.name))
             else:
-                self.print_line(player.name + ' is in a room with no name.')
-                self.print_line('It looks like:\n' + player.room.description or '?')
+                self.print_line('{name} is in a room with no name.'.format(name=player.name))
+                self.print_line('It looks like:\n{description}'.format(description=player.room.description or '?'))
         else:
-            self.print_line('I couldn\'t find ' + name + '.')
+            self.print_line('I couldn\'t find {name}.'.format(name=name))
 
     def take(self, name=None):
         if name not in self.room.contents:
-            self.print_line('There is no ' + name + ' here.')
+            self.print_line('There is no {name} here.'.format(name=name))
             return
         self.contents[name] = self.room.contents[name]
         self.contents[name].location = self
         del self.room.contents[name]
-        self.print_line('You take ' + name + '.')
-        self.room.print_line(self, self.name + ' takes ' + name + '.', exclude_player=True)
+        self.print_line('You take {name}.'.format(name=name))
+        self.room.print_line(self, '{player} takes {name}.'.format(player=self.name, name=name), exclude_player=True)
 
     def drop(self, name=None):
         if name not in self.contents:
-            self.print_line('You are not carrying ' + name + '.')
+            self.print_line('You are not carrying {name}.'.format(name=name))
             return
         self.room.contents[name] = self.contents[name]
         self.room.contents[name].location = self.room
         del self.contents[name]
-        self.print_line('You drop ' + name + '.')
-        self.room.print_line(self, self.name + ' drops ' + name + '.', exclude_player=True)
+        self.print_line('You drop {name}.'.format(name=name))
+        self.room.print_line(self, '{player} drops {name}.'.format(player=self.name, name=name), exclude_player=True)
 
 
 ## Objects
