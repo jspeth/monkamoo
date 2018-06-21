@@ -3,7 +3,9 @@ TODO
 
 * objects
   * player/room contents
-  * take/give/drop verbs
+  * take/drop commands
+  * give command
+  * verbs on objects
 
 * interpreter locals: me, here
 

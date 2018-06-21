@@ -3,7 +3,7 @@
     "02bc8630-5136-43e6-972c-bb81d193b4ed": {
       "description": "Hotdog, hotdog, hot-diggity-dog.",
       "id": "02bc8630-5136-43e6-972c-bb81d193b4ed",
-      "location_id": "0",
+      "location_id": "2b1ff39c-3d7d-4c5d-a74d-6f400dc7e3da",
       "name": "hotdog",
       "type": "Object"
     },
@@ -34,7 +34,7 @@
       "description": null,
       "id": "5f2db66e-a79e-49db-9105-dda9522f81ec",
       "name": "Jim",
-      "room_id": "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9"
+      "room_id": "2b1ff39c-3d7d-4c5d-a74d-6f400dc7e3da"
     },
     "63646a7b-0e78-4038-ae30-e49f1fc4906c": {
       "description": null,

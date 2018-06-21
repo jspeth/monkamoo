@@ -340,6 +340,12 @@ class Ball(Object):
             description = Ball.description
         Object.__init__(self, id, name, description, location_id)
 
+    def bounce(self, player):
+        self.location.print_line('The ball bounces up and down.')
+
+    def roll(self, player):
+        self.location.print_line('The ball rolls away.')
+
 
 ## Shell
 
