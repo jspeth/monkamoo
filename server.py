@@ -43,3 +43,12 @@ class MonkaMOOServer(socket.socket):
         self.clients.remove(conn)
         conn.close()
         thread.exit()
+
+
+def main():
+    print 'Starting server...'
+    moo_server = MonkaMOOServer()
+    moo_server.run()
+
+if __name__ == '__main__':
+    main()
