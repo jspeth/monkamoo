@@ -9,8 +9,8 @@ import uuid
 import interpreter
 import server
 
-## Helper for joining strings
 def join_strings(items, conj='and'):
+    """ Return a string by joining the items with the conjunction. """
     if len(items) == 1:
         return items[0]
     if len(items) == 2:
@@ -18,9 +18,9 @@ def join_strings(items, conj='and'):
     return '{list}, {conj} {last}'.format(list=', '.join(items[:-1]), last=items[-1], conj=conj)
 
 
-## World
-
 class World:
+    """ The root container of all MOO objects. """
+
     path = 'world.json'
 
     def __init__(self):
@@ -92,9 +92,8 @@ class World:
         obj.location.contents[obj.name] = obj
 
 
-## Room
-
 class Room:
+    """ Represents a room containing players and objects, with exits to other rooms. """
 
     def __init__(self, id=None, name=None, description=None, exits=None, players=None, contents=None):
         self.id = id or str(uuid.uuid4())
@@ -160,9 +159,9 @@ class Room:
             player.tell('This room has no description.')
 
 
-## Player
-
 class Player:
+    """ Represents a participant in the MOO. """
+
     stdout = None
 
     def __init__(self, id=None, name=None, description=None, room_id=None, contents=None):
@@ -306,9 +305,9 @@ class Player:
         self.room.announce(self, '{player} drops {name}.'.format(player=self.name, name=name), exclude_player=True)
 
 
-## Objects
-
 class Object:
+    """ The root class of all MOO objects. """
+
     name = None
     description = None
     location = None
@@ -330,6 +329,8 @@ class Object:
 
 
 class Ball(Object):
+    """ A simple ball. """
+
     name = 'ball'
     description = 'A super bouncy red rubber ball.'
 
@@ -347,9 +348,9 @@ class Ball(Object):
         self.location.announce('The ball rolls away.')
 
 
-## Shell
-
 class Shell(cmd.Cmd):
+    """ A command shell for processing user input and executing MOO commands. """
+
     intro = 'Welcome to MonkaMOO!'
     prompt = ''
     file = None
