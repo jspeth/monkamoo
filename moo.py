@@ -112,14 +112,14 @@ class Room:
             'exits': self.exits
         }
 
-    def print_line(self, player, message, exclude_player=False):
+    def announce(self, player, message, exclude_player=False):
         for other in self.players.values():
             if exclude_player and other is player:
                 continue
-            other.print_line(message)
+            other.tell(message)
 
     def on_enter(self, player, direction=None):
-        self.print_line(player, '{name} enters the room.'.format(name=player.name), exclude_player=True)
+        self.announce(player, '{name} enters the room.'.format(name=player.name), exclude_player=True)
         self.look(player)
 
     def on_exit(self, player, direction=None):
@@ -127,37 +127,37 @@ class Room:
             message = '{name} exits {direction}.'.format(name=player.name, direction=direction)
         else:
             message = '{name} exits the room.'.format(name=player.name)
-        self.print_line(player, message, exclude_player=True)
+        self.announce(player, message, exclude_player=True)
 
     def look(self, player):
         if self.name:
-            player.print_line('*** {name} ***'.format(name=self.name))
-        player.print_line(self.description or 'You see nothing here.')
+            player.tell('*** {name} ***'.format(name=self.name))
+        player.tell(self.description or 'You see nothing here.')
         if self.exits:
             directions = self.exits.keys()
-            player.print_line('You can go {directions}.'.format(directions=join_strings(directions, 'or')))
+            player.tell('You can go {directions}.'.format(directions=join_strings(directions, 'or')))
         players = [p for p in self.players.values() if p != player]
         if players:
             names = [p.name for p in players]
-            player.print_line('{names} {are} here.'.format(names=join_strings(names, 'and'), are=len(players) > 1 and 'are' or 'is'))
+            player.tell('{names} {are} here.'.format(names=join_strings(names, 'and'), are=len(players) > 1 and 'are' or 'is'))
         if self.contents:
-            player.print_line('There is {contents} here.'.format(contents=join_strings(self.contents.keys(), 'and')))
+            player.tell('There is {contents} here.'.format(contents=join_strings(self.contents.keys(), 'and')))
 
     def do_name(self, player, name=None):
         if name:
             self.name = name
         elif self.name:
-            player.print_line('*** {name} ***'.format(name=self.name))
+            player.tell('*** {name} ***'.format(name=self.name))
         else:
-            player.print_line('This room has no name.')
+            player.tell('This room has no name.')
 
     def do_describe(self, player, description=None):
         if description:
             self.description = description
         elif self.description:
-            player.print_line(self.description)
+            player.tell(self.description)
         else:
-            player.print_line('This room has no description.')
+            player.tell('This room has no description.')
 
 
 ## Player
@@ -180,7 +180,7 @@ class Player:
             'room_id': self.room.id
         }
 
-    def print_line(self, message):
+    def tell(self, message):
         if self.stdout:
             self.stdout.write(message + '\n')
             self.stdout.flush()
@@ -199,7 +199,7 @@ class Player:
             arg = len(args) > 1 and args[1] or None
             verb(arg)
         else:
-            self.print_line('I didn\'t understand that.')
+            self.tell('I didn\'t understand that.')
 
     def set_room(self, room, direction=None):
         self.room.on_exit(self, direction)
@@ -210,7 +210,7 @@ class Player:
 
     def go(self, direction=None):
         if direction not in self.room.exits:
-            self.print_line('You can\'t go that way.')
+            self.tell('You can\'t go that way.')
             return
         room = world.rooms[self.room.exits[direction]]
         self.set_room(room, direction)
@@ -218,16 +218,16 @@ class Player:
     def jump(self, room_name=None):
         room = world.find_room(room_name)
         if not room:
-            self.print_line('I couldn\'t find {name}.'.format(name=room_name))
+            self.tell('I couldn\'t find {name}.'.format(name=room_name))
             return
         self.set_room(room)
 
     def dig(self, direction=None, back='back'):
         if direction is None:
-            self.print_line('You must give a direction.')
+            self.tell('You must give a direction.')
             return
         if direction in self.room.exits:
-            self.print_line('That direction already exists.')
+            self.tell('That direction already exists.')
             return
         room = Room(exits={back: self.room.id})
         world.rooms[room.id] = room
@@ -238,17 +238,17 @@ class Player:
         if name is None or name == 'here':
             self.room.look(self)
         elif name == 'me' or name == self.name:
-            self.print_line(self.description or 'You see nothing special.')
+            self.tell(self.description or 'You see nothing special.')
             if self.contents:
-                self.print_line('You have {contents}.'.format(contents=join_strings(self.contents.keys(), 'and')))
+                self.tell('You have {contents}.'.format(contents=join_strings(self.contents.keys(), 'and')))
         elif name in self.contents:
             obj = self.contents[name]
-            self.print_line(obj.description or 'You see nothing special.')
+            self.tell(obj.description or 'You see nothing special.')
         elif name in self.room.contents:
             obj = self.room.contents[name]
-            self.print_line(obj.description or 'You see nothing special.')
+            self.tell(obj.description or 'You see nothing special.')
         else:
-            self.print_line('There is no {name} here.'.format(name=name))
+            self.tell('There is no {name} here.'.format(name=name))
 
     def do_name(self, name=None):
         self.room.do_name(self, name)
@@ -258,52 +258,52 @@ class Player:
 
     def say(self, message=None):
         if message:
-            self.room.print_line(self, '{name} says, "{message}"'.format(name=self.name, message=message))
+            self.room.announce(self, '{name} says, "{message}"'.format(name=self.name, message=message))
 
-    def tell(self, message=None):
+    def whisper(self, message=None):
         parts = message.split(' ', 1)
         if len(parts) < 2:
-            self.print_line('What do you want to tell them?')
+            self.tell('What do you want to tell them?')
             return
         name, message = parts
         player = world.find_player(name)
         if player and message:
-            player.print_line('{name} whispers, "{message}"'.format(name=self.name, message=message))
+            player.tell('{name} whispers, "{message}"'.format(name=self.name, message=message))
 
     def emote(self, message=None):
         if message:
-            self.room.print_line(self, '{name} {message}'.format(name=self.name, message=message))
+            self.room.announce(self, '{name} {message}'.format(name=self.name, message=message))
 
     def find(self, name=None):
         player = world.find_player(name)
         if player and player.room:
             if player.room.name:
-                self.print_line('{name} is in {room}.'.format(name=player.name, room=player.room.name))
+                self.tell('{name} is in {room}.'.format(name=player.name, room=player.room.name))
             else:
-                self.print_line('{name} is in a room with no name.'.format(name=player.name))
-                self.print_line('It looks like:\n{description}'.format(description=player.room.description or '?'))
+                self.tell('{name} is in a room with no name.'.format(name=player.name))
+                self.tell('It looks like:\n{description}'.format(description=player.room.description or '?'))
         else:
-            self.print_line('I couldn\'t find {name}.'.format(name=name))
+            self.tell('I couldn\'t find {name}.'.format(name=name))
 
     def take(self, name=None):
         if name not in self.room.contents:
-            self.print_line('There is no {name} here.'.format(name=name))
+            self.tell('There is no {name} here.'.format(name=name))
             return
         self.contents[name] = self.room.contents[name]
         self.contents[name].location = self
         del self.room.contents[name]
-        self.print_line('You take {name}.'.format(name=name))
-        self.room.print_line(self, '{player} takes {name}.'.format(player=self.name, name=name), exclude_player=True)
+        self.tell('You take {name}.'.format(name=name))
+        self.room.announce(self, '{player} takes {name}.'.format(player=self.name, name=name), exclude_player=True)
 
     def drop(self, name=None):
         if name not in self.contents:
-            self.print_line('You are not carrying {name}.'.format(name=name))
+            self.tell('You are not carrying {name}.'.format(name=name))
             return
         self.room.contents[name] = self.contents[name]
         self.room.contents[name].location = self.room
         del self.contents[name]
-        self.print_line('You drop {name}.'.format(name=name))
-        self.room.print_line(self, '{player} drops {name}.'.format(player=self.name, name=name), exclude_player=True)
+        self.tell('You drop {name}.'.format(name=name))
+        self.room.announce(self, '{player} drops {name}.'.format(player=self.name, name=name), exclude_player=True)
 
 
 ## Objects
@@ -341,10 +341,10 @@ class Ball(Object):
         Object.__init__(self, id, name, description, location_id)
 
     def bounce(self, player):
-        self.location.print_line('The ball bounces up and down.')
+        self.location.announce('The ball bounces up and down.')
 
     def roll(self, player):
-        self.location.print_line('The ball rolls away.')
+        self.location.announce('The ball rolls away.')
 
 
 ## Shell
@@ -358,7 +358,7 @@ class Shell(cmd.Cmd):
 
     shortcuts = {
         '"': 'say',
-        '@': 'tell',
+        '@': 'whisper',
         ':': 'emote',
         '#': 'jump'
     }
