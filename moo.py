@@ -184,10 +184,18 @@ class Player:
             self.stdout.write(message + '\n')
             self.stdout.flush()
 
-    def find_verb(self, verb):
+    def get_verb(self, verb):
         for key in [verb, 'do_' + verb]:
             method = getattr(self, key, None)
             if method and callable(method):
+                return method
+        return None
+
+    def find_verb(self, verb):
+        search_path = [self] + self.contents.values() + self.room.contents.values()
+        for obj in search_path:
+            method = obj.get_verb(verb)
+            if method:
                 return method
         return None
 
@@ -327,6 +335,13 @@ class Object:
             'location_id': self.location and self.location.id or None
         }
 
+    def get_verb(self, verb):
+        for key in [verb, 'do_' + verb]:
+            method = getattr(self, key, None)
+            if method and callable(method):
+                return method
+        return None
+
 
 class Ball(Object):
     """ A simple ball. """
@@ -342,10 +357,16 @@ class Ball(Object):
         Object.__init__(self, id, name, description, location_id)
 
     def bounce(self, player):
-        self.location.announce('The ball bounces up and down.')
+        room = self.location
+        if hasattr(self.location, 'room'):
+            room = self.location.room
+        room.announce(player, 'The ball bounces up and down.')
 
     def roll(self, player):
-        self.location.announce('The ball rolls away.')
+        room = self.location
+        if hasattr(self.location, 'room'):
+            room = self.location.room
+        room.announce(player, 'The ball rolls away.')
 
 
 class Shell(cmd.Cmd):
