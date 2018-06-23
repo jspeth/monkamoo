@@ -1,28 +1,15 @@
 TODO
 ----
 
-* objects
-  * player/room contents
-  * take/drop commands
-  * give command
-  * verbs on objects
-
 * interpreter locals: me, here
-
-* look up verbs on player, room, etc. (search path)
-
+* better look up verbs on player, room, etc. (search path)
 * parsing direct object and preposition
-
-* change to generic location/contents properties
-
 * save the world periodically
-
 * player connected status (sleeping)
   * announce when connected
   * queue player messages offline
-
 * "rooms" command
-
+* "give" command
 * emojis!
 
 Done
@@ -32,3 +19,8 @@ Done
 * "jump" command (#room or @player)
 * direct messages (/m or tell @player)
 * interact over server
+* change to generic location/contents properties
+* objects
+  * player/room contents
+  * take/drop commands
+  * verbs on objects

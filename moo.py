@@ -9,6 +9,7 @@ import uuid
 import interpreter
 import server
 
+
 def join_strings(items, conj='and'):
     """ Return a string by joining the items with the conjunction. """
     if len(items) == 1:
@@ -24,95 +25,149 @@ class World:
     path = 'world.json'
 
     def __init__(self):
-        self.rooms = {'0': Room(id='0', description='This is the beginning of the world.')}
-        self.players = {}
-        self.objects = {}
+        self.objects = {'0': Room(id='0', description='This is the beginning of the world.')}
+
+    def __repr__(self):
+        return '<%s 0x%x>' % (self.__class__.__name__, id(self))
 
     def json_dictionary(self):
-        return {'rooms': self.rooms, 'players': self.players, 'objects': self.objects}
+        return {'objects': self.objects}
 
     def load(self):
         data = open(self.path, 'r').read()
         world = json.loads(data)
-        # rooms
-        if 'rooms' in world:
-            rooms = {}
-            for room_id, room_dict in world['rooms'].iteritems():
-                rooms[room_id] = Room(**room_dict)
-            self.rooms = rooms
-        # players
-        if 'players' in world:
-            for player_id, player_dict in world['players'].iteritems():
-                self.add_player(Player(**player_dict))
-        # objects
-        if 'objects' in world:
-            for object_id, object_dict in world['objects'].iteritems():
-                cls = Object
-                if 'type' in object_dict:
-                    cls = globals().get(object_dict['type'])
-                    del object_dict['type']
-                self.add_object(cls(**object_dict))
+        all_contents = {}
+        for object_dict in world.get('objects', {}).values():
+            # get object class
+            cls = globals().get(object_dict.get('type'))
+            if not cls:
+                continue
+            del object_dict['type']
+            # create object, building contents map
+            obj = cls(**object_dict)
+            if obj.location:
+                contents = all_contents.setdefault(obj.location, {})
+                contents[obj.id] = obj
+            self.objects[obj.id] = obj
+        # update objects with their contents
+        for id, contents in all_contents.iteritems():
+            self.objects[id].contents = contents
+        # replace location id with object
+        for obj in self.objects.values():
+            if obj.location:
+                obj.location = self.objects[obj.location]
 
     def save(self):
         data = json.dumps(self, default=lambda o: o.json_dictionary(), sort_keys=True, indent=2, separators=(',', ': '))
         with open(self.path, 'w') as f:
             f.write(data)
 
-    def get_location(self, location_id):
-        if location_id in self.rooms:
-            return self.rooms[location_id]
-        if location_id in self.players:
-            return self.players[location_id]
-        return None
+    @property
+    def rooms(self):
+        return [obj for obj in self.objects.values() if isinstance(obj, Room)]
+
+    @property
+    def players(self):
+        return [obj for obj in self.objects.values() if isinstance(obj, Player)]
 
     def find_room(self, name):
-        for room in self.rooms.values():
+        for room in self.rooms:
             if room.name and room.name.lower() == name.lower():
                 return room
         return None
 
     def find_player(self, name):
-        for player in self.players.values():
+        for player in self.players:
             if player.name.lower() == name.lower():
                 return player
         return None
 
     def add_player(self, player):
-        if player.id not in self.players:
-            self.players[player.id] = player
-        if not player.room:
-            player.room = self.rooms['0']
-        self.rooms[player.room.id].players[player.id] = player
-
-    def add_object(self, obj):
-        if obj.id not in self.objects:
-            self.objects[obj.id] = obj
-        if not obj.location:
-            obj.location = self.rooms['0']
-        obj.location.contents[obj.name] = obj
+        self.objects[player.id] = player
+        if not player.location:
+            player.location = self.objects['0']
+        player.location.contents[player.id] = player
 
 
-class Room:
-    """ Represents a room containing players and objects, with exits to other rooms. """
+class Object(object):
+    """ The root class of all MOO objects. """
 
-    def __init__(self, id=None, name=None, description=None, exits=None, players=None, contents=None):
-        self.id = id or str(uuid.uuid4())
-        self.name = name
-        self.description = description
-        self.exits = exits or {}
-        self.players = players or {}
-        self.contents = contents or {}
+    def __init__(self, **kwargs):
+        self.id = str(uuid.uuid4())
+        self.name = None
+        self.description = None
+        self.location = None
+        self.contents = {}
+        self.__dict__.update(kwargs)
+
+    def __repr__(self):
+        return '<%s 0x%x name="%s">' % (self.__class__.__name__, id(self), self.name)
 
     def json_dictionary(self):
         return {
+            'type': self.__class__.__name__,
             'id': self.id,
             'name': self.name,
             'description': self.description,
-            'exits': self.exits
+            'location': self.location and self.location.id or None
         }
 
+    @property
+    def room(self):
+        if isinstance(self, Room):
+            return self
+        if self.location:
+            return self.location.room
+        return None
+
+    @property
+    def player(self):
+        if isinstance(self, Player):
+            return self
+        if self.location:
+            return self.location.player
+        return None
+
+    @property
+    def rooms(self):
+        return [obj for obj in self.contents.values() if isinstance(obj, Room)]
+
+    @property
+    def players(self):
+        return [obj for obj in self.contents.values() if isinstance(obj, Player)]
+
+    @property
+    def things(self):
+        return [obj for obj in self.contents.values() if not isinstance(obj, Player)]
+
+    def get_thing(self, name):
+        for obj in self.things:
+            if obj.name.lower() == name.lower():
+                return obj
+        return None
+
+    def get_verb(self, verb):
+        for key in [verb, 'do_' + verb]:
+            method = getattr(self, key, None)
+            if method and callable(method):
+                return method
+        return None
+
+
+class Room(Object):
+    """ Represents a room containing players and objects, with exits to other rooms. """
+
+    def __init__(self, **kwargs):
+        self.exits = {}
+        super(Room, self).__init__(**kwargs)
+
+    def json_dictionary(self):
+        return dict(super(Room, self).json_dictionary(), **{
+            'exits': self.exits
+        })
+
     def announce(self, player, message, exclude_player=False):
-        for other in self.players.values():
+        for other in self.players:
             if exclude_player and other is player:
                 continue
             other.tell(message)
@@ -129,18 +184,22 @@ class Room:
         self.announce(player, message, exclude_player=True)
 
     def look(self, player):
+        # show name and description
         if self.name:
             player.tell('*** {name} ***'.format(name=self.name))
         player.tell(self.description or 'You see nothing here.')
+        # show exits
         if self.exits:
             directions = self.exits.keys()
             player.tell('You can go {directions}.'.format(directions=join_strings(directions, 'or')))
-        players = [p for p in self.players.values() if p != player]
+        # show other players
+        players = [p.name for p in self.players if p != player]
         if players:
-            names = [p.name for p in players]
-            player.tell('{names} {are} here.'.format(names=join_strings(names, 'and'), are=len(players) > 1 and 'are' or 'is'))
-        if self.contents:
-            player.tell('There is {contents} here.'.format(contents=join_strings(self.contents.keys(), 'and')))
+            player.tell('{players} {are} here.'.format(players=join_strings(players, 'and'), are=len(players) > 1 and 'are' or 'is'))
+        # show room contents
+        things = [o.name for o in self.things]
+        if things:
+            player.tell('There is {names} here.'.format(names=join_strings(things, 'and')))
 
     def do_name(self, player, name=None):
         if name:
@@ -159,40 +218,20 @@ class Room:
             player.tell('This room has no description.')
 
 
-class Player:
+class Player(Object):
     """ Represents a participant in the MOO. """
 
-    stdout = None
-
-    def __init__(self, id=None, name=None, description=None, room_id=None, contents=None):
-        self.id = id or str(uuid.uuid4())
-        self.name = name
-        self.description = description
-        self.room = room_id and world.rooms[room_id] or None
-        self.contents = contents or {}
-
-    def json_dictionary(self):
-        return {
-            'id': self.id,
-            'name': self.name,
-            'description': self.description,
-            'room_id': self.room.id
-        }
+    def __init__(self, **kwargs):
+        self.stdout = None
+        super(Player, self).__init__(**kwargs)
 
     def tell(self, message):
         if self.stdout:
             self.stdout.write(message + '\n')
             self.stdout.flush()
 
-    def get_verb(self, verb):
-        for key in [verb, 'do_' + verb]:
-            method = getattr(self, key, None)
-            if method and callable(method):
-                return method
-        return None
-
     def find_verb(self, verb):
-        search_path = [self] + self.contents.values() + self.room.contents.values()
+        search_path = [self] + self.contents.values() + self.location.contents.values()
         for obj in search_path:
             method = obj.get_verb(verb)
             if method:
@@ -209,17 +248,17 @@ class Player:
             self.tell('I didn\'t understand that.')
 
     def set_room(self, room, direction=None):
-        self.room.on_exit(self, direction)
-        del self.room.players[self.id]
-        self.room = room
-        room.players[self.id] = self
+        self.location.on_exit(self, direction)
+        del self.location.contents[self.id]
+        self.location = room
+        room.contents[self.id] = self
         room.on_enter(self)
 
     def go(self, direction=None):
-        if direction not in self.room.exits:
+        if direction not in self.location.exits:
             self.tell('You can\'t go that way.')
             return
-        room = world.rooms[self.room.exits[direction]]
+        room = world.objects[self.location.exits[direction]]
         self.set_room(room, direction)
 
     def jump(self, room_name=None):
@@ -233,39 +272,46 @@ class Player:
         if direction is None:
             self.tell('You must give a direction.')
             return
-        if direction in self.room.exits:
+        if direction in self.location.exits:
             self.tell('That direction already exists.')
             return
-        room = Room(exits={back: self.room.id})
-        world.rooms[room.id] = room
-        self.room.exits[direction] = room.id
+        room = Room(exits={back: self.location.id})
+        world.objects[room.id] = room
+        self.location.exits[direction] = room.id
         self.set_room(room, direction)
 
     def look(self, name=None):
+        # look at room
         if name is None or name == 'here':
-            self.room.look(self)
-        elif name == 'me' or name == self.name:
+            self.location.look(self)
+            return
+        # look at self
+        if name == 'me' or name.lower() == self.name.lower():
             self.tell(self.description or 'You see nothing special.')
-            if self.contents:
-                self.tell('You have {contents}.'.format(contents=join_strings(self.contents.keys(), 'and')))
-        elif name in self.contents:
-            obj = self.contents[name]
-            self.tell(obj.description or 'You see nothing special.')
-        elif name in self.room.contents:
-            obj = self.room.contents[name]
+            thing_names = [o.name for o in self.things]
+            if thing_names:
+                self.tell('You have {names}.'.format(names=join_strings(thing_names, 'and')))
+            return
+        # look at an object
+        obj = self.get_thing(name) or self.location.get_thing(name)
+        if obj:
             self.tell(obj.description or 'You see nothing special.')
         else:
             self.tell('There is no {name} here.'.format(name=name))
 
     def do_name(self, name=None):
-        self.room.do_name(self, name)
+        self.location.do_name(self, name)
 
     def do_describe(self, description=None):
-        self.room.do_describe(self, description)
+        self.location.do_describe(self, description)
 
     def say(self, message=None):
         if message:
-            self.room.announce(self, '{name} says, "{message}"'.format(name=self.name, message=message))
+            self.location.announce(self, '{name} says, "{message}"'.format(name=self.name, message=message))
+
+    def emote(self, message=None):
+        if message:
+            self.location.announce(self, '{name} {message}'.format(name=self.name, message=message))
 
     def whisper(self, message=None):
         parts = message.split(' ', 1)
@@ -277,96 +323,50 @@ class Player:
         if player and message:
             player.tell('{name} whispers, "{message}"'.format(name=self.name, message=message))
 
-    def emote(self, message=None):
-        if message:
-            self.room.announce(self, '{name} {message}'.format(name=self.name, message=message))
-
     def find(self, name=None):
         player = world.find_player(name)
-        if player and player.room:
-            if player.room.name:
-                self.tell('{name} is in {room}.'.format(name=player.name, room=player.room.name))
+        if player and player.location:
+            if player.location.name:
+                self.tell('{name} is in {room}.'.format(name=player.name, room=player.location.name))
             else:
                 self.tell('{name} is in a room with no name.'.format(name=player.name))
-                self.tell('It looks like:\n{description}'.format(description=player.room.description or '?'))
+                self.tell('It looks like:\n{description}'.format(description=player.location.description or '?'))
         else:
             self.tell('I couldn\'t find {name}.'.format(name=name))
 
     def take(self, name=None):
-        if name not in self.room.contents:
+        obj = self.location.get_thing(name)
+        if not obj:
             self.tell('There is no {name} here.'.format(name=name))
             return
-        self.contents[name] = self.room.contents[name]
-        self.contents[name].location = self
-        del self.room.contents[name]
+        self.contents[obj.id] = obj
+        obj.location = self
+        del self.location.contents[obj.id]
         self.tell('You take {name}.'.format(name=name))
-        self.room.announce(self, '{player} takes {name}.'.format(player=self.name, name=name), exclude_player=True)
+        self.location.announce(self, '{player} takes {name}.'.format(player=self.name, name=name), exclude_player=True)
 
     def drop(self, name=None):
-        if name not in self.contents:
+        obj = self.get_thing(name)
+        if not obj:
             self.tell('You are not carrying {name}.'.format(name=name))
             return
-        self.room.contents[name] = self.contents[name]
-        self.room.contents[name].location = self.room
-        del self.contents[name]
+        self.location.contents[obj.id] = obj
+        obj.location = self.location
+        del self.contents[obj.id]
         self.tell('You drop {name}.'.format(name=name))
-        self.room.announce(self, '{player} drops {name}.'.format(player=self.name, name=name), exclude_player=True)
-
-
-class Object:
-    """ The root class of all MOO objects. """
-
-    name = None
-    description = None
-    location = None
-
-    def __init__(self, id=None, name=None, description=None, location_id=None):
-        self.id = id or str(uuid.uuid4())
-        self.name = name
-        self.description = description
-        self.location = location_id and world.get_location(location_id) or None
-
-    def json_dictionary(self):
-        return {
-            'type': self.__class__.__name__,
-            'id': self.id,
-            'name': self.name,
-            'description': self.description,
-            'location_id': self.location and self.location.id or None
-        }
-
-    def get_verb(self, verb):
-        for key in [verb, 'do_' + verb]:
-            method = getattr(self, key, None)
-            if method and callable(method):
-                return method
-        return None
+        self.location.announce(self, '{player} drops {name}.'.format(player=self.name, name=name), exclude_player=True)
 
 
 class Ball(Object):
     """ A simple ball. """
 
-    name = 'ball'
-    description = 'A super bouncy red rubber ball.'
-
-    def __init__(self, id=None, name=None, description=None, location_id=None):
-        if name is None:
-            name = Ball.name
-        if description is None:
-            description = Ball.description
-        Object.__init__(self, id, name, description, location_id)
-
     def bounce(self, player):
-        room = self.location
-        if hasattr(self.location, 'room'):
-            room = self.location.room
-        room.announce(player, 'The ball bounces up and down.')
+        if self.room:
+            self.room.announce(player, 'The ball bounces up and down.')
 
     def roll(self, player):
-        room = self.location
-        if hasattr(self.location, 'room'):
-            room = self.location.room
-        room.announce(player, 'The ball rolls away.')
+        if self.room:
+            self.room.announce(player, 'The ball rolls away.')
 
 
 class Shell(cmd.Cmd):
@@ -380,8 +380,8 @@ class Shell(cmd.Cmd):
 
     shortcuts = {
         '"': 'say',
-        '@': 'whisper',
         ':': 'emote',
+        '@': 'whisper',
         '#': 'jump'
     }
 

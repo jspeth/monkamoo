@@ -1,49 +1,5 @@
 {
   "objects": {
-    "02bc8630-5136-43e6-972c-bb81d193b4ed": {
-      "description": "Hotdog, hotdog, hot-diggity-dog.",
-      "id": "02bc8630-5136-43e6-972c-bb81d193b4ed",
-      "location_id": "2b1ff39c-3d7d-4c5d-a74d-6f400dc7e3da",
-      "name": "hotdog",
-      "type": "Object"
-    },
-    "02dfbfa1-1426-4784-bc55-370d7a243231": {
-      "description": "A small wooden box with a metal lock, with water seeping out of its edges.",
-      "id": "02dfbfa1-1426-4784-bc55-370d7a243231",
-      "location_id": "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9",
-      "name": "rainbox",
-      "type": "Object"
-    },
-    "6a8148f9-7436-4e66-9ddc-1ab3781b4218": {
-      "description": "A super bouncy red rubber ball.",
-      "id": "6a8148f9-7436-4e66-9ddc-1ab3781b4218",
-      "location_id": "5f2db66e-a79e-49db-9105-dda9522f81ec",
-      "name": "ball",
-      "type": "Ball"
-    },
-    "92d58b46-a243-48c3-b2ce-41952025ada9": {
-      "description": "A beautiful waterfall with a glorious rainbow behind it.",
-      "id": "92d58b46-a243-48c3-b2ce-41952025ada9",
-      "location_id": "0",
-      "name": "waterfall",
-      "type": "Object"
-    }
-  },
-  "players": {
-    "5f2db66e-a79e-49db-9105-dda9522f81ec": {
-      "description": null,
-      "id": "5f2db66e-a79e-49db-9105-dda9522f81ec",
-      "name": "Jim",
-      "room_id": "2b1ff39c-3d7d-4c5d-a74d-6f400dc7e3da"
-    },
-    "63646a7b-0e78-4038-ae30-e49f1fc4906c": {
-      "description": null,
-      "id": "63646a7b-0e78-4038-ae30-e49f1fc4906c",
-      "name": "Charlotte",
-      "room_id": "0"
-    }
-  },
-  "rooms": {
     "0": {
       "description": "This is the beginning of the world.",
       "exits": {
@@ -52,7 +8,23 @@
         "up": "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9"
       },
       "id": "0",
-      "name": null
+      "location": null,
+      "name": null,
+      "type": "Room"
+    },
+    "02bc8630-5136-43e6-972c-bb81d193b4ed": {
+      "description": "Hotdog, hotdog, hot-diggity-dog.",
+      "id": "02bc8630-5136-43e6-972c-bb81d193b4ed",
+      "location": "2b1ff39c-3d7d-4c5d-a74d-6f400dc7e3da",
+      "name": "hotdog",
+      "type": "Object"
+    },
+    "02dfbfa1-1426-4784-bc55-370d7a243231": {
+      "description": "A small wooden box with a metal lock, with water seeping out of its edges.",
+      "id": "02dfbfa1-1426-4784-bc55-370d7a243231",
+      "location": "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9",
+      "name": "rainbox",
+      "type": "Object"
     },
     "2b1ff39c-3d7d-4c5d-a74d-6f400dc7e3da": {
       "description": "it is pink with stripes",
@@ -60,7 +32,9 @@
         "southwest": "0"
       },
       "id": "2b1ff39c-3d7d-4c5d-a74d-6f400dc7e3da",
-      "name": null
+      "location": null,
+      "name": null,
+      "type": "Room"
     },
     "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9": {
       "description": "You are in a dusty attic, filled with old books and instruments.",
@@ -68,7 +42,23 @@
         "down": "0"
       },
       "id": "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9",
-      "name": "Attic"
+      "location": null,
+      "name": "Attic",
+      "type": "Room"
+    },
+    "5f2db66e-a79e-49db-9105-dda9522f81ec": {
+      "description": null,
+      "id": "5f2db66e-a79e-49db-9105-dda9522f81ec",
+      "location": "2b1ff39c-3d7d-4c5d-a74d-6f400dc7e3da",
+      "name": "Jim",
+      "type": "Player"
+    },
+    "63646a7b-0e78-4038-ae30-e49f1fc4906c": {
+      "description": null,
+      "id": "63646a7b-0e78-4038-ae30-e49f1fc4906c",
+      "location": "0",
+      "name": "Charlotte",
+      "type": "Player"
     },
     "693edf69-ba73-4d4e-812f-8d133cbb40c0": {
       "description": "We are in a room with wallpaper, and the pictures on the wallpaper are of Mom.",
@@ -76,7 +66,16 @@
         "up": "b0abac34-1bf7-4b27-af6b-edda0922d0a8"
       },
       "id": "693edf69-ba73-4d4e-812f-8d133cbb40c0",
-      "name": null
+      "location": null,
+      "name": null,
+      "type": "Room"
+    },
+    "6a8148f9-7436-4e66-9ddc-1ab3781b4218": {
+      "description": "A super bouncy red rubber ball.",
+      "id": "6a8148f9-7436-4e66-9ddc-1ab3781b4218",
+      "location": "5f2db66e-a79e-49db-9105-dda9522f81ec",
+      "name": "ball",
+      "type": "Ball"
     },
     "7735f8c6-ac97-4b67-8566-dd8da901dc48": {
       "description": "You are in a field of bright orange poppies, swaying gently in the warm breeze.",
@@ -84,7 +83,16 @@
         "south": "0"
       },
       "id": "7735f8c6-ac97-4b67-8566-dd8da901dc48",
-      "name": null
+      "location": null,
+      "name": null,
+      "type": "Room"
+    },
+    "92d58b46-a243-48c3-b2ce-41952025ada9": {
+      "description": "A beautiful waterfall with a glorious rainbow behind it.",
+      "id": "92d58b46-a243-48c3-b2ce-41952025ada9",
+      "location": "0",
+      "name": "waterfall",
+      "type": "Object"
     },
     "b0abac34-1bf7-4b27-af6b-edda0922d0a8": {
       "description": "This room is made out of love.",
@@ -93,7 +101,9 @@
         "south": "0"
       },
       "id": "b0abac34-1bf7-4b27-af6b-edda0922d0a8",
-      "name": null
+      "location": null,
+      "name": null,
+      "type": "Room"
     }
   }
 }
