@@ -10,76 +10,6 @@ import interpreter
 import server
 from utils import join_strings
 
-class World:
-    """ The root container of all MOO objects. """
-
-    path = 'world.json'
-
-    def __init__(self):
-        self.objects = {'0': Room(id='0', description='This is the beginning of the world.')}
-
-    def __repr__(self):
-        return '<%s 0x%x>' % (self.__class__.__name__, id(self))
-
-    def json_dictionary(self):
-        return {'objects': self.objects}
-
-    def load(self):
-        data = open(self.path, 'r').read()
-        world = json.loads(data)
-        all_contents = {}
-        for object_dict in world.get('objects', {}).values():
-            # get object class
-            cls = globals().get(object_dict.get('type'))
-            if not cls:
-                continue
-            del object_dict['type']
-            # create object, building contents map
-            obj = cls(**object_dict)
-            if obj.location:
-                contents = all_contents.setdefault(obj.location, {})
-                contents[obj.id] = obj
-            self.objects[obj.id] = obj
-        # update objects with their contents
-        for id, contents in all_contents.iteritems():
-            self.objects[id].contents = contents
-        # replace location id with object
-        for obj in self.objects.values():
-            if obj.location:
-                obj.location = self.objects[obj.location]
-
-    def save(self):
-        data = json.dumps(self, default=lambda o: o.json_dictionary(), sort_keys=True, indent=2, separators=(',', ': '))
-        with open(self.path, 'w') as f:
-            f.write(data)
-
-    @property
-    def rooms(self):
-        return [obj for obj in self.objects.values() if isinstance(obj, Room)]
-
-    @property
-    def players(self):
-        return [obj for obj in self.objects.values() if isinstance(obj, Player)]
-
-    def find_room(self, name):
-        for room in self.rooms:
-            if room.name and room.name.lower() == name.lower():
-                return room
-        return None
-
-    def find_player(self, name):
-        for player in self.players:
-            if player.name.lower() == name.lower():
-                return player
-        return None
-
-    def add_player(self, player):
-        self.objects[player.id] = player
-        if not player.location:
-            player.location = self.objects['0']
-        player.location.contents[player.id] = player
-
-
 class Object(object):
     """ The root class of all MOO objects. """
 
@@ -131,6 +61,18 @@ class Object(object):
     def things(self):
         return [obj for obj in self.contents.values() if not isinstance(obj, Player)]
 
+    def find_room(self, name):
+        for room in self.rooms:
+            if room.name and room.name.lower() == name.lower():
+                return room
+        return None
+
+    def find_player(self, name):
+        for player in self.players:
+            if player.name.lower() == name.lower():
+                return player
+        return None
+
     def find_thing(self, name):
         for obj in self.things:
             if obj.name.lower() == name.lower():
@@ -143,6 +85,54 @@ class Object(object):
             if method and callable(method):
                 return method
         return None
+
+
+class World(Object):
+    """ The root container of all MOO objects. """
+
+    path = 'world.json'
+
+    def __init__(self, **kwargs):
+        self.contents = {'0': Room(id='0', description='This is the beginning of the world.')}
+        super(World, self).__init__(**kwargs)
+
+    def json_dictionary(self):
+        return {'contents': self.contents}
+
+    def load(self):
+        data = open(self.path, 'r').read()
+        world = json.loads(data)
+        all_contents = {}
+        for object_dict in world.get('contents', {}).values():
+            # get object class
+            cls = globals().get(object_dict.get('type'))
+            if not cls:
+                continue
+            del object_dict['type']
+            # create object, building contents map
+            obj = cls(**object_dict)
+            if obj.location:
+                contents = all_contents.setdefault(obj.location, {})
+                contents[obj.id] = obj
+            self.contents[obj.id] = obj
+        # update objects with their contents
+        for id, contents in all_contents.iteritems():
+            self.contents[id].contents = contents
+        # replace location id with object
+        for obj in self.contents.values():
+            if obj.location:
+                obj.location = self.contents[obj.location]
+
+    def save(self):
+        data = json.dumps(self, default=lambda o: o.json_dictionary(), sort_keys=True, indent=2, separators=(',', ': '))
+        with open(self.path, 'w') as f:
+            f.write(data)
+
+    def add_player(self, player):
+        self.contents[player.id] = player
+        if not player.location:
+            player.location = self.contents['0']
+        player.location.contents[player.id] = player
 
 
 class Room(Object):
@@ -249,7 +239,7 @@ class Player(Object):
         if direction not in self.location.exits:
             self.tell('You can\'t go that way.')
             return
-        room = world.objects[self.location.exits[direction]]
+        room = world.contents[self.location.exits[direction]]
         self.set_room(room, direction)
 
     def jump(self, room_name=None):
@@ -267,7 +257,7 @@ class Player(Object):
             self.tell('That direction already exists.')
             return
         room = Room(exits={back: self.location.id})
-        world.objects[room.id] = room
+        world.contents[room.id] = room
         self.location.exits[direction] = room.id
         self.set_room(room, direction)
 
