@@ -45,8 +45,8 @@ Common Commands
 * `name [name]`: set the current room name
 * `describe [description]`: set the current room description
 * `say [message]`: say a message to all players in the current room
-* `whisper [player] [message]`: send a private message directly to another player
 * `emote [expression]`: express an action, feeling, or just about anything
+* `whisper [player] [message]`: send a private message directly to another player
 * `find [player]`: find player by name, gives their room name or description
 * `take [object]`: pick up an object by name
 * `drop [object]`: drop an object you are carrying
@@ -57,8 +57,8 @@ Shortcuts
 The following shortcuts can be used:
 
 * `"` -- `say` (example: `"Hi there.` becomes `say Hi there.`)
-* `@` -- `whisper` (example: `@jim Psst...` becomes `whisper jim Psst...`)
 * `:` -- `emote` (example: `:waves.` becomes `emote waves.`)
+* `@` -- `whisper` (example: `@jim Psst...` becomes `whisper jim Psst...`)
 * `#` -- `jump` (example: `#attic` becomes `jump attic`)
 
 References
