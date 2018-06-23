@@ -140,7 +140,7 @@ class Object(object):
     def things(self):
         return [obj for obj in self.contents.values() if not isinstance(obj, Player)]
 
-    def get_thing(self, name):
+    def find_thing(self, name):
         for obj in self.things:
             if obj.name.lower() == name.lower():
                 return obj
@@ -293,7 +293,7 @@ class Player(Object):
                 self.tell('You have {names}.'.format(names=join_strings(thing_names, 'and')))
             return
         # look at an object
-        obj = self.get_thing(name) or self.location.get_thing(name)
+        obj = self.find_thing(name) or self.location.find_thing(name)
         if obj:
             self.tell(obj.description or 'You see nothing special.')
         else:
@@ -335,7 +335,7 @@ class Player(Object):
             self.tell('I couldn\'t find {name}.'.format(name=name))
 
     def take(self, name=None):
-        obj = self.location.get_thing(name)
+        obj = self.location.find_thing(name)
         if not obj:
             self.tell('There is no {name} here.'.format(name=name))
             return
@@ -346,7 +346,7 @@ class Player(Object):
         self.location.announce(self, '{player} takes {name}.'.format(player=self.name, name=name), exclude_player=True)
 
     def drop(self, name=None):
-        obj = self.get_thing(name)
+        obj = self.find_thing(name)
         if not obj:
             self.tell('You are not carrying {name}.'.format(name=name))
             return
