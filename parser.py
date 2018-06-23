@@ -1,3 +1,5 @@
+import moo
+
 class Preposition(object):
 
     WITH = 'with'
@@ -50,14 +52,49 @@ class Preposition(object):
 
 class Command(object):
 
-    def __init__(self, verb=None, direct_object=None, preposition=None, indirect_object=None):
+    def __init__(self, verb=None, direct_object_str=None, preposition=None, indirect_object_str=None):
+        self.player = None
         self.verb = verb
-        self.direct_object = direct_object
+        self.direct_object = None
+        self.direct_object_str = direct_object_str
         self.preposition = preposition
-        self.indirect_object = indirect_object
+        self.indirect_object = None
+        self.indirect_object_str = indirect_object_str
 
     def __repr__(self):
-        return '<Command verb={verb} do={direct_object} prep={preposition} io={indirect_object}>'.format(**self.__dict__)
+        return '<Command verb={verb} dobj={direct_object} prep={preposition} iobj={indirect_object}>'.format(**self.__dict__)
+
+    def resolve(self, player):
+        """ Identify direct and indirect objects in the command relative to player.
+
+        Varies from LambdaMOO slightly:
+            '@name' identifies player by name
+            '#room' identifies a room by name
+            '$uuid' identifies an object by id
+
+        Otherwise it looks for the objects in the player contents then the player's room contents.
+        """
+        def resolve_object(name):
+            if not name:
+                return None
+            name = name.lower()
+            if name == 'me':
+                return player
+            if name == 'here':
+                return player.location
+            if name.startswith('@'):
+                return moo.world.find_player(name.strip('@'))
+            if name.startswith('#'):
+                return moo.world.find_room(name.strip('#'))
+            if name.startswith('$'):
+                return moo.world.contents.get(name.strip('$'))
+            for obj in player.contents.values() + player.location.contents.values():
+                if obj.name.lower() == name:
+                    return obj
+            return None
+        self.player = player
+        self.direct_object = resolve_object(self.direct_object_str)
+        self.indirect_object = resolve_object(self.indirect_object_str)
 
 
 class Parser(object):
@@ -123,4 +160,11 @@ if __name__ == '__main__':
         'put yellow bird in cuckoo clock'
     ]
     for line in tests:
-        print `line`, `Parser.parse(line)`
+        command = Parser.parse(line)
+        print '{line} -> [verb={verb} dobj={dobj} prep={prep} iobj={iobj}]'.format(
+            line=`line`,
+            verb=`command.verb`,
+            dobj=`command.direct_object_str`,
+            prep=`command.preposition`,
+            iobj=`command.indirect_object_str`
+        )
