@@ -81,6 +81,9 @@ class Object(object):
                 return method
         return None
 
+    def tell(self, message=None):
+        pass
+
     def timer(self, interval, function, args=[], kwargs={}):
         return threading.Timer(interval, function, args, kwargs).start()
 
@@ -98,10 +101,10 @@ class Room(Object):
         })
 
     def announce(self, player, message, exclude_player=False):
-        for other in self.players:
-            if exclude_player and other is player:
+        for obj in self.contents.values():
+            if exclude_player and obj is player:
                 continue
-            other.tell(message)
+            obj.tell(message)
 
     def on_enter(self, player, direction=None):
         self.announce(player, '{name} enters the room.'.format(name=player.name), exclude_player=True)
