@@ -1,3 +1,4 @@
+import threading
 import uuid
 
 from parser import Preposition
@@ -79,6 +80,9 @@ class Object(object):
             if method and callable(method):
                 return method
         return None
+
+    def timer(self, interval, function, args=[], kwargs={}):
+        return threading.Timer(interval, function, args, kwargs).start()
 
 
 class Room(Object):

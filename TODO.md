@@ -4,7 +4,6 @@ TODO
 * verb specifiers to restrict match
 * interpreter locals: me, here
 * save the world periodically
-* send "tick" to objects periodically
 * player connected status (sleeping)
   * announce when connected
   * queue player messages offline
@@ -28,3 +27,4 @@ Done
   * verbs on objects
 * parsing direct object and preposition
 * better look up verbs on player, room, etc. (search path)
+* adding "timer" for executing code after time has passed
