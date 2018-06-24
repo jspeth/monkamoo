@@ -42,8 +42,8 @@ Common Commands
 * `go [direction]`: change rooms by moving player in direction
 * `jump [room name]`: go directly to a named room
 * `dig [direction]`: create a new room, adding direction to the current room
-* `name [name]`: set the current room name
-* `describe [description]`: set the current room description
+* `name [object] as [name]`: set the current room name
+* `describe [object] as [description]`: set the current room description
 * `say [message]`: say a message to all players in the current room
 * `emote [expression]`: express an action, feeling, or just about anything
 * `whisper [player] [message]`: send a private message directly to another player
