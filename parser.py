@@ -1,5 +1,3 @@
-import moo
-
 class Preposition(object):
 
     WITH = 'with'
@@ -52,19 +50,28 @@ class Preposition(object):
 
 class Command(object):
 
-    def __init__(self, verb=None, direct_object_str=None, preposition=None, indirect_object_str=None):
+    def __init__(self, line, verb=None, direct_object_str=None, preposition=None, indirect_object_str=None):
         self.player = None
+        self.line = line
         self.verb = verb
         self.direct_object = None
         self.direct_object_str = direct_object_str
         self.preposition = preposition
         self.indirect_object = None
         self.indirect_object_str = indirect_object_str
+        # create args
+        words = line.split(' ') 
+        if len(words) > 1:
+            self.args = words[1:]
+            self.args_str = ' '.join(self.args)
+        else:
+            self.args = None
+            self.args_str = None
 
     def __repr__(self):
         return '<Command verb={verb} dobj={direct_object} prep={preposition} iobj={indirect_object}>'.format(**self.__dict__)
 
-    def resolve(self, player):
+    def resolve(self, world, player):
         """ Identify direct and indirect objects in the command relative to player.
 
         Varies from LambdaMOO slightly:
@@ -83,11 +90,11 @@ class Command(object):
             if name == 'here':
                 return player.location
             if name.startswith('@'):
-                return moo.world.find_player(name.strip('@'))
+                return world.find_player(name.strip('@'))
             if name.startswith('#'):
-                return moo.world.find_room(name.strip('#'))
+                return world.find_room(name.strip('#'))
             if name.startswith('$'):
-                return moo.world.contents.get(name.strip('$'))
+                return world.contents.get(name.strip('$'))
             for obj in player.contents.values() + player.location.contents.values():
                 if obj.name.lower() == name:
                     return obj
@@ -126,7 +133,7 @@ class Parser(object):
         # verb is always the first word
         verb = words[0].lower()
         if len(words) == 1:
-            return Command(verb)
+            return Command(line, verb)
         # find preposition
         i = 1
         preposition = None
@@ -144,7 +151,7 @@ class Parser(object):
         else:
             direct_object = ' '.join(words[1:])
         # return command
-        return Command(verb, direct_object, preposition, indirect_object)
+        return Command(line, verb, direct_object, preposition, indirect_object)
 
 
 if __name__ == '__main__':

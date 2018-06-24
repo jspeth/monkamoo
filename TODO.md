@@ -1,9 +1,9 @@
 TODO
 ----
 
-* interpreter locals: me, here
-* better look up verbs on player, room, etc. (search path)
 * parsing direct object and preposition
+* better look up verbs on player, room, etc. (search path)
+* interpreter locals: me, here
 * save the world periodically
 * player connected status (sleeping)
   * announce when connected
