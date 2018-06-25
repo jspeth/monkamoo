@@ -28,6 +28,44 @@ class Object(object):
             'location': self.location and self.location.id or None
         }
 
+    def __nonzero__(self):
+        return True
+
+    def __len__(self):
+        return len(self.contents)
+
+    def __contains__(self, obj):
+        return hasattr(obj, 'id') and obj.id in self.contents
+
+    def __iter__(self):
+        return self.contents.itervalues()
+
+    def __iadd__(self, obj):
+        self.add(obj)
+        return self
+
+    def __isub__(self, obj):
+        self.remove(obj)
+        return self
+
+    def add(self, obj):
+        if not hasattr(obj, 'id'):
+            raise ValueError()
+        self.contents[obj.id] = obj
+
+    def remove(self, obj):
+        if not hasattr(obj, 'id'):
+            raise ValueError()
+        del self.contents[obj.id]
+
+    def move(self, location):
+        # JGS - implement checks (accept) and hooks (on_enter/on_exit)
+        if self.location:
+            self.location -= self
+        self.location = location
+        if self.location:
+            self.location += self
+
     @property
     def room(self):
         if isinstance(self, Room):
@@ -46,15 +84,15 @@ class Object(object):
 
     @property
     def rooms(self):
-        return [obj for obj in self.contents.values() if isinstance(obj, Room)]
+        return [obj for obj in self if isinstance(obj, Room)]
 
     @property
     def players(self):
-        return [obj for obj in self.contents.values() if isinstance(obj, Player)]
+        return [obj for obj in self if isinstance(obj, Player)]
 
     @property
     def things(self):
-        return [obj for obj in self.contents.values() if not isinstance(obj, Player)]
+        return [obj for obj in self if not isinstance(obj, Player)]
 
     def find_room(self, name):
         for room in self.rooms:
@@ -101,7 +139,7 @@ class Room(Object):
         })
 
     def announce(self, player, message, exclude_player=False):
-        for obj in self.contents.values():
+        for obj in self:
             if exclude_player and obj is player:
                 continue
             obj.tell(message)
@@ -166,8 +204,8 @@ class Room(Object):
         if direction in self.exits:
             player.tell('That direction already exists.')
             return
-        room = Room(world=self.world, exits={back: self.id})
-        self.world.contents[room.id] = room
+        room = Room(exits={back: self.id})
+        self.world.add(room)
         self.exits[direction] = room.id
         player.set_room(room, direction)
 
@@ -186,10 +224,8 @@ class Player(Object):
 
     def set_room(self, room, direction=None):
         self.location.on_exit(self, direction)
-        del self.location.contents[self.id]
-        self.location = room
-        room.contents[self.id] = self
-        room.on_enter(self)
+        self.move(room)
+        self.location.on_enter(self)
 
     def jump(self, command):
         room_name = command.direct_object_str
@@ -259,9 +295,7 @@ class Player(Object):
         if not obj:
             self.tell('There is no {name} here.'.format(name=name))
             return
-        self.contents[obj.id] = obj
-        obj.location = self
-        del self.location.contents[obj.id]
+        obj.move(self)
         self.tell('You take {name}.'.format(name=name))
         self.location.announce(self, '{player} takes {name}.'.format(player=self.name, name=name), exclude_player=True)
 
@@ -271,9 +305,7 @@ class Player(Object):
         if not obj:
             self.tell('You are not carrying {name}.'.format(name=name))
             return
-        self.location.contents[obj.id] = obj
-        obj.location = self.location
-        del self.contents[obj.id]
+        obj.move(self.location)
         self.tell('You drop {name}.'.format(name=name))
         self.location.announce(self, '{player} drops {name}.'.format(player=self.name, name=name), exclude_player=True)
 

@@ -41,11 +41,10 @@ class World(Object):
             del object_dict['type']
             # create object, building contents map
             obj = cls(**object_dict)
-            obj.world = self
             if obj.location:
                 contents = all_contents.setdefault(obj.location, {})
                 contents[obj.id] = obj
-            self.contents[obj.id] = obj
+            self.add(obj)
         # update objects with their contents
         for id, contents in all_contents.iteritems():
             if id in self.contents:
@@ -61,9 +60,14 @@ class World(Object):
         with open(path, 'w') as f:
             f.write(data)
 
+    def add(self, obj):
+        if not hasattr(obj, 'id'):
+            raise ValueError()
+        self.contents[obj.id] = obj
+        obj.world = self
+
     def add_player(self, player):
-        player.world = self
-        self.contents[player.id] = player
+        self.add(player)
         if not player.location:
             player.location = self.contents['0']
         player.location.contents[player.id] = player

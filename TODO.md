@@ -1,6 +1,12 @@
 TODO
 ----
 
+* add accept, on_exit, on_enter to move
+* use introspection to look at verb args
+  * inspect.getargspec
+* exits point directly to room, not id?
+* player << message shorthand for tell?
+* live reload of object classes
 * verb specifiers to restrict match
 * interpreter locals: me, here
 * save the world periodically
@@ -28,3 +34,7 @@ Done
 * parsing direct object and preposition
 * better look up verbs on player, room, etc. (search path)
 * adding "timer" for executing code after time has passed
+* objects as containers
+  * make Object use __contains__ etc.
+  * player += object adds to contents
+  * adding to contents adds to world
