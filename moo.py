@@ -62,6 +62,7 @@ class World(Object):
             f.write(data)
 
     def add_player(self, player):
+        player.world = self
         self.contents[player.id] = player
         if not player.location:
             player.location = self.contents['0']

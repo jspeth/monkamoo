@@ -147,6 +147,30 @@ class Room(Object):
         if things:
             player.tell('There is {names} here.'.format(names=join_strings(things, 'and')))
 
+    def go(self, command):
+        player = command.player
+        direction = command.direct_object_str
+        if direction not in self.exits:
+            player.tell('You can\'t go that way.')
+            return
+        room = self.world.contents[self.exits[direction]]
+        player.set_room(room, direction)
+
+    def dig(self, command):
+        player = command.player
+        direction = command.direct_object_str
+        back = command.indirect_object_str or 'back'
+        if not direction:
+            player.tell('You must give a direction.')
+            return
+        if direction in self.exits:
+            player.tell('That direction already exists.')
+            return
+        room = Room(world=self.world, exits={back: self.id})
+        self.world.contents[room.id] = room
+        self.exits[direction] = room.id
+        player.set_room(room, direction)
+
 
 class Player(Object):
     """ Represents a participant in the MOO. """
@@ -167,14 +191,6 @@ class Player(Object):
         room.contents[self.id] = self
         room.on_enter(self)
 
-    def go(self, command):
-        direction = command.direct_object_str
-        if direction not in self.location.exits:
-            self.tell('You can\'t go that way.')
-            return
-        room = self.world.contents[self.location.exits[direction]]
-        self.set_room(room, direction)
-
     def jump(self, command):
         room_name = command.direct_object_str
         room = self.world.find_room(room_name)
@@ -182,20 +198,6 @@ class Player(Object):
             self.tell('I couldn\'t find {name}.'.format(name=room_name))
             return
         self.set_room(room)
-
-    def dig(self, command):
-        direction = command.direct_object_str
-        back = command.indirect_object_str or 'back'
-        if not direction:
-            self.tell('You must give a direction.')
-            return
-        if direction in self.location.exits:
-            self.tell('That direction already exists.')
-            return
-        room = Room(exits={back: self.location.id})
-        self.world.contents[room.id] = room
-        self.location.exits[direction] = room.id
-        self.set_room(room, direction)
 
     def look(self, command):
         obj = command.direct_object
