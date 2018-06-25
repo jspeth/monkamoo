@@ -74,7 +74,7 @@ class Object(object):
                 return obj
         return None
 
-    def get_verb(self, verb):
+    def get_function(self, verb):
         for key in [verb, 'do_' + verb]:
             method = getattr(self, key, None)
             if method and callable(method):
@@ -116,6 +116,18 @@ class Room(Object):
         else:
             message = '{name} exits the room.'.format(name=player.name)
         self.announce(player, message, exclude_player=True)
+
+    def say(self, command):
+        player = command.player
+        message = command.args_str
+        if player and message:
+            self.announce(player, '{name} says, "{message}"'.format(name=player.name, message=message))
+
+    def emote(self, command):
+        player = command.player
+        message = command.args_str
+        if message:
+            self.announce(player, '{name} {message}'.format(name=player.name, message=message))
 
     def look(self, player):
         # show name and description
@@ -216,16 +228,6 @@ class Player(Object):
             self.tell('I didn\'t understand that.')
             return
         command.direct_object.description = command.indirect_object_str
-
-    def say(self, command):
-        message = command.args_str
-        if message:
-            self.location.announce(self, '{name} says, "{message}"'.format(name=self.name, message=message))
-
-    def emote(self, command):
-        message = command.args_str
-        if message:
-            self.location.announce(self, '{name} {message}'.format(name=self.name, message=message))
 
     def whisper(self, command):
         parts = command.args_str.split(' ', 1)

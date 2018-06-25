@@ -118,16 +118,20 @@ class Shell(cmd.Cmd):
             self.player.tell('I didn\'t understand that.')
             return
         command.resolve(world, self.player)
-        verb = self.find_verb(command.verb)
-        if not verb:
+        func = self.find_function(command)
+        if not func:
             self.player.tell('I didn\'t understand that.')
             return
-        verb(command)
+        func(command)
 
-    def find_verb(self, verb):
-        search_path = [self.player] + self.player.contents.values() + self.player.location.contents.values()
+    def find_function(self, command):
+        search_path = [command.player, command.player.room]
+        if command.direct_object:
+            search_path.append(command.direct_object)
+        if command.indirect_object:
+            search_path.append(command.indirect_object)
         for obj in search_path:
-            method = obj.get_verb(verb)
+            method = obj.get_function(command.verb)
             if method:
                 return method
         return None
@@ -147,6 +151,7 @@ class Shell(cmd.Cmd):
             player = Player(name=arg)
             world.add_player(player)
         self.set_player(player)
+        self.player.location.look(self.player)
 
     def do_quit(self, arg):
         sys.exit(0)
