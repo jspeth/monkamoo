@@ -1,6 +1,7 @@
 TODO
 ----
 
+* command aliases
 * use introspection to look at verb args
   * inspect.getargspec
 * exits point directly to room, not id?

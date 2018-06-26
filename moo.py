@@ -9,10 +9,10 @@ import interpreter
 import parser
 import server
 
-from core import Object, Room, Player, Thing
+from core import Base, Room, Player, Object
 from ball import Ball
 
-class World(Object):
+class World(Base):
     """ The root container of all MOO objects. """
 
     def __init__(self, path=None, **kwargs):

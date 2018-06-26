@@ -1,6 +1,6 @@
-from core import Thing
+from core import Object
 
-class Ball(Thing):
+class Ball(Object):
     """ A simple ball. """
 
     def bounce(self, command):

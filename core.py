@@ -4,8 +4,8 @@ import uuid
 from parser import Preposition
 from utils import join_strings
 
-class Object(object):
-    """ The root class of all MOO objects. """
+class Base(object):
+    """ The base class of all MOO objects. """
 
     def __init__(self, **kwargs):
         self.id = str(uuid.uuid4())
@@ -51,6 +51,7 @@ class Object(object):
     def add(self, obj):
         if not hasattr(obj, 'id'):
             raise ValueError()
+        self.world.add(obj)
         self.contents[obj.id] = obj
 
     def remove(self, obj):
@@ -139,7 +140,7 @@ class Object(object):
         return threading.Timer(interval, function, args, kwargs).start()
 
 
-class Room(Object):
+class Room(Base):
     """ Represents a room containing players and objects, with exits to other rooms. """
 
     def __init__(self, **kwargs):
@@ -227,7 +228,7 @@ class Room(Object):
         player.move(room, direction)
 
 
-class Player(Object):
+class Player(Base):
     """ Represents a participant in the MOO. """
 
     def __init__(self, **kwargs):
@@ -301,27 +302,18 @@ class Player(Object):
         else:
             self.tell('I couldn\'t find {name}.'.format(name=name))
 
+
+class Object(Base):
+    """ Represents a thing that can be picked up and put down. """
+
     def take(self, command):
-        name = command.direct_object_str
-        obj = self.location.find_thing(name)
-        if not obj:
-            self.tell('There is no {name} here.'.format(name=name))
-            return
-        obj.move(self)
-        self.tell('You take {name}.'.format(name=name))
-        self.location.announce(self, '{player} takes {name}.'.format(player=self.name, name=name), exclude_player=True)
+        player = command.player
+        self.move(player)
+        player.tell('You take {name}.'.format(name=self.name))
+        self.room.announce(player, '{player} takes {name}.'.format(player=player.name, name=self.name), exclude_player=True)
 
     def drop(self, command):
-        name = command.direct_object_str
-        obj = self.find_thing(name)
-        if not obj:
-            self.tell('You are not carrying {name}.'.format(name=name))
-            return
-        obj.move(self.location)
-        self.tell('You drop {name}.'.format(name=name))
-        self.location.announce(self, '{player} drops {name}.'.format(player=self.name, name=name), exclude_player=True)
-
-
-class Thing(Object):
-    """ Represents a thing that can be picked up and put down. """
-    pass
+        player = command.player
+        self.move(player.room)
+        player.tell('You drop {name}.'.format(name=self.name))
+        self.room.announce(player, '{player} drops {name}.'.format(player=player.name, name=self.name), exclude_player=True)
