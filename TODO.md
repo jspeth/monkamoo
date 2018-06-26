@@ -1,7 +1,6 @@
 TODO
 ----
 
-* add accept, on_exit, on_enter to move
 * use introspection to look at verb args
   * inspect.getargspec
 * exits point directly to room, not id?
@@ -38,3 +37,4 @@ Done
   * make Object use __contains__ etc.
   * player += object adds to contents
   * adding to contents adds to world
+* add accept, on_exit, on_enter to move

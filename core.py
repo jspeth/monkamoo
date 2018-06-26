@@ -58,13 +58,26 @@ class Object(object):
             raise ValueError()
         del self.contents[obj.id]
 
-    def move(self, location):
-        # JGS - implement checks (accept) and hooks (on_enter/on_exit)
+    def move(self, location, direction=None):
+        if not location.accept(self):
+            return False
         if self.location:
+            self.location.on_exit(self, direction)
             self.location -= self
         self.location = location
         if self.location:
             self.location += self
+            self.location.on_enter(self, direction)
+        return True
+
+    def accept(self, obj):
+        return True
+
+    def on_enter(self, obj, direction=None):
+        pass
+
+    def on_exit(self, obj, direction=None):
+        pass
 
     @property
     def room(self):
@@ -145,10 +158,14 @@ class Room(Object):
             obj.tell(message)
 
     def on_enter(self, player, direction=None):
+        if not isinstance(player, Player):
+            return
         self.announce(player, '{name} enters the room.'.format(name=player.name), exclude_player=True)
         self.look(player)
 
     def on_exit(self, player, direction=None):
+        if not isinstance(player, Player):
+            return
         if direction:
             message = '{name} exits {direction}.'.format(name=player.name, direction=direction)
         else:
@@ -192,7 +209,7 @@ class Room(Object):
             player.tell('You can\'t go that way.')
             return
         room = self.world.contents[self.exits[direction]]
-        player.set_room(room, direction)
+        player.move(room, direction)
 
     def dig(self, command):
         player = command.player
@@ -207,7 +224,7 @@ class Room(Object):
         room = Room(exits={back: self.id})
         self.world.add(room)
         self.exits[direction] = room.id
-        player.set_room(room, direction)
+        player.move(room, direction)
 
 
 class Player(Object):
@@ -222,18 +239,13 @@ class Player(Object):
             self.stdout.write(message + '\n')
             self.stdout.flush()
 
-    def set_room(self, room, direction=None):
-        self.location.on_exit(self, direction)
-        self.move(room)
-        self.location.on_enter(self)
-
     def jump(self, command):
         room_name = command.direct_object_str
         room = self.world.find_room(room_name)
         if not room:
             self.tell('I couldn\'t find {name}.'.format(name=room_name))
             return
-        self.set_room(room)
+        self.move(room)
 
     def look(self, command):
         obj = command.direct_object
