@@ -148,6 +148,7 @@ class Shell(cmd.Cmd):
         world.save()
 
     def do_interact(self, arg):
+        globals().update(((p.name.lower()), p) for p in world.players)
         interpreter.interact(local=globals(), stdin=self.stdin, stdout=self.stdout)
 
     def do_player(self, arg):
@@ -173,6 +174,7 @@ def main():
     parser.add_argument('-s', '--server', action='store_true', help='Start moo server')
     args = parser.parse_args()
     if args.interact:
+        globals().update(((p.name.lower()), p) for p in world.players)
         interpreter.interact(local=globals())
     elif args.server:
         print 'Starting server...'

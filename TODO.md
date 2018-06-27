@@ -1,6 +1,9 @@
 TODO
 ----
 
+* import of player created classes
+* create command
+* better class finding for create
 * command aliases
 * use introspection to look at verb args
   * inspect.getargspec
@@ -8,7 +11,6 @@ TODO
 * player << message shorthand for tell?
 * live reload of object classes
 * verb specifiers to restrict match
-* interpreter locals: me, here
 * save the world periodically
 * player connected status (sleeping)
   * announce when connected
@@ -39,3 +41,4 @@ Done
   * player += object adds to contents
   * adding to contents adds to world
 * add accept, on_exit, on_enter to move
+* interpreter locals: player names
