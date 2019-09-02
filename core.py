@@ -302,6 +302,21 @@ class Player(Base):
         else:
             self.tell('I couldn\'t find {name}.'.format(name=name))
 
+    def create(self, command):
+        """ create Object as flower """
+        class_name = command.direct_object_str
+        name = 'something'
+        if command.preposition == Preposition.AS and command.indirect_object_str:
+            name = command.indirect_object_str
+        cls = globals().get(class_name)
+        if not cls:
+            self.tell('I couldn\'t find {class_name}.'.format(class_name=class_name))
+            return
+        # create object
+        obj = cls(name=name)
+        obj.move(self)
+        self.tell('You created {name}.'.format(name=name))
+
 
 class Object(Base):
     """ Represents a thing that can be picked up and put down. """

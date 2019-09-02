@@ -1,8 +1,8 @@
 TODO
 ----
 
+* help
 * import of player created classes
-* create command
 * better class finding for create
 * command aliases
 * use introspection to look at verb args
@@ -42,3 +42,4 @@ Done
   * adding to contents adds to world
 * add accept, on_exit, on_enter to move
 * interpreter locals: player names
+* create command
