@@ -6,7 +6,7 @@ A Python-based learning MOO in the spirit of LambdaMOO.
 Goal
 ----
 
-To create a simple, multi-player, text-based virtual reality, that I can collaborate on with my Dad ordaughter.
+To create a simple, multi-player, text-based virtual reality, that I can collaborate on with my Dad or daughter.
 
 In addition to navigating, extending the world, and communicating with other players, you should be
 able to code MOO objects in Python and interact with them in the world.
