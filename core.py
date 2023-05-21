@@ -38,7 +38,7 @@ class Base(object):
         return hasattr(obj, 'id') and obj.id in self.contents
 
     def __iter__(self):
-        return self.contents.itervalues()
+        return iter(self.contents.values())
 
     def __iadd__(self, obj):
         self.add(obj)
@@ -250,15 +250,15 @@ class Player(Base):
 
     def look(self, command):
         obj = command.direct_object
-        # speical case "look at object"
+        # special case "look at object"
         if command.preposition == Preposition.AT and command.indirect_object:
             obj = command.indirect_object
         # check if the object was named but not found
-        if not obj and command.direct_object_str:
+        if obj is None and command.direct_object_str:
             self.tell('There is no {name} here.'.format(name=command.direct_object_str))
             return
         # look at the object
-        if not obj or obj == self.location:
+        if obj is None or obj == self.location:
             self.location.look(self)
         elif obj == self:
             self.tell(self.description or 'You see nothing special.')
@@ -269,13 +269,13 @@ class Player(Base):
             self.tell(obj.description or 'You see nothing special.')
 
     def do_name(self, command):
-        if not command.direct_object or command.preposition != Preposition.AS or not command.indirect_object_str:
+        if command.direct_object is None or command.preposition != Preposition.AS or not command.indirect_object_str:
             self.tell('I didn\'t understand that.')
             return
         command.direct_object.name = command.indirect_object_str
 
     def do_describe(self, command):
-        if not command.direct_object or command.preposition != Preposition.AS or not command.indirect_object_str:
+        if command.direct_object is None or command.preposition != Preposition.AS or not command.indirect_object_str:
             self.tell('I didn\'t understand that.')
             return
         command.direct_object.description = command.indirect_object_str

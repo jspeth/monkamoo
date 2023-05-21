@@ -46,7 +46,7 @@ class World(Base):
                 contents[obj.id] = obj
             self.add(obj)
         # update objects with their contents
-        for id, contents in all_contents.iteritems():
+        for id, contents in iter(all_contents.items()):
             if id in self.contents:
                 self.contents[id].contents = contents
         # replace location id with object
@@ -177,7 +177,7 @@ def main():
         globals().update(((p.name.lower()), p) for p in world.players)
         interpreter.interact(local=globals())
     elif args.server:
-        print 'Starting server...'
+        print('Starting server...')
         moo_server = server.MonkaMOOServer()
         moo_server.run()
     else:

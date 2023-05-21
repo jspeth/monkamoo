@@ -1,13 +1,13 @@
 import code
 import contextlib
+import io
 import sys
-import StringIO
 
 @contextlib.contextmanager
 def stdoutIO(stdout=None):
     old = sys.stdout
     if stdout is None:
-        stdout = StringIO.StringIO()
+        stdout = io.StringIO()
     sys.stdout = stdout
     yield stdout
     sys.stdout = old
@@ -38,7 +38,7 @@ class MOOInteractiveConsole(code.InteractiveConsole):
     def runcode(self, code):
         try:
             with stdoutIO() as s:
-                exec code in self.locals
+                exec(code, self.locals)
             self.write(s.getvalue())
         except SystemExit:
             raise

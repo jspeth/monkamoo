@@ -95,7 +95,7 @@ class Command(object):
                 return world.find_room(name.strip('#'))
             if name.startswith('$'):
                 return world.contents.get(name.strip('$'))
-            for obj in player.contents.values() + player.location.contents.values():
+            for obj in list(player.contents.values()) + list(player.location.contents.values()):
                 if obj.name.lower() == name:
                     return obj
             return None
@@ -168,10 +168,10 @@ if __name__ == '__main__':
     ]
     for line in tests:
         command = Parser.parse(line)
-        print '{line} -> [verb={verb} dobj={dobj} prep={prep} iobj={iobj}]'.format(
-            line=`line`,
-            verb=`command.verb`,
-            dobj=`command.direct_object_str`,
-            prep=`command.preposition`,
-            iobj=`command.indirect_object_str`
-        )
+        print('{line} -> [verb={verb} dobj={dobj} prep={prep} iobj={iobj}]'.format(
+            line=repr(line),
+            verb=repr(command.verb),
+            dobj=repr(command.direct_object_str),
+            prep=repr(command.preposition),
+            iobj=repr(command.indirect_object_str)
+        ))
