@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import dotenv
 
 import interpreter
 import server
@@ -8,6 +9,7 @@ import shell
 
 from core.world import World
 
+dotenv.load_dotenv()
 world = World(path='world.json')
 world.load()
 

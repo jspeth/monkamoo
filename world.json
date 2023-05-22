@@ -5,6 +5,7 @@
       "exits": {
         "north": "7735f8c6-ac97-4b67-8566-dd8da901dc48",
         "northeast": "2b1ff39c-3d7d-4c5d-a74d-6f400dc7e3da",
+        "south": "308caa19-edbc-487a-a993-b562d7fb87d6",
         "up": "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9"
       },
       "id": "0",
@@ -36,6 +37,16 @@
       "name": null,
       "type": "Room"
     },
+    "308caa19-edbc-487a-a993-b562d7fb87d6": {
+      "description": "The lobby of the Raven is a sight to behold. The walls are adorned with ornate carvings and intricate gold trimmings, and there are plush velvet couches and chairs scattered about. The chandelier in the center of the room casts a warm glow, and the marble floors shine brightly. The front desk is made of polished wood, and behind it sits a grand piano that is often played by our resident musician. The air is scented with the aroma of freshly brewed coffee and baked goods from our in-house bakery. It's a warm and inviting space that welcomes guests with open arms.",
+      "exits": {
+        "north": "0"
+      },
+      "id": "308caa19-edbc-487a-a993-b562d7fb87d6",
+      "location": null,
+      "name": "The Raven - Lobby",
+      "type": "Room"
+    },
     "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9": {
       "description": "You are in a dusty attic, filled with old books and instruments.",
       "exits": {
@@ -49,7 +60,7 @@
     "5f2db66e-a79e-49db-9105-dda9522f81ec": {
       "description": null,
       "id": "5f2db66e-a79e-49db-9105-dda9522f81ec",
-      "location": "2b1ff39c-3d7d-4c5d-a74d-6f400dc7e3da",
+      "location": "0",
       "name": "Jim",
       "type": "Player"
     },
@@ -93,6 +104,13 @@
       "location": "0",
       "name": "waterfall",
       "type": "Object"
+    },
+    "945ffe2f-1141-437f-ad0c-187c8d322829": {
+      "description": "Poe stands tall behind the front desk, with a sharp black suit and a crisp white shirt. His hair is slicked back, and his mustache is trimmed to perfection. He has a warm smile and a friendly demeanor that puts guests at ease. His voice is smooth and reassuring, with a hint of old-world charm. He is the epitome of a gracious hotel proprietor, ready to cater to the needs of his guests.",
+      "id": "945ffe2f-1141-437f-ad0c-187c8d322829",
+      "location": "308caa19-edbc-487a-a993-b562d7fb87d6",
+      "name": "Poe",
+      "type": "AIPlayer"
     },
     "b0abac34-1bf7-4b27-af6b-edda0922d0a8": {
       "description": "This room is made out of love.",

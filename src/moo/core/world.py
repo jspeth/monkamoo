@@ -8,6 +8,7 @@ from .base import Base
 from .object import Object
 from .player import Player
 from .room import Room
+from .aiplayer import AIPlayer
 
 class World(Base):
     """ The root container of all MOO objects. """
