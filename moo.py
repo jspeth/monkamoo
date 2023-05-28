@@ -6,7 +6,7 @@ import json
 import sys
 
 import interpreter
-import parser
+import line_parser
 import server
 
 from core import Base, Room, Player, Object
@@ -118,7 +118,7 @@ class Shell(cmd.Cmd):
             self.parse_command(arg)
 
     def parse_command(self, line):
-        command = parser.Parser.parse(line)
+        command = line_parser.Parser.parse(line)
         if not command:
             self.player.tell('I didn\'t understand that.')
             return

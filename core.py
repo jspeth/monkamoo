@@ -1,7 +1,7 @@
 import threading
 import uuid
 
-from parser import Preposition
+from line_parser import Preposition
 from utils import join_strings
 
 class Base(object):
