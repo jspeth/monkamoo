@@ -1,7 +1,7 @@
 import threading
 import uuid
 
-from parser import Preposition
+from line_parser import Preposition
 from utils import join_strings
 
 class Base(object):
@@ -28,17 +28,11 @@ class Base(object):
             'location': self.location and self.location.id or None
         }
 
-    def __nonzero__(self):
-        return True
-
-    def __len__(self):
-        return len(self.contents)
-
     def __contains__(self, obj):
         return hasattr(obj, 'id') and obj.id in self.contents
 
     def __iter__(self):
-        return self.contents.itervalues()
+        return iter(self.contents.values())
 
     def __iadd__(self, obj):
         self.add(obj)
@@ -250,7 +244,7 @@ class Player(Base):
 
     def look(self, command):
         obj = command.direct_object
-        # speical case "look at object"
+        # special case "look at object"
         if command.preposition == Preposition.AT and command.indirect_object:
             obj = command.indirect_object
         # check if the object was named but not found
@@ -269,16 +263,16 @@ class Player(Base):
             self.tell(obj.description or 'You see nothing special.')
 
     def do_name(self, command):
-        if not command.direct_object or command.preposition != Preposition.AS or not command.indirect_object_str:
+        if not command.direct_object or command.preposition != Preposition.AS or not command.indirect_args:
             self.tell('I didn\'t understand that.')
             return
-        command.direct_object.name = command.indirect_object_str
+        command.direct_object.name = command.indirect_args
 
     def do_describe(self, command):
-        if not command.direct_object or command.preposition != Preposition.AS or not command.indirect_object_str:
+        if not command.direct_object or command.preposition != Preposition.AS or not command.indirect_args:
             self.tell('I didn\'t understand that.')
             return
-        command.direct_object.description = command.indirect_object_str
+        command.direct_object.description = command.indirect_args
 
     def whisper(self, command):
         parts = command.args_str.split(' ', 1)

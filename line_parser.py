@@ -67,6 +67,13 @@ class Command(object):
         else:
             self.args = None
             self.args_str = None
+        # indirect args
+        def get_remainder(string, word):
+            index = string.lower().find(word.lower())
+            if index == -1:
+                return ''
+            return string[index + len(word):].strip()
+        self.indirect_args = preposition and get_remainder(line, preposition) or None
 
     def __repr__(self):
         return '<Command verb={verb} dobj={direct_object} prep={preposition} iobj={indirect_object}>'.format(**self.__dict__)
@@ -95,7 +102,7 @@ class Command(object):
                 return world.find_room(name.strip('#'))
             if name.startswith('$'):
                 return world.contents.get(name.strip('$'))
-            for obj in player.contents.values() + player.location.contents.values():
+            for obj in list(player.contents.values()) + list(player.location.contents.values()):
                 if obj.name.lower() == name:
                     return obj
             return None
@@ -164,14 +171,16 @@ if __name__ == '__main__':
         'take ball at',
         'look under rock',
         'hide ball under sand',
-        'put yellow bird in cuckoo clock'
+        'put yellow bird in cuckoo clock',
+        'describe here as A room in the MOO'
     ]
     for line in tests:
         command = Parser.parse(line)
-        print '{line} -> [verb={verb} dobj={dobj} prep={prep} iobj={iobj}]'.format(
-            line=`line`,
-            verb=`command.verb`,
-            dobj=`command.direct_object_str`,
-            prep=`command.preposition`,
-            iobj=`command.indirect_object_str`
-        )
+        print('{line} -> [verb={verb} dobj={dobj} prep={prep} iobj={iobj} iargs={iargs}]'.format(
+            line=repr(line),
+            verb=repr(command.verb),
+            dobj=repr(command.direct_object_str),
+            prep=repr(command.preposition),
+            iobj=repr(command.indirect_object_str),
+            iargs=repr(command.indirect_args)
+        ))

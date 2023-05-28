@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import socket
-import thread
+import threading
 
 import moo
 
@@ -15,13 +15,13 @@ class MonkaMOOServer(socket.socket):
         self.listen(5)
 
     def run(self):
-        print 'Server started on port 8888'
+        print('Server started on port 8888')
         try:
             self.accept_clients()
         except Exception as ex:
-            print ex
+            print(ex)
         finally:
-            print 'Server Closed'
+            print('Server Closed')
             for client in self.clients:
                 client.close()
             self.close()
@@ -29,24 +29,24 @@ class MonkaMOOServer(socket.socket):
     def accept_clients(self):
         while 1:
             (conn, address) = self.accept()
-            print 'Client Connected: ' + `address`
+            print('Client Connected: ' + repr(address))
             self.clients.append(conn)
-            thread.start_new_thread(self.run_shell, (conn,))
+            threading.Thread(target=self.run_shell, args=(conn,)).start()
 
     def run_shell(self, conn):
         # run shell command loop
-        client_file = conn.makefile()
+        client_file = conn.makefile(mode='rw')
         shell = moo.Shell(stdin=client_file, stdout=client_file)
         shell.cmdloop()
         # JGS - ctrl-d / quit not working
         # close connection
         self.clients.remove(conn)
         conn.close()
-        thread.exit()
+        threading.Thread.exit()
 
 
 def main():
-    print 'Starting server...'
+    print('Starting server...')
     moo_server = MonkaMOOServer()
     moo_server.run()
 
