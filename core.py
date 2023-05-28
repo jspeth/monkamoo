@@ -263,16 +263,16 @@ class Player(Base):
             self.tell(obj.description or 'You see nothing special.')
 
     def do_name(self, command):
-        if not command.direct_object or command.preposition != Preposition.AS or not command.indirect_object_str:
+        if not command.direct_object or command.preposition != Preposition.AS or not command.indirect_args:
             self.tell('I didn\'t understand that.')
             return
-        command.direct_object.name = command.indirect_object_str
+        command.direct_object.name = command.indirect_args
 
     def do_describe(self, command):
-        if not command.direct_object or command.preposition != Preposition.AS or not command.indirect_object_str:
+        if not command.direct_object or command.preposition != Preposition.AS or not command.indirect_args:
             self.tell('I didn\'t understand that.')
             return
-        command.direct_object.description = command.indirect_object_str
+        command.direct_object.description = command.indirect_args
 
     def whisper(self, command):
         parts = command.args_str.split(' ', 1)
