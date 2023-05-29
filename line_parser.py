@@ -47,6 +47,10 @@ class Preposition(object):
         'off of': OFF
     }
 
+    @classmethod
+    def synonyms(cls, preposition):
+        return [s for s in cls.keys if cls.keys[s] == preposition]
+
 
 class Command(object):
 
@@ -69,10 +73,12 @@ class Command(object):
             self.args_str = None
         # indirect args
         def get_remainder(string, word):
-            index = string.lower().find(word.lower())
-            if index == -1:
-                return ''
-            return string[index + len(word):].strip()
+            for preposition in Preposition.synonyms(word):
+                index = string.find(preposition)
+                if index == -1:
+                    continue
+                return string[index + len(preposition):].strip()
+            return None
         self.indirect_args = preposition and get_remainder(line, preposition) or None
 
     def __repr__(self):
