@@ -1,4 +1,5 @@
-from base import Base
+from .base import Base
+
 from line_parser import Preposition
 from utils import join_strings
 

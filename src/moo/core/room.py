@@ -1,5 +1,6 @@
-from base import Base
-from player import Player
+from .base import Base
+from .player import Player
+
 from utils import join_strings
 
 class Room(Base):

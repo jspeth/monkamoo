@@ -4,7 +4,7 @@ import sys
 import interpreter
 import line_parser
 
-from player import Player
+from core.player import Player
 
 class Shell(cmd.Cmd):
     """ A command shell for processing user input and executing MOO commands. """

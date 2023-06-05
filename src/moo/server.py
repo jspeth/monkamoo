@@ -1,9 +1,7 @@
-#!/usr/bin/env python
-
 import socket
 import threading
 
-import moo
+import shell
 
 class MonkaMOOServer(socket.socket):
     clients = []
@@ -37,19 +35,10 @@ class MonkaMOOServer(socket.socket):
     def run_shell(self, conn):
         # run shell command loop
         client_file = conn.makefile(mode='rw')
-        shell = moo.Shell(self.world, stdin=client_file, stdout=client_file)
-        shell.cmdloop()
+        client_shell = shell.Shell(self.world, stdin=client_file, stdout=client_file)
+        client_shell.cmdloop()
         # JGS - ctrl-d / quit not working
         # close connection
         self.clients.remove(conn)
         conn.close()
         threading.Thread.exit()
-
-
-def main():
-    print('Starting server...')
-    moo_server = MonkaMOOServer()
-    moo_server.run()
-
-if __name__ == '__main__':
-    main()

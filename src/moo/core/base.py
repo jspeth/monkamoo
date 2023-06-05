@@ -73,7 +73,7 @@ class Base(object):
 
     @property
     def room(self):
-        from room import Room
+        from .room import Room
         if isinstance(self, Room):
             return self
         if self.location:
@@ -82,7 +82,7 @@ class Base(object):
 
     @property
     def player(self):
-        from player import Player
+        from .player import Player
         if isinstance(self, Player):
             return self
         if self.location:
@@ -91,17 +91,17 @@ class Base(object):
 
     @property
     def rooms(self):
-        from room import Room
+        from .room import Room
         return [obj for obj in self if isinstance(obj, Room)]
 
     @property
     def players(self):
-        from player import Player
+        from .player import Player
         return [obj for obj in self if isinstance(obj, Player)]
 
     @property
     def things(self):
-        from player import Player
+        from .player import Player
         return [obj for obj in self if not isinstance(obj, Player)]
 
     def find_room(self, name):

@@ -1,11 +1,11 @@
 import json
 import sys
 
-from ball import Ball
-from base import Base
-from object import Object
-from player import Player
-from room import Room
+from .ball import Ball
+from .base import Base
+from .object import Object
+from .player import Player
+from .room import Room
 
 class World(Base):
     """ The root container of all MOO objects. """

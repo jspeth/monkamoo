@@ -1,4 +1,4 @@
-from base import Base
+from .base import Base
 
 class Object(Base):
     """ Represents a thing that can be picked up and put down. """

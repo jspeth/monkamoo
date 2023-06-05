@@ -6,7 +6,7 @@ import interpreter
 import server
 import shell
 
-from world import World
+from core.world import World
 
 world = World(path='world.json')
 world.load()
