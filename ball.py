@@ -1,4 +1,4 @@
-from core import Object
+from object import Object
 
 class Ball(Object):
     """ A simple ball. """

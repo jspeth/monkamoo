@@ -8,8 +8,9 @@ import moo
 class MonkaMOOServer(socket.socket):
     clients = []
 
-    def __init__(self):
+    def __init__(self, world):
         socket.socket.__init__(self)
+        self.world = world
         self.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.bind(('0.0.0.0', 8888))
         self.listen(5)
@@ -36,7 +37,7 @@ class MonkaMOOServer(socket.socket):
     def run_shell(self, conn):
         # run shell command loop
         client_file = conn.makefile(mode='rw')
-        shell = moo.Shell(stdin=client_file, stdout=client_file)
+        shell = moo.Shell(self.world, stdin=client_file, stdout=client_file)
         shell.cmdloop()
         # JGS - ctrl-d / quit not working
         # close connection
