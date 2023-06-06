@@ -19,7 +19,7 @@ The MOO can be run locally for a single player or as a server for multiple playe
 ### Single player:
 
 ```
-% ./moo.py
+% ./moo
 ```
 
 will start the MOO and connect a default player.
@@ -27,7 +27,7 @@ will start the MOO and connect a default player.
 ### Server:
 
 ```
-% ./moo.py -s
+% ./moo -s
 ```
 
 will start the MOO server on port 8888.
