@@ -1,6 +1,8 @@
 import json
 import sys
 
+import line_parser
+
 from .ball import Ball
 from .base import Base
 from .object import Object
@@ -66,3 +68,30 @@ class World(Base):
         if not player.location:
             player.location = self.contents['0']
         player.location.contents[player.id] = player
+
+    def parse_command(self, player, line):
+        command = line_parser.Parser.parse(line)
+        if not command:
+            player.tell('I didn\'t understand that.')
+            return
+        command.resolve(self, player)
+        self.handle_command(command)
+
+    def handle_command(self, command):
+        func = self.find_function(command)
+        if not func:
+            command.player.tell('I didn\'t understand that.')
+            return
+        func(command)
+
+    def find_function(self, command):
+        search_path = [command.player, command.player.room]
+        if command.direct_object:
+            search_path.append(command.direct_object)
+        if command.indirect_object:
+            search_path.append(command.indirect_object)
+        for obj in search_path:
+            method = obj.get_function(command.verb)
+            if method:
+                return method
+        return None

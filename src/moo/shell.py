@@ -2,7 +2,6 @@ import cmd
 import sys
 
 import interpreter
-import line_parser
 
 from core.player import Player
 
@@ -49,31 +48,7 @@ class Shell(cmd.Cmd):
             self.stdout.write('Type "player [name]" to choose a player.\n')
             return
         if arg:
-            self.parse_command(arg)
-
-    def parse_command(self, line):
-        command = line_parser.Parser.parse(line)
-        if not command:
-            self.player.tell('I didn\'t understand that.')
-            return
-        command.resolve(self.world, self.player)
-        func = self.find_function(command)
-        if not func:
-            self.player.tell('I didn\'t understand that.')
-            return
-        func(command)
-
-    def find_function(self, command):
-        search_path = [command.player, command.player.room]
-        if command.direct_object:
-            search_path.append(command.direct_object)
-        if command.indirect_object:
-            search_path.append(command.indirect_object)
-        for obj in search_path:
-            method = obj.get_function(command.verb)
-            if method:
-                return method
-        return None
+            self.world.parse_command(self.player, arg)
 
     def do_load(self, arg):
         self.world.load()
