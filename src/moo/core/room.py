@@ -49,22 +49,24 @@ class Room(Base):
             self.announce(player, '{name} {message}'.format(name=player.name, message=message))
 
     def look(self, player):
+        lines = []
         # show name and description
         if self.name:
-            player.tell('*** {name} ***'.format(name=self.name))
-        player.tell(self.description or 'You see nothing here.')
+            lines.append('*** {name} ***'.format(name=self.name))
+        lines.append(self.description or 'You see nothing here.')
         # show exits
         if self.exits:
             directions = self.exits.keys()
-            player.tell('You can go {directions}.'.format(directions=join_strings(directions, 'or')))
+            lines.append('You can go {directions}.'.format(directions=join_strings(directions, 'or')))
         # show other players
         players = [p.name for p in self.players if p != player]
         if players:
-            player.tell('{players} {are} here.'.format(players=join_strings(players, 'and'), are=len(players) > 1 and 'are' or 'is'))
+            lines.append('{players} {are} here.'.format(players=join_strings(players, 'and'), are=len(players) > 1 and 'are' or 'is'))
         # show room contents
         things = [o.name for o in self.things]
         if things:
-            player.tell('There is {names} here.'.format(names=join_strings(things, 'and')))
+            lines.append('There is {names} here.'.format(names=join_strings(things, 'and')))
+        player.tell('\n'.join(lines))
 
     def go(self, command):
         player = command.player
