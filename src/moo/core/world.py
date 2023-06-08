@@ -1,16 +1,13 @@
-#!/usr/bin/env python
-
-import argparse
-import cmd
 import json
 import sys
 
-import interpreter
 import line_parser
-import server
 
-from core import Base, Room, Player, Object
-from ball import Ball
+from .ball import Ball
+from .base import Base
+from .object import Object
+from .player import Player
+from .room import Room
 
 class World(Base):
     """ The root container of all MOO objects. """
@@ -72,60 +69,18 @@ class World(Base):
             player.location = self.contents['0']
         player.location.contents[player.id] = player
 
-
-class Shell(cmd.Cmd):
-    """ A command shell for processing user input and executing MOO commands. """
-
-    intro = 'Welcome to MonkaMOO!'
-    prompt = ''
-    file = None
-    use_rawinput = 0
-    player = None
-
-    shortcuts = {
-        '"': 'say',
-        ':': 'emote',
-        '@': 'whisper',
-        '#': 'jump'
-    }
-
-    def __init__(self, player=None, stdin=None, stdout=None):
-        cmd.Cmd.__init__(self, stdin=stdin, stdout=stdout)
-        self.set_player(player)
-
-    def set_player(self, player):
-        if self.player:
-            self.player.stdout = None
-        self.player = player
-        if self.player:
-            self.player.stdout = self.stdout
-
-    def precmd(self, line):
-        if line == 'EOF':
-            print
-            sys.exit(0)
-        for key in self.shortcuts:
-            if line.startswith(key):
-                line = self.shortcuts[key] + ' ' + line.strip(key + ' ')
-                break
-        return line
-
-    def default(self, arg):
-        if not self.player:
-            self.stdout.write('Type "player [name]" to choose a player.\n')
-            return
-        if arg:
-            self.parse_command(arg)
-
-    def parse_command(self, line):
+    def parse_command(self, player, line):
         command = line_parser.Parser.parse(line)
         if not command:
-            self.player.tell('I didn\'t understand that.')
+            player.tell('I didn\'t understand that.')
             return
-        command.resolve(world, self.player)
+        command.resolve(self, player)
+        self.handle_command(command)
+
+    def handle_command(self, command):
         func = self.find_function(command)
         if not func:
-            self.player.tell('I didn\'t understand that.')
+            command.player.tell('I didn\'t understand that.')
             return
         func(command)
 
@@ -140,49 +95,3 @@ class Shell(cmd.Cmd):
             if method:
                 return method
         return None
-
-    def do_load(self, arg):
-        world.load()
-
-    def do_save(self, arg):
-        world.save()
-
-    def do_interact(self, arg):
-        globals().update(((p.name.lower()), p) for p in world.players)
-        interpreter.interact(local=globals(), stdin=self.stdin, stdout=self.stdout)
-
-    def do_player(self, arg):
-        player = world.find_player(arg)
-        if not player:
-            player = Player(name=arg)
-            world.add_player(player)
-        self.set_player(player)
-        self.player.location.look(self.player)
-
-    def do_quit(self, arg):
-        sys.exit(0)
-
-
-## Launch
-
-world = World(path='world.json')
-world.load()
-
-def main():
-    parser = argparse.ArgumentParser(description='MonkaMOO')
-    parser.add_argument('-i', '--interact', action='store_true', help='Run python shell')
-    parser.add_argument('-s', '--server', action='store_true', help='Start moo server')
-    args = parser.parse_args()
-    if args.interact:
-        globals().update(((p.name.lower()), p) for p in world.players)
-        interpreter.interact(local=globals())
-    elif args.server:
-        print('Starting server...')
-        moo_server = server.MonkaMOOServer()
-        moo_server.run()
-    else:
-        me = world.find_player('Jim')
-        Shell(me).cmdloop()
-
-if __name__ == '__main__':
-    main()
