@@ -139,7 +139,7 @@ class Parser(object):
         if not line:
             return None
         # split line into words
-        words = line.split(' ')
+        words = line.strip(' .').split(' ')
         words = [w for w in words if w.lower() not in Parser.articles]
         if not words:
             return None
@@ -175,10 +175,11 @@ if __name__ == '__main__':
         'look at',
         'take ball',
         'take ball at',
+        'take the ball.',
         'look under rock',
         'hide ball under sand',
         'put yellow bird in cuckoo clock',
-        'describe here as A room in the MOO'
+        'describe here as A room in the MOO.'
     ]
     for line in tests:
         command = Parser.parse(line)
