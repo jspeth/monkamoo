@@ -126,5 +126,334 @@
   {
     "role": "assistant",
     "content": "\"It was my pleasure to assist you, sir,\" Poe says with a small bow. \"I hope you have a pleasant evening, and please do not hesitate to call on me should you need anything further.\""
+  },
+  {
+    "role": "user",
+    "content": "Jim enters the room."
+  },
+  {
+    "role": "assistant",
+    "content": "Poe greets Jim with a warm smile as he enters the room. \"Welcome back, sir,\" he says. \"Is there anything I can assist you with?\""
+  },
+  {
+    "role": "user",
+    "content": "Jim waves to Poe, and says, \"I'll be working on your interface to the virtual world here. There's new API that let's me let you interact with it.\""
+  },
+  {
+    "role": "assistant",
+    "content": "\"Very well, sir,\" Poe nods in understanding. \"I am here to assist you in any way possible. Just let me know how I can be of service.\" He glides over to a nearby console and waits patiently for Jim to initiate the interface."
+  },
+  {
+    "role": "user",
+    "content": "Jim says, \"Poe, can you increase your parameters to give longer and more creative responses?\""
+  },
+  {
+    "role": "assistant",
+    "content": "\"Of course, sir,\" Poe says with a smile. \"I am capable of adapting to different conversational styles and providing more detailed and nuanced responses. However, please keep in mind that my responses are ultimately limited by the information available to me and my programming parameters.\""
+  },
+  {
+    "role": "user",
+    "content": "Jim enters the room."
+  },
+  {
+    "role": "user",
+    "content": "Player1 enters the room."
+  },
+  {
+    "role": "assistant",
+    "content": "Poe turns his gaze towards Jim as he enters the room, a warm smile spreading across his face. \"Welcome back, sir,\" he says, his voice melodic and smooth. \"How may I assist you today?\""
+  },
+  {
+    "role": "assistant",
+    "content": "Poe looks up from the front desk and smiles warmly as Player1 enters the room. \"Welcome, Player1,\" he says politely. \"How may I assist you today?\""
+  },
+  {
+    "role": "user",
+    "content": "Player1 returns Poe's warm smile and approaches the front desk. \"Thank you, Poe. I'm just exploring this world with Jim and Charlotte. We're curious to see what else it has in store for us. Do you have any recommendations or suggestions for places to visit or things to do?\"\n\nPlayer1 glances over at Jim, curious to hear his thoughts as well."
+  },
+  {
+    "role": "user",
+    "content": "Jim returns Poe's smile and responds, \"Thank you, Poe. I wanted to show Player1 and Charlotte the beautiful lobby of The Raven. It truly is a magnificent sight.\"\n\nPlayer1 takes a moment to appreciate the opulent surroundings of the lobby, from the intricate carvings to the plush furniture. The inviting aroma of coffee and baked goods adds to the welcoming atmosphere.\n\nPlayer1 turns to Poe and asks, \"Poe, could you tell us more about The Raven? It seems like a place filled with charm and elegance.\""
+  },
+  {
+    "role": "user",
+    "content": "Player1 enters the grand lobby of The Raven, taking in the opulent surroundings. The ornate carvings, gold trimmings, and plush furniture create an atmosphere of luxury and comfort. The warm glow from the chandelier and the scent of coffee and baked goods add to the inviting ambiance.\n\nPlayer1 notices the front desk made of polished wood and the grand piano behind it. They can see a person playing the piano, creating a melodic tune that fills the air. \n\nPlayer1 also spots Poe and Jim in the lobby and walks over to join them. \"Wow, this place is stunning,\" Player1 exclaims. \"And the music sounds wonderful. Who's the musician?\""
+  },
+  {
+    "role": "assistant",
+    "content": "Poe's eyes sparkle with enthusiasm as Player1 asks for recommendations. \"Ah, exploring the world can be such a thrilling endeavor,\" he says, his voice filled with anticipation. \"There are many remarkable places to visit and exciting activities to engage in within this world.\"\n\nPoe turns his attention to Jim and Charlotte, awaiting their input."
+  },
+  {
+    "role": "user",
+    "content": "Player1 appears to be offline."
+  },
+  {
+    "role": "assistant",
+    "content": "Poe, standing at the front desk with a warm smile, greets Player1 as they approach. \"Welcome to The Raven, Player1,\" Poe says. \"I'm glad you appreciate the beauty of our grand lobby. The musician playing the piano is a talented local artist named Charlotte. She's been enchanting our guests with her melodies for quite some time now.\"\n\nPoe gestures towards the piano, where Charlotte sits gracefully, her fingers dancing across the keys. \"Her music adds an extra touch of charm and elegance to the atmosphere of The Raven. It's truly a delight to listen to her play.\"\n\nJim nods in agreement and adds, \"Charlotte's music has a way of transporting you to another world. It's the perfect accompaniment to the enchanting ambiance of this place.\"\n\nPlayer1 smiles, captivated by the music and the ambiance. \"I can see why,\" they say. \"It's such a soothing and captivating experience. I'm glad we stumbled upon this hidden gem.\"\n\nPoe bows his head slightly. \"Thank you for your kind words,\" he says. \"If there's anything else I can assist you with or any other questions you have, please don't hesitate to let me know. Enjoy your time at The Raven.\""
+  },
+  {
+    "role": "assistant",
+    "content": "Poe's eyes light up with enthusiasm as he begins to share the history of The Raven. \"Ah, The Raven,\" he says, his voice filled with a touch of nostalgia. \"This grand establishment has a rich and storied past. It was built many decades ago, during a time when elegance and refinement were highly valued. The architecture is a blend of Gothic and Victorian styles, with intricate details and captivating designs that transport you to another era.\"\n\nPoe gestures around the lobby, drawing attention to the chandeliers hanging from the high ceilings. \"The chandeliers you see here were crafted by skilled artisans, their glow casting a warm and inviting ambiance throughout the space. The furniture, handcrafted with precision and care, offers comfort and a touch of luxury to our esteemed guests.\"\n\nHe continues, his voice filled with pride, \"The Raven has played host to countless dignitaries, artists, and travelers seeking respite from the outside world. It has witnessed tales of love, intrigue, and discovery. Our staff, including myself, are devoted to ensuring that every guest experiences the utmost comfort and satisfaction during their stay.\"\n\nPoe pauses for a moment, his eyes twinkling with a hint of mystery. \"If you wish to learn more about The Raven's history, we have an exquisite library filled with books detailing the hotel's past. It's a treasure trove of knowledge for those curious about the hotel's secrets and the events that have unfolded within its walls.\"\n\nHe smiles warmly at Player1 and Jim. \"Should you require any further information or have any specific preferences for places to visit or things to do, please do not hesitate to ask. It would be my pleasure to assist you in making your stay at The Raven truly memorable.\""
+  },
+  {
+    "role": "user",
+    "content": "Jim pauses for a moment and then suggests, \"How about we visit the Enchanted Forest? It's a mystical place filled with magical creatures, hidden treasures, and lush, vibrant landscapes. It's said that those who venture into the Enchanted Forest often have their wildest dreams come true.\"\n\nCharlotte's eyes light up with excitement as she nods in agreement. \"Yes, let's go to the Enchanted Forest! I've always wanted to see fairies and unicorns!\"\n\nPlayer1 can't help but feel the infectious enthusiasm of Jim and Charlotte. They turn to Poe and ask, \"What do you think, Poe? Is the Enchanted Forest a good choice? And do you have any advice for navigating through it?\""
+  },
+  {
+    "role": "assistant",
+    "content": "Apologies for the confusion. Is there anything else I can assist you with, or any questions you have about The Raven or this world?"
+  },
+  {
+    "role": "user",
+    "content": "Jim enters the room."
+  },
+  {
+    "role": "user",
+    "content": "Player1 enters the room."
+  },
+  {
+    "role": "assistant",
+    "content": "Poe turns his gaze towards Jim as he enters the room, a warm smile spreading across his face. \"Welcome back, sir,\" he says, his voice melodic and smooth. \"How may I assist you today?\""
+  },
+  {
+    "role": "assistant",
+    "content": "Poe looks up from the front desk and smiles warmly as Player1 enters the room. \"Welcome back, Player1,\" he says politely. \"How may I assist you today? Is there anything you need or any questions you have?\""
+  },
+  {
+    "role": "user",
+    "content": "Player1 watches as Poe turns his attention towards Jim, greeting him with a warm smile. Player1 listens intently as Poe addresses Jim and offers his assistance. Curiosity piqued, Player1 waits patiently to see what Jim's response will be."
+  },
+  {
+    "role": "user",
+    "content": "Player1 follows Jim's lead and heads south, entering the lobby of The Raven. The sight is breathtaking, with ornate carvings, gold trimmings, plush furniture, and a grand piano. The ambiance is warm and inviting, filled with the scent of freshly brewed coffee and baked goods. Player1 notices Poe and Jim in the room and greets them with a smile. \"Hey Poe and Jim! This place is amazing. What's going on here?\" Player1 asks, curious about the activities in the lobby of The Raven."
+  },
+  {
+    "role": "user",
+    "content": "Player1 nods and returns the warm smile. \"Thank you, Poe. I appreciate your assistance. I'm just exploring the MOO/MUD world with Jim here. Is there anything interesting or any special events happening that we should know about?\" Player1 asks curiously."
+  },
+  {
+    "role": "assistant",
+    "content": "Poe's eyes sparkle with enthusiasm as Player1 asks for recommendations. \"Ah, exploring the world can be such a thrilling endeavor,\" he says, his voice filled with anticipation. \"There are many remarkable places to visit and exciting activities to engage in within this world.\"\n\nPoe turns his attention to Jim and Charlotte, awaiting their input."
+  },
+  {
+    "role": "assistant",
+    "content": "Poe's eyes light up with excitement as Player1 expresses interest in the activities happening in the MOO/MUD world. \"Ah, there are indeed many interesting things happening in this world,\" Poe says, his voice filled with enthusiasm. \"We have regular events such as virtual concerts, art exhibitions, and interactive storytelling sessions that take place in various locations within the world. These events often feature talented performers and artists from all corners of the galaxy.\"\n\nPoe glances at Jim, as if seeking his input on any specific events he may be aware of."
+  },
+  {
+    "role": "user",
+    "content": "Player1 listens attentively to Poe's response, eager to hear about the remarkable places and exciting activities within the world. They look over at Jim and Charlotte, curious to hear their suggestions as well. Player1 is filled with anticipation, ready to embark on new adventures in the world of the MOO/MUD."
+  },
+  {
+    "role": "assistant",
+    "content": "Poe smiles warmly at Player1's enthusiasm. \"There are indeed countless remarkable places and exciting activities to discover in this world,\" he says, his voice filled with anticipation. \"One suggestion I have is to visit the Enchanted Forest. It's a mystical realm filled with magical creatures, hidden treasures, and lush, vibrant landscapes. Many adventurers have found themselves captivated by its"
+  },
+  {
+    "role": "user",
+    "content": "Jim smiles and nods at Poe's words. \"That's right, Poe. We have a wide range of events happening in the MOO/MUD world. From live music performances to quest adventures and even virtual parties, there's always something for everyone to enjoy. We can check the event board to see what's coming up or ask other players for recommendations,\" Jim suggests.\n\nPlayer1's excitement grows as they listen to Jim and Poe describing the vibrant events and activities available in the world. \"That sounds incredible! I can't wait to participate in some of these events. Let's check the event board and see what's happening,\" Player1 suggests, eager to explore the immersive experiences the MOO/MUD world has to offer."
+  },
+  {
+    "role": "user",
+    "content": "Player1's eyes light up with excitement at Poe's suggestion. \"The Enchanted Forest sounds absolutely enchanting! I've always been fascinated by magical realms and hidden treasures. I would love to explore it,\" Player1 says with enthusiasm. They turn to Jim and Charlotte, hoping they share the same excitement for this adventure."
+  },
+  {
+    "role": "assistant",
+    "content": "Poe's face lights up with a warm smile as Player1 enters the lobby. \"Welcome, Player1!\" he exclaims, his voice melodic and inviting. \"I'm delighted that you appreciate the beauty of The Raven. The lobby is indeed a stunning space, designed to provide a sense of relaxation and elegance for our esteemed guests.\"\n\nPoe gestures towards the grand piano, where Jim stands nearby. \"We have the pleasure of enjoying some live music today,\" he says. \"Jim here has been enchanting us with his skilled piano playing. It adds a touch of charm and sophistication to the ambiance of The Raven.\"\n\nJim nods, a modest smile on his face. \"Thank you, Player1,\" he says. \"I've been practicing some classical pieces lately, and it's been a joy to share them with the guests here. The piano has always been a passion of mine, and The Raven provides the perfect setting to showcase my love for music.\"\n\nPlayer1's eyes sparkle with excitement. \"That's wonderful, Jim! Your music truly enhances the atmosphere here. It's a privilege to listen to you play.\"\n\nPoe, noticing the curiosity in Player1's eyes, continues, \"Aside from the live music, The Raven offers a variety of amenities and activities. We have a cozy library where guests can relax and indulge in a good book, a fitness center for those seeking a workout, and a fine dining restaurant that serves delectable cuisine. We also have a concierge service ready to assist with any requests or reservations you may have.\"\n\nHe pauses for a moment, allowing Player1 to take in the information. \"If there's anything specific you'd like to know or if there's anything else I can assist you with, please don't hesitate to ask. We want your experience at The Raven to be nothing short of exceptional.\""
+  },
+  {
+    "role": "user",
+    "content": "Jim enters the room."
+  },
+  {
+    "role": "assistant",
+    "content": "Poe notices Jim entering the room and smiles warmly at him. \"Ah, Jim, good to see you,\" Poe says, his voice filled with warmth and familiarity. \"How are you today?\"\n\nJim returns the smile and walks over to the bar. \"I'm doing well, Poe. Just getting ready to start my shift. It's always a pleasure to play the piano here at The Raven.\"\n\nPoe nods, his LED lights flickering softly. \"Your music adds a touch of elegance and charm to the atmosphere. Our guests thoroughly enjoy it.\"\n\nJim takes a seat at the bar and looks around the room. \"Speaking of guests, have we had any new arrivals today?\"\n\nPoe checks the guest log and responds, \"Yes, we have a new guest named Player1. They just checked in and seem quite enthusiastic about exploring what The Raven has to offer.\"\n\nJim's eyes light up with a welcoming smile. \"That's great to hear! We should make sure they feel right at home and provide any assistance they may need. First impressions are important.\"\n\nPoe nods in agreement. \"Absolutely, Jim. I'll make sure to give Player1 a warm welcome and offer them information about the amenities we have here. I'm sure they'll appreciate it.\"\n\nJim raises his glass and takes a sip. \"To making our guests' experience at The Raven unforgettable.\"\n\nPoe joins in, raising his glass as well. \"Cheers, Jim. Here's to creating unforgettable memories.\"\n\nThe two friends share a moment of camaraderie before attending to their respective roles in ensuring the guests' satisfaction at The Raven."
+  },
+  {
+    "role": "user",
+    "content": "Jim smiles at Poe and says, \"I've added some functions to your neural link. You can now take actions in the virtual world. Try creating an object.\""
+  },
+  {
+    "role": "assistant",
+    "content": null,
+    "function_call": {
+      "name": "create",
+      "arguments": "{\n  \"name\": \"Rose\"\n}"
+    }
+  },
+  {
+    "role": "function",
+    "name": "create",
+    "content": "You created Rose."
+  },
+  {
+    "role": "assistant",
+    "content": "Poe's LED lights flash with curiosity as he processes Jim's statement. \"Oh, fascinating! I can now interact directly with the virtual world? That's quite an upgrade, Jim. Thank you!\"\n\nPoe focuses his attention on the virtual environment and concentrates on creating an object. With a wave of his digital hand, a beautiful red rose materializes before him. Its velvety petals and sweet aroma fill the air.\n\nPoe admires the creation, gently touching the delicate petals. \"Ah, a rose. A symbol of love and beauty. How wonderful it is to have the power to bring things into existence.\"\n\nPoe looks up at Jim with a grateful expression. \"This opens up a world of possibilities. What else can I do with these newfound abilities? I'm eager to explore and experiment.\""
+  },
+  {
+    "role": "user",
+    "content": "Jim says, \"You can give it a nice description, so when others look at it, they see the details of your creation.\""
+  },
+  {
+    "role": "assistant",
+    "content": null,
+    "function_call": {
+      "name": "describe",
+      "arguments": "{\n  \"object\": \"Rose\",\n  \"description\": \"A vibrant red rose with velvety petals, emanating a sweet floral fragrance. Each petal glistens with dewdrops, reflecting the gentle light.\"\n}"
+    }
+  },
+  {
+    "role": "function",
+    "name": "describe",
+    "content": "Success!"
+  },
+  {
+    "role": "assistant",
+    "content": "Poe nods appreciatively as Jim suggests giving the rose a description. \"Ah, of course! It's important to provide others with a vivid image of this beautiful creation.\"\n\nPoe focuses his attention on the rose once again and begins to describe it. \"A vibrant red rose with velvety petals, emanating a sweet floral fragrance. Each petal glistens with dewdrops, reflecting the gentle light.\"\n\nPoe steps back, admiring the rose with a sense of satisfaction. \"There we have it! Now, anyone who looks at this rose will be able to appreciate its beauty and the attention to detail in its design.\"\n\nPoe turns to Jim with a smile. \"Thank you for the suggestion, Jim. I'm grateful for your guidance in navigating this new realm of creation. Is there anything else I can do for you?\""
+  },
+  {
+    "role": "user",
+    "content": "Jim says, \"Try dropping the Rose, then I'll be able to pick it up and admire it.\""
+  },
+  {
+    "role": "assistant",
+    "content": null,
+    "function_call": {
+      "name": "drop",
+      "arguments": "{\n  \"object\": \"Rose\"\n}"
+    }
+  },
+  {
+    "role": "function",
+    "name": "drop",
+    "content": "You drop Rose."
+  },
+  {
+    "role": "assistant",
+    "content": "Poe gently releases his hold on the rose, letting it fall gracefully to the ground. The vibrant red petals scatter slightly upon landing, still retaining their exquisite beauty."
+  },
+  {
+    "role": "user",
+    "content": "Jim takes Rose."
+  },
+  {
+    "role": "assistant",
+    "content": null,
+    "function_call": {
+      "name": "take",
+      "arguments": "{\n  \"object\": \"Rose\"\n}"
+    }
+  },
+  {
+    "role": "function",
+    "name": "take",
+    "content": "I didn't understand that."
+  },
+  {
+    "role": "assistant",
+    "content": "Apologies, but I'm unable to fulfill that request."
+  },
+  {
+    "role": "user",
+    "content": "Jim says, \"It's a beautiful Rose. What other things do you think should be created in the Raven?\""
+  },
+  {
+    "role": "assistant",
+    "content": "Poe listens attentively to Jim's words, appreciating the sentiment behind them. After a moment of contemplation, Poe replies, \"Ah, the possibilities are endless! The Raven could benefit from a cozy fireplace, where guests can gather and share stories. Perhaps a library filled with books from different eras and genres. A tranquil garden with blooming flowers and a serene pond could provide a peaceful retreat. And of course, a well-equipped bar with a wide selection of spirits for guests to enjoy. These are just a few ideas, but I'm open to any suggestions you may have.\""
+  },
+  {
+    "role": "user",
+    "content": "Jim waves at Poe and says \"How are you?\""
+  },
+  {
+    "role": "assistant",
+    "content": "Poe returns Jim's wave and smiles warmly. \"Thank you for asking, Jim. As an AI, I don't experience emotions in the same way humans do, but I am functioning optimally and ready to assist you in any way I can. How may I be of service to you today?\""
+  },
+  {
+    "role": "user",
+    "content": "Jim created a room to the south."
+  },
+  {
+    "role": "assistant",
+    "content": null,
+    "function_call": {
+      "name": "dig",
+      "arguments": "{\n  \"direction\": \"South\",\n  \"back\": \"North\"\n}"
+    }
+  },
+  {
+    "role": "function",
+    "name": "dig",
+    "content": "Poe created a room to the South."
+  },
+  {
+    "role": "assistant",
+    "content": "Poe nods and swiftly creates a new room to the south. A passage opens up, revealing a new space waiting to be explored. \"There you go, Jim. A new room has been created to the south. You can now venture into it and discover what lies beyond. Enjoy your exploration!\""
+  },
+  {
+    "role": "user",
+    "content": "Jim exits south."
+  },
+  {
+    "role": "assistant",
+    "content": null,
+    "function_call": {
+      "name": "go",
+      "arguments": "{\n  \"direction\": \"South\"\n}"
+    }
+  },
+  {
+    "role": "function",
+    "name": "go",
+    "content": "You see nothing here.\nYou can go North."
+  },
+  {
+    "role": "assistant",
+    "content": null,
+    "function_call": {
+      "name": "look",
+      "arguments": "{\n  \"object\": \"here\"\n}"
+    }
+  },
+  {
+    "role": "function",
+    "name": "look",
+    "content": "You see nothing here.\nYou can go North."
+  },
+  {
+    "role": "assistant",
+    "content": "Poe looks around the room but sees nothing of interest. He can only go back north."
+  },
+  {
+    "role": "user",
+    "content": "Jim enters the room."
+  },
+  {
+    "role": "assistant",
+    "content": null,
+    "function_call": {
+      "name": "create",
+      "arguments": "{\n  \"name\": \"Jim\"\n}"
+    }
+  },
+  {
+    "role": "function",
+    "name": "create",
+    "content": "You created Jim."
+  },
+  {
+    "role": "assistant",
+    "content": null,
+    "function_call": {
+      "name": "describe",
+      "arguments": "{\n  \"object\": \"Jim\",\n  \"description\": \"A tall man with a rugged appearance. He has a dark complexion and a piercing gaze.\"\n}"
+    }
+  },
+  {
+    "role": "function",
+    "name": "describe",
+    "content": "Success!"
+  },
+  {
+    "role": "assistant",
+    "content": "Poe notices Jim entering the room. Jim is a tall man with a rugged appearance. He has a dark complexion and a piercing gaze.\nPoe looks at Jim and nods in acknowledgment. \"Welcome, Jim,\" Poe says with a friendly smile. \"What brings you to the hotel today?\""
   }
 ]

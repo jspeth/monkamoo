@@ -75,6 +75,8 @@ class Shell(cmd.Cmd):
             player = AIPlayer(name=arg)
             player.location = self.player.location
             self.world.add_player(player)
+        else:
+            player.location = self.player.location
 
     def do_quit(self, arg):
         sys.exit(0)

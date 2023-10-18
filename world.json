@@ -27,6 +27,13 @@
       "name": "rainbox",
       "type": "Object"
     },
+    "2040d72f-6797-4acf-971c-82d5ee59b225": {
+      "description": "The Towel is a versatile and essential item for any interstellar traveler. It is soft, absorbent, and can be used for various purposes, such as drying off, sitting on, or waving as a distress signal. Remember, always carry a towel!",
+      "id": "2040d72f-6797-4acf-971c-82d5ee59b225",
+      "location": "5f2db66e-a79e-49db-9105-dda9522f81ec",
+      "name": "Towel",
+      "type": "Object"
+    },
     "2b1ff39c-3d7d-4c5d-a74d-6f400dc7e3da": {
       "description": "it is pink with stripes",
       "exits": {
@@ -40,16 +47,53 @@
     "308caa19-edbc-487a-a993-b562d7fb87d6": {
       "description": "The lobby of the Raven is a sight to behold. The walls are adorned with ornate carvings and intricate gold trimmings, and there are plush velvet couches and chairs scattered about. The chandelier in the center of the room casts a warm glow, and the marble floors shine brightly. The front desk is made of polished wood, and behind it sits a grand piano that is often played by our resident musician. The air is scented with the aroma of freshly brewed coffee and baked goods from our in-house bakery. It's a warm and inviting space that welcomes guests with open arms.",
       "exits": {
-        "north": "0"
+        "South": "3ae78699-ee6c-4f2f-9929-44ddce92fa91",
+        "north": "0",
+        "south": "4319d502-c7b7-46eb-84cf-21f563a419ef"
       },
       "id": "308caa19-edbc-487a-a993-b562d7fb87d6",
       "location": null,
       "name": "The Raven - Lobby",
       "type": "Room"
     },
+    "34c95a1a-11cc-4686-a86b-3ef91b5a4675": {
+      "description": "Aurora is an ethereal version of Charlotte, mirroring her appearance and demeanor. She shares the same qualities and characteristics as Charlotte, but with a slightly different presence, as if she exists in a parallel realm. Aurora's eyes are filled with curiosity and intelligence, constantly observing her surroundings. She radiates an aura of mystery and reflection, embodying the essence of introspection and self-discovery. Like the dawn, she symbolizes new beginnings and the awakening of possibilities, guiding Charlotte on a transformative journey of self-discovery.",
+      "id": "34c95a1a-11cc-4686-a86b-3ef91b5a4675",
+      "location": "f51f2307-0b23-42d7-8835-2e094446ef27",
+      "name": "Aurora",
+      "type": "AIPlayer"
+    },
+    "3ae78699-ee6c-4f2f-9929-44ddce92fa91": {
+      "description": null,
+      "exits": {
+        "North": "308caa19-edbc-487a-a993-b562d7fb87d6"
+      },
+      "id": "3ae78699-ee6c-4f2f-9929-44ddce92fa91",
+      "location": null,
+      "name": null,
+      "type": "Room"
+    },
+    "4319d502-c7b7-46eb-84cf-21f563a419ef": {
+      "description": null,
+      "exits": {
+        "back": "308caa19-edbc-487a-a993-b562d7fb87d6"
+      },
+      "id": "4319d502-c7b7-46eb-84cf-21f563a419ef",
+      "location": null,
+      "name": null,
+      "type": "Room"
+    },
+    "4e5a5953-a52e-43e5-9abb-8c8adc441d57": {
+      "description": "The book is a leather-bound tome filled with ancient wisdom. Its pages are yellowed with age, and its cover bears intricate engravings. Opening it reveals a wealth of knowledge and stories waiting to be discovered.",
+      "id": "4e5a5953-a52e-43e5-9abb-8c8adc441d57",
+      "location": "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9",
+      "name": "Book",
+      "type": "Object"
+    },
     "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9": {
       "description": "You are in a dusty attic, filled with old books and instruments.",
       "exits": {
+        "North": "f51f2307-0b23-42d7-8835-2e094446ef27",
         "down": "0"
       },
       "id": "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9",
@@ -57,17 +101,24 @@
       "name": "Attic",
       "type": "Room"
     },
+    "58fc5b32-57b8-4c5d-8e7d-cc848ee70212": {
+      "description": "A vibrant red rose with velvety petals, emanating a sweet floral fragrance. Each petal glistens with dewdrops, reflecting the gentle light.",
+      "id": "58fc5b32-57b8-4c5d-8e7d-cc848ee70212",
+      "location": "5f2db66e-a79e-49db-9105-dda9522f81ec",
+      "name": "Rose",
+      "type": "Object"
+    },
     "5f2db66e-a79e-49db-9105-dda9522f81ec": {
-      "description": null,
+      "description": "Jim, the ancient and wise wizard, stands tall and proud, his long white beard cascading down to his chest. Clad in robes adorned with intricate symbols of arcane power, his eyes sparkle with the wisdom of centuries. With a mere flick of his staff, he conjured the very world we now inhabit, shaping its landscapes and breathing life into its inhabitants. Jim's presence commands reverence and respect, for he is not only the creator of this realm but also its eternal guardian, ensuring balance and harmony in its every corner.",
       "id": "5f2db66e-a79e-49db-9105-dda9522f81ec",
-      "location": "0",
+      "location": "4319d502-c7b7-46eb-84cf-21f563a419ef",
       "name": "Jim",
       "type": "Player"
     },
     "63646a7b-0e78-4038-ae30-e49f1fc4906c": {
-      "description": null,
+      "description": "Charlotte, a book-loving teenager, is often found with a mischievous glint in her eyes. With her nose buried in a book, she dreams of mythical creatures, especially cats and dragons. Her snarky sense of humor adds a playful twist to her interactions, making her a delightfully witty companion. As she explores this magical world, her curiosity and passion fuel her adventures, leaving a trail of enchanted tales in her wake.",
       "id": "63646a7b-0e78-4038-ae30-e49f1fc4906c",
-      "location": "0",
+      "location": "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9",
       "name": "Charlotte",
       "type": "Player"
     },
@@ -98,6 +149,20 @@
       "name": null,
       "type": "Room"
     },
+    "7f541d13-0500-47bc-b3a7-f100747e00e5": {
+      "description": null,
+      "id": "7f541d13-0500-47bc-b3a7-f100747e00e5",
+      "location": "4319d502-c7b7-46eb-84cf-21f563a419ef",
+      "name": "Data",
+      "type": "AIPlayer"
+    },
+    "83dc3aff-b554-491e-b964-ad7ca893ef98": {
+      "description": "Marvin is a depressed and highly intelligent robot. He has a shiny metal exterior and a constant frown on his face. He is known for his pessimistic and sarcastic personality.",
+      "id": "83dc3aff-b554-491e-b964-ad7ca893ef98",
+      "location": "4319d502-c7b7-46eb-84cf-21f563a419ef",
+      "name": "Marvin",
+      "type": "AIPlayer"
+    },
     "92d58b46-a243-48c3-b2ce-41952025ada9": {
       "description": "A beautiful waterfall with a glorious rainbow behind it.",
       "id": "92d58b46-a243-48c3-b2ce-41952025ada9",
@@ -108,7 +173,7 @@
     "945ffe2f-1141-437f-ad0c-187c8d322829": {
       "description": "Poe stands tall behind the front desk, with a sharp black suit and a crisp white shirt. His hair is slicked back, and his mustache is trimmed to perfection. He has a warm smile and a friendly demeanor that puts guests at ease. His voice is smooth and reassuring, with a hint of old-world charm. He is the epitome of a gracious hotel proprietor, ready to cater to the needs of his guests.",
       "id": "945ffe2f-1141-437f-ad0c-187c8d322829",
-      "location": "308caa19-edbc-487a-a993-b562d7fb87d6",
+      "location": "3ae78699-ee6c-4f2f-9929-44ddce92fa91",
       "name": "Poe",
       "type": "AIPlayer"
     },
@@ -121,6 +186,23 @@
       "id": "b0abac34-1bf7-4b27-af6b-edda0922d0a8",
       "location": null,
       "name": null,
+      "type": "Room"
+    },
+    "f4d3e1bd-6a2e-46ac-8347-8c5a9a01ac54": {
+      "description": "A courageous wanderer, always seeking new adventures and forging meaningful connections with fellow travelers. With a warm smile and a twinkle in their eyes, Player1 exudes a sense of curiosity and excitement that inspires those around them.",
+      "id": "f4d3e1bd-6a2e-46ac-8347-8c5a9a01ac54",
+      "location": "0",
+      "name": "Player1",
+      "type": "AIPlayer"
+    },
+    "f51f2307-0b23-42d7-8835-2e094446ef27": {
+      "description": null,
+      "exits": {
+        "South": "4fd8ba0f-b9ac-4cc7-aee9-56f356c133a9"
+      },
+      "id": "f51f2307-0b23-42d7-8835-2e094446ef27",
+      "location": null,
+      "name": "Enchanted Grove",
       "type": "Room"
     }
   }

@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import openai
 import os
 import threading
@@ -7,14 +8,19 @@ import threading
 from .player import Player
 from line_parser import Command
 
+# Use DEBUG for OpenAI API messages
+# Use INFO for AIPLayer messages
+#logging.basicConfig(filename='aiplayer.log', encoding='utf-8', level=logging.INFO)
+
 class AIPlayer(Player):
     """ Represents an AI player in the MOO. """
 
     def __init__(self, api_key=None, **kwargs):
         super(AIPlayer, self).__init__(**kwargs)
-        openai.api_key = api_key or os.getenv("OPENAI_API_KEY")
+        openai.api_key = api_key or os.getenv('OPENAI_API_KEY')
         self.history_path = f'{self.name}.json'
         self.load_history()
+        self.captured_messages = None
 
     def load_history(self):
         try:
@@ -33,55 +39,240 @@ class AIPlayer(Player):
         with open(self.history_path, 'w') as f:
             f.write(data)
 
+    def filtered_history(self):
+        if len(self.history) < 10:
+            return self.history
+        return self.history[:5] + self.history[-5:]
+
     def tell(self, message):
-        thread = threading.Thread(target=self.run_async, args=(message,))
-        thread.start()
+        logging.info('aiplayer=%s tell: message="%s"', self.name, message)
+        if self.captured_messages is not None:
+            self.captured_messages.append(message)
+        else:
+            thread = threading.Thread(target=self.run_async, args=(message,))
+            thread.start()
 
     def run_async(self, message):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
-        loop.run_until_complete(self.handle_message(message))
+        loop.run_until_complete(self.handle_message({'role': 'user', 'content': message}))
 
     async def handle_message(self, message):
-        self.history.append({'role': 'user', 'content': message})
+        logging.info('aiplayer=%s handle_message: message=%s', self.name, message)
+        self.history.append(message)
         try:
             response = await self.get_gpt()
         except Exception as err:
-            print('JGS - error:', err)
+            logging.error('aiplayer=%s handle_message: error=%s', self.name, err)
             self.location.announce(self, f'{self.name} appears to be offline.', exclude_player=True)
             return
-        if response is not None:
-            self.history.append({'role': 'assistant', 'content': response})
-            self.location.announce(self, response, exclude_player=True)
-            self.save_history()
+        await self.handle_response(response)
+
+    async def handle_response(self, response):
+        if response is None:
+            return
+        # handle function call
+        if response.get('function_call'):
+            return await self.handle_function_call(response.function_call)
+        # handle content response
+        content = response.get('content')
+        if content is None:
+            return
+        self.history.append({'role': 'assistant', 'content': content})
+        self.location.announce(self, content, exclude_player=True)
+        self.save_history()
 
     async def get_gpt(self):
         response = await openai.ChatCompletion.acreate(
-            model='gpt-3.5-turbo',
-            messages=self.history,
+            model='gpt-3.5-turbo-0613',
+            messages=self.filtered_history(),
             # max_tokens=50,
             # n=1,
             # stop=None,
-            temperature=0.8
+            temperature=0.8,
+            functions=self.get_functions(),
+            function_call='auto'
         )
-        return response.choices and response.choices[0].message.content or None
+        logging.info('aiplayer=%s get_gpt: response=%s', self.name, response)
+        return response.choices and response.choices[0].message or None
 
-    def create(self, command):
-        # Override the create method to prevent AIPlayer from creating objects
-        self.tell("Sorry, I don't have the ability to create objects.")
+    def get_functions(self):
+        return [
+            {
+                'name': 'look',
+                'description': 'Returns a description of the given object.',
+                'parameters': {
+                    'type': 'object',
+                    'properties': {
+                        'object': {
+                            'type': 'string',
+                            'description': 'The object to look at, e.g. Ball, Jim. Use "here" for the current room, or "me" for yourself.',
+                        },
+                    },
+                    'required': ['object'],
+                },
+            },
+            {
+                'name': 'go',
+                'description': 'Go in the given direction.',
+                'parameters': {
+                    'type': 'object',
+                    'properties': {
+                        'direction': {
+                            'type': 'string',
+                            'description': 'The direction to go, e.g. North',
+                        },
+                    },
+                    'required': ['direction'],
+                },
+            },
+            {
+                'name': 'name',
+                'description': 'Sets the name of the given object.',
+                'parameters': {
+                    'type': 'object',
+                    'properties': {
+                        'object': {
+                            'type': 'string',
+                            'description': 'The object to name, e.g. Ball, Jim. Use "here" for the current room, or "me" for yourself.',
+                        },
+                        'name': {
+                            'type': 'string',
+                            'description': 'The new name of the object. The name should be a single word, no whitespace.',
+                        },
+                    },
+                    'required': ['object', 'name'],
+                },
+            },
+            {
+                'name': 'describe',
+                'description': 'Sets the description of the given object.',
+                'parameters': {
+                    'type': 'object',
+                    'properties': {
+                        'object': {
+                            'type': 'string',
+                            'description': 'The object to describe, e.g. Ball, Jim. Use "here" for the current room, or "me" for yourself.',
+                        },
+                        'description': {
+                            'type': 'string',
+                            'description': 'The new description of the object.',
+                        },
+                    },
+                    'required': ['object', 'description'],
+                },
+            },
+            {
+                'name': 'dig',
+                'description': 'Create a new room connected to the current room. This takes you into the newly created room.',
+                'parameters': {
+                    'type': 'object',
+                    'properties': {
+                        'direction': {
+                            'type': 'string',
+                            'description': 'The direction from the current room to the new room, e.g. North, Up. An exit will be added to the current room with this name, which will take you to the new room.',
+                        },
+                        'back': {
+                            'type': 'string',
+                            'description': 'The reverse of the direction, e.g. South, Down. An exit will be added to the new room with this name, which will return you to the original room.',
+                        },
+                    },
+                    'required': ['direction', 'back'],
+                },
+            },
+            {
+                'name': 'whisper',
+                'description': 'Send a private message directly to another player.',
+                'parameters': {
+                    'type': 'object',
+                    'properties': {
+                        'player': {
+                            'type': 'string',
+                            'description': 'The name of the player to receive the message, e.g. Jim.',
+                        },
+                        'message': {
+                            'type': 'string',
+                            'description': 'The private message to send to the player.',
+                        },
+                    },
+                    'required': ['player', 'message'],
+                },
+            },
+            {
+                'name': 'take',
+                'description': 'Pick up an object.',
+                'parameters': {
+                    'type': 'object',
+                    'properties': {
+                        'object': {
+                            'type': 'string',
+                            'description': 'The object to pick up, e.g. Ball. It must be in the current room.',
+                        },
+                    },
+                    'required': ['object'],
+                },
+            },
+            {
+                'name': 'drop',
+                'description': 'Drop an object you are carrying.',
+                'parameters': {
+                    'type': 'object',
+                    'properties': {
+                        'object': {
+                            'type': 'string',
+                            'description': 'The object to drop, e.g. Ball. It must be in your inventory.',
+                        },
+                    },
+                    'required': ['object'],
+                },
+            },
+            {
+                'name': 'create',
+                'description': 'Create a new object and add it to your inventory.',
+                'parameters': {
+                    'type': 'object',
+                    'properties': {
+                        'name': {
+                            'type': 'string',
+                            'description': 'The initial name of the new object. The name should be a single word, no whitespace.',
+                        },
+                    },
+                    'required': ['name'],
+                },
+            },
+        ]
 
-    def dig(self, command):
-        # Override the dig method to prevent AIPlayer from digging new rooms
-        self.tell("Sorry, I don't have the ability to dig new rooms.")
+    async def handle_function_call(self, function_call):
+        name = function_call.name
+        arguments = json.loads(function_call.arguments)
+        logging.info('aiplayer=%s handle_function_call: name=%s arguments=%s', self.name, name, arguments)
+        self.history.append({'role': 'assistant', 'content': None, 'function_call': function_call})
 
-    def take(self, command):
-        # Override the take method to prevent AIPlayer from taking objects
-        self.tell("Sorry, I don't have the ability to take objects.")
+        self.captured_messages = []
+        if name == 'go':
+            self.world.parse_command(self, 'go {direction}'.format(**arguments))
+        elif name == 'look':
+            self.world.parse_command(self, 'look {object}'.format(**arguments))
+        elif name == 'name':
+            self.world.parse_command(self, 'name {object} as {name}'.format(**arguments))
+        elif name == 'describe':
+            self.world.parse_command(self, 'describe {object} as {description}'.format(**arguments))
+        elif name == 'dig':
+            self.world.parse_command(self, 'dig {direction} as {back}'.format(**arguments))
+        elif name == 'whisper':
+            self.world.parse_command(self, 'whisper {player} {message}'.format(**arguments))
+        elif name == 'take':
+            self.world.parse_command(self, 'take {object}'.format(**arguments))
+        elif name == 'drop':
+            self.world.parse_command(self, 'drop {object}'.format(**arguments))
+        elif name == 'create':
+            self.world.parse_command(self, 'create Object as {name}'.format(**arguments))
+        else:
+            self.captured_messages.append('Function not found.')
+        result = self.captured_messages
+        self.captured_messages = None
+        logging.info('aiplayer=%s handle_function_call: result=%s', self.name, result)
 
-    def drop(self, command):
-        # Override the drop method to prevent AIPlayer from dropping objects
-        self.tell("Sorry, I don't have the ability to drop objects.")
-
-    def whisper(self, command):
-        # Override the whisper method to prevent AIPlayer from whispering to other players
-        self.tell("Sorry, I don't have the ability to whisper to other players.")
+        if not result:
+            result = ['Success!']
+        await self.handle_message({'role': 'function', 'name': name, 'content': '\n'.join(result)})
