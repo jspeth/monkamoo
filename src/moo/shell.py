@@ -1,10 +1,10 @@
 import cmd
 import sys
 
-import interpreter
+from . import interpreter
 
-from core.player import Player
-from core.aiplayer import AIPlayer
+from .core.player import Player
+from .core.aiplayer import AIPlayer
 
 class Shell(cmd.Cmd):
     """ A command shell for processing user input and executing MOO commands. """

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>MonkaMOO</title>
+    <style>
+      body {
+        background-color: white;
+        padding: 12px;
+      }
+
+      .message_holder {
+        padding: 12px;
+      }
+
+      .messages {
+        color: darkblue;
+        padding: 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <h3 style="color: #ccc; font-size: 30px">Welcome to MonkaMOO!</h3>
+    <div class="message_holder"></div>
+
+    <form action="" method="POST">
+      <input type="text" class="message" placeholder="Enter a message" />
+      <input type="submit" />
+    </form>
+
+    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+      integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+      crossorigin="anonymous"
+    ></script>
+
+    <script type="text/javascript">
+      var socket = io();
+
+      socket.on("connect", function () {
+        socket.emit("chat_event", {
+          data: "User Connected",
+        });
+        var form = $("form").on("submit", function (e) {
+          e.preventDefault();
+          let user_input = $("input.message").val();
+          socket.emit("chat_event", {
+            message: user_input,
+          });
+          $("div.message_holder").append(
+            '<div class="messages"><i>' + user_input + "</i></div>"
+          );
+          $("input.message").val("").focus();
+        });
+      });
+
+      socket.on("{{ player_name }}", function (msg) {
+        console.log(msg);
+        if (typeof msg.message !== "undefined") {
+          $("div.message_holder").append(
+            '<div class="messages">' + msg.message + "</div>"
+          );
+        }
+      });
+    </script>
+  </body>
+</html>

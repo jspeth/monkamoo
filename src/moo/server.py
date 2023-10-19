@@ -1,7 +1,7 @@
 import socket
 import threading
 
-import shell
+from . import shell
 
 class MonkaMOOServer(socket.socket):
     clients = []

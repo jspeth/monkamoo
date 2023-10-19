@@ -3,8 +3,8 @@ from .base import Base
 from .ball import Ball
 from .object import Object
 
-from line_parser import Preposition
-from utils import join_strings
+from ..line_parser import Preposition
+from ..utils import join_strings
 
 class Player(Base):
     """ Represents a participant in the MOO. """

@@ -1,7 +1,7 @@
 import json
 import sys
 
-import line_parser
+from .. import line_parser
 
 from .ball import Ball
 from .base import Base

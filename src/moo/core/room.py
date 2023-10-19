@@ -1,7 +1,7 @@
 from .base import Base
 from .player import Player
 
-from utils import join_strings
+from ..utils import join_strings
 
 class Room(Base):
     """ Represents a room containing players and objects, with exits to other rooms. """
