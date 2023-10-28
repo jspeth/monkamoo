@@ -15,13 +15,6 @@ class Shell(cmd.Cmd):
     use_rawinput = 0
     player = None
 
-    shortcuts = {
-        '"': 'say',
-        ':': 'emote',
-        '@': 'whisper',
-        '#': 'jump'
-    }
-
     def __init__(self, world, player=None, stdin=None, stdout=None):
         cmd.Cmd.__init__(self, stdin=stdin, stdout=stdout)
         self.world = world
@@ -38,10 +31,6 @@ class Shell(cmd.Cmd):
         if line == 'EOF':
             print
             sys.exit(0)
-        for key in self.shortcuts:
-            if line.startswith(key):
-                line = self.shortcuts[key] + ' ' + line.strip(key + ' ')
-                break
         return line
 
     def default(self, arg):

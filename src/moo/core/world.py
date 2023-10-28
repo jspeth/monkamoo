@@ -13,6 +13,13 @@ from .aiplayer import AIPlayer
 class World(Base):
     """ The root container of all MOO objects. """
 
+    shortcuts = {
+        '"': 'say',
+        ':': 'emote',
+        '@': 'whisper',
+        '#': 'jump'
+    }
+
     def __init__(self, path=None, **kwargs):
         super(World, self).__init__(**kwargs)
         self.path = path
@@ -71,6 +78,10 @@ class World(Base):
         player.location.contents[player.id] = player
 
     def parse_command(self, player, line):
+        for key in self.shortcuts:
+            if line.startswith(key):
+                line = self.shortcuts[key] + ' ' + line.strip(key + ' ')
+                break
         command = line_parser.Parser.parse(line)
         if not command:
             player.tell('I didn\'t understand that.')
