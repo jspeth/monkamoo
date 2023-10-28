@@ -14,6 +14,12 @@ able to code MOO objects in Python and interact with them in the world.
 Running
 -------
 
+Install dependencies:
+
+```
+% pip install -r requirements.txt
+```
+
 The MOO can be run locally for a single player or as a server for multiple players.
 
 ### Single player:
@@ -24,15 +30,23 @@ The MOO can be run locally for a single player or as a server for multiple playe
 
 will start the MOO and connect a default player.
 
-### Server:
+### Telnet Server:
 
 ```
 % ./moo -s
 ```
 
-will start the MOO server on port 8888.
+will start the MOO telnet server on port 8888.
 
 Players should connect via telnet: `telnet localhost 8888`, then issue the `player` command to choose a player.
+
+### Web Server:
+
+```
+% flask run
+```
+
+will start the MOO web server at [http://127.0.0.1:5000](http://127.0.0.1:5000)
 
 Common Commands
 ---------------
