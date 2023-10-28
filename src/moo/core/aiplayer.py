@@ -6,7 +6,7 @@ import os
 import threading
 
 from .player import Player
-from line_parser import Command
+from ..line_parser import Command
 
 # Use DEBUG for OpenAI API messages
 # Use INFO for AIPLayer messages
