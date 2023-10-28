@@ -59,6 +59,9 @@ class AIPlayer(Player):
 
     async def handle_message(self, message):
         logging.info('aiplayer=%s handle_message: message=%s', self.name, message)
+        if not openai.api_key:
+            logging.info('aiplayer=%s handle_message: message ignored: OpenAI api_key is not configured', self.name)
+            return
         self.history.append(message)
         try:
             response = await self.get_gpt()
