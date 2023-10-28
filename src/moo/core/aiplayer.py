@@ -266,7 +266,7 @@ class AIPlayer(Player):
         elif name == 'drop':
             self.world.parse_command(self, 'drop {object}'.format(**arguments))
         elif name == 'create':
-            self.world.parse_command(self, 'create Object as {name}'.format(**arguments))
+            self.world.parse_command(self, 'create {name}'.format(**arguments))
         else:
             self.captured_messages.append('Function not found.')
         result = self.captured_messages
