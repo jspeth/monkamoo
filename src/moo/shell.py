@@ -4,7 +4,6 @@ import sys
 from . import interpreter
 
 from .core.player import Player
-from .core.aiplayer import AIPlayer
 
 class Shell(cmd.Cmd):
     """ A command shell for processing user input and executing MOO commands. """
@@ -40,12 +39,6 @@ class Shell(cmd.Cmd):
         if arg:
             self.world.parse_command(self.player, arg)
 
-    def do_load(self, arg):
-        self.world.load()
-
-    def do_save(self, arg):
-        self.world.save()
-
     def do_interact(self, arg):
         globals().update(((p.name.lower()), p) for p in self.world.players)
         interpreter.interact(local=globals(), stdin=self.stdin, stdout=self.stdout)
@@ -57,15 +50,6 @@ class Shell(cmd.Cmd):
             self.world.add_player(player)
         self.set_player(player)
         self.player.location.look(self.player)
-
-    def do_bot(self, arg):
-        player = self.world.find_player(arg)
-        if not player:
-            player = AIPlayer(name=arg)
-            player.location = self.player.location
-            self.world.add_player(player)
-        else:
-            player.location = self.player.location
 
     def do_quit(self, arg):
         sys.exit(0)

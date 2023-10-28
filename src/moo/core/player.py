@@ -13,6 +13,12 @@ class Player(Base):
         self.stdout = None
         super(Player, self).__init__(**kwargs)
 
+    def do_load(self, command):
+        self.world.load()
+
+    def do_save(self, command):
+        self.world.save()
+
     def tell(self, message):
         if self.stdout:
             self.stdout.write(message + '\n')
@@ -97,3 +103,17 @@ class Player(Base):
         obj = cls(name=name)
         obj.move(self)
         self.tell('You created {name}.'.format(name=name))
+
+    def bot(self, command):
+        name = command.direct_object_str
+        if not name:
+            self.tell('You must provide a player name.')
+            return
+        player = self.world.find_player(name)
+        if not player:
+            from .aiplayer import AIPlayer
+            player = AIPlayer(name=name)
+            player.location = self.location
+            self.world.add_player(player)
+        else:
+            player.location = self.location
