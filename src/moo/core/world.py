@@ -1,13 +1,14 @@
 import json
 import sys
 
-import line_parser
+from .. import line_parser
 
 from .ball import Ball
 from .base import Base
 from .object import Object
 from .player import Player
 from .room import Room
+from .aiplayer import AIPlayer
 
 class World(Base):
     """ The root container of all MOO objects. """
