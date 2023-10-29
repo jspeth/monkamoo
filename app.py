@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import dotenv
 from flask import Flask, render_template, redirect, request, session, url_for
 from flask_socketio import SocketIO
@@ -64,4 +66,4 @@ def handle_chat_event(json, methods=['GET', 'POST']):
 
 if __name__ == '__main__':
     print('Server starting...')
-    socketio.run(app, debug=True)
+    socketio.run(app, debug=True, port=5432)
