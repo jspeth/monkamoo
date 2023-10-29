@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 
 import dotenv
+import eventlet
+import queue
 from flask import Flask, render_template, redirect, request, session, url_for
-from flask_socketio import SocketIO
+from flask_socketio import SocketIO, emit
 
 from src.moo.core.player import Player
 from src.moo.core.world import World
@@ -15,15 +17,30 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'JGS123#'
 socketio = SocketIO(app)
 
+q = queue.Queue()
+
 class SocketOutput(object):
     def __init__(self, player_name):
         self.player_name = player_name
 
     def write(self, data):
-        socketio.emit(self.player_name, { 'message': data })
+        q.put((self.player_name, data))
 
     def flush(self):
         pass
+
+def process_queue():
+    while True:
+        try:
+            player_name, data = q.get_nowait()
+            socketio.emit(player_name, { 'message': data })
+        except queue.Empty:
+            pass
+        eventlet.sleep(0)
+
+@socketio.on('connect')
+def handle_connect():
+    socketio.start_background_task(target=process_queue)
 
 @app.route('/')
 def index():
