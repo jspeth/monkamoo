@@ -5,25 +5,46 @@
     <style>
       body {
         background-color: white;
-        padding: 12px;
+        margin: 0px;
+      }
+
+      .header {
+        background-color: darkblue;
+        color: #fff;
+        font-size: 30px;
+        padding: 10px;
+        text-align: center;
+        width: 100%;
+      }
+
+      .input_form {
+        padding: 16px;
       }
 
       .message_holder {
         padding: 12px;
       }
 
-      .messages {
+      .message {
         color: darkblue;
         padding: 6px;
       }
     </style>
   </head>
   <body>
-    <h3 style="color: #ccc; font-size: 30px">Welcome to MonkaMOO!</h3>
+    <div class="header">
+      <div style="float: left;">Welcome to MonkaMOO!</div>
+      <div style="float: right; margin-top: 6px; margin-right: 20px; font-size: 22px;">
+        <span id="username">{{ player_name }}</span>
+        <a href="/logout" style="color: #fff; margin-left: 10px;">Logout</a>
+      </div>
+      <div style="clear: both;"></div>
+    </div>
+
     <div class="message_holder"></div>
 
-    <form action="" method="POST">
-      <input type="text" class="message" placeholder="Enter a message" />
+    <form class="input_form" action="" method="POST">
+      <input type="text" class="message_input" placeholder="Enter a message" />
       <input type="submit" />
     </form>
 
@@ -44,14 +65,14 @@
         });
         var form = $("form").on("submit", function (e) {
           e.preventDefault();
-          let user_input = $("input.message").val();
+          let user_input = $("input.message_input").val();
           socket.emit("chat_event", {
             message: user_input,
           });
           $("div.message_holder").append(
-            '<div class="messages"><i>' + user_input + "</i></div>"
+            '<div class="message"><i>' + user_input + "</i></div>"
           );
-          $("input.message").val("").focus();
+          $("input.message_input").val("").focus();
         });
       });
 
@@ -59,7 +80,7 @@
         console.log(msg);
         if (typeof msg.message !== "undefined") {
           $("div.message_holder").append(
-            '<div class="messages">' + msg.message + "</div>"
+            '<div class="message">' + msg.message.replace(/\n/g, '<br/>') + "</div>"
           );
         }
       });
