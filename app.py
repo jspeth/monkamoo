@@ -61,12 +61,7 @@ def login():
             world.add_player(player)
         player.stdout = SocketOutput(player_name)
         return redirect(url_for('index'))
-    return '''
-        <form method="post">
-            <p><input type=text name=player_name placeholder=Player>
-            <p><input type=submit>
-        </form>
-    '''
+    return render_template('login.html')
 
 @app.route('/logout')
 def logout():

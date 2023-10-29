@@ -1,89 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <title>MonkaMOO</title>
-    <style>
-      body {
-        background-color: white;
-        margin: 0px;
-      }
+{% extends "layout.html" %}
+{% block content %}
+  <div class="message_holder"></div>
 
-      .header {
-        background-color: darkblue;
-        color: #fff;
-        font-size: 30px;
-        padding: 10px;
-        text-align: center;
-        width: 100%;
-      }
+  <form class="input_form" action="" method="POST">
+    <input type="text" class="message_input" placeholder="Enter a message" />
+    <input type="submit" />
+  </form>
 
-      .input_form {
-        padding: 16px;
-      }
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+  <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+    integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+    crossorigin="anonymous"
+  ></script>
 
-      .message_holder {
-        padding: 12px;
-      }
+  <script type="text/javascript">
+    var socket = io();
 
-      .message {
-        color: darkblue;
-        padding: 6px;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="header">
-      <div style="float: left;">Welcome to MonkaMOO!</div>
-      <div style="float: right; margin-top: 6px; margin-right: 20px; font-size: 22px;">
-        <span id="username">{{ player_name }}</span>
-        <a href="/logout" style="color: #fff; margin-left: 10px;">Logout</a>
-      </div>
-      <div style="clear: both;"></div>
-    </div>
-
-    <div class="message_holder"></div>
-
-    <form class="input_form" action="" method="POST">
-      <input type="text" class="message_input" placeholder="Enter a message" />
-      <input type="submit" />
-    </form>
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
-      integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
-      crossorigin="anonymous"
-    ></script>
-
-    <script type="text/javascript">
-      var socket = io();
-
-      socket.on("connect", function () {
+    socket.on("connect", function () {
+      socket.emit("chat_event", {
+        data: "User Connected",
+      });
+      var form = $("form").on("submit", function (e) {
+        e.preventDefault();
+        let user_input = $("input.message_input").val();
         socket.emit("chat_event", {
-          data: "User Connected",
+          message: user_input,
         });
-        var form = $("form").on("submit", function (e) {
-          e.preventDefault();
-          let user_input = $("input.message_input").val();
-          socket.emit("chat_event", {
-            message: user_input,
-          });
-          $("div.message_holder").append(
-            '<div class="message"><i>' + user_input + "</i></div>"
-          );
-          $("input.message_input").val("").focus();
-        });
+        $("div.message_holder").append(
+          '<div class="message"><i>' + user_input + "</i></div>"
+        );
+        $("input.message_input").val("").focus();
       });
+    });
 
-      socket.on("{{ player_name }}", function (msg) {
-        console.log(msg);
-        if (typeof msg.message !== "undefined") {
-          $("div.message_holder").append(
-            '<div class="message">' + msg.message.replace(/\n/g, '<br/>') + "</div>"
-          );
-        }
-      });
-    </script>
-  </body>
-</html>
+    socket.on("{{ player_name }}", function (msg) {
+      console.log(msg);
+      if (typeof msg.message !== "undefined") {
+        $("div.message_holder").append(
+          '<div class="message">' + msg.message.replace(/\n/g, '<br/>') + "</div>"
+        );
+      }
+    });
+  </script>
+{% endblock %}

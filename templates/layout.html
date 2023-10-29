@@ -1,0 +1,21 @@
+<!doctype html>
+<html>
+  <head>
+    {% block head %}
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <title>MonkaMOO</title>
+    {% endblock %}
+  </head>
+  <body>
+    <div id="header">
+      <div style="float: left;">Welcome to MonkaMOO!</div>
+      <div style="float: right; margin-top: 6px; margin-right: 20px; font-size: 22px;">
+        <span id="username">{{ player_name }}</span>
+        <a href="/logout" style="color: #fff; margin-left: 10px;">Logout</a>
+      </div>
+      <div style="clear: both;"></div>
+    </div>
+    <div id="content">{% block content %}{% endblock %}</div>
+    <div id="footer">{% block footer %}{% endblock %}</div>
+  </body>
+</html>

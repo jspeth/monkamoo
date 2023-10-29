@@ -1,0 +1,26 @@
+body {
+  background-color: white;
+  margin: 0px;
+}
+
+#header {
+  background-color: darkblue;
+  color: #fff;
+  font-size: 30px;
+  padding: 10px;
+  text-align: center;
+  width: 100%;
+}
+
+.input_form {
+  padding: 16px;
+}
+
+.message_holder {
+  padding: 12px;
+}
+
+.message {
+  color: darkblue;
+  padding: 6px;
+}
