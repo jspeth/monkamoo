@@ -76,6 +76,37 @@ The following shortcuts can be used:
 * `@` -- `whisper` (example: `@jim Psst...` becomes `whisper jim Psst...`)
 * `#` -- `jump` (example: `#attic` becomes `jump attic`)
 
+AI Players
+----------
+
+You can add AI players to the MOO and give them roles or personalities.
+
+### Setup
+
+Configure your OpenAI API key:
+
+```
+cp .env.example .env
+```
+
+Edit `.env` and set the `OPENAI_API_KEY` value.
+
+### Creating AI Players
+
+In the MOO, type `bot [name]` to create an AI player. Then say something to it to give it an initial prompt.
+
+### Notes
+
+AI players have a set of functions available to them so they can take actions in the MOO, like
+moving around, creating rooms and objects, and describing things. But they generally need to be told
+to take these actions.
+
+Some things we've found when experimenting with AI players:
+
+1. A prompt like "You are the character Data from Star Trek." works really well.
+1. If multiple bots get in the same room together, they'll happily keep talking to each other.
+1. They sometimes get carried away with the narrative and will speak or emote for other players.
+
 References
 ----------
 
