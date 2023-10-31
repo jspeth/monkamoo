@@ -21,6 +21,15 @@ class AIPlayer(Player):
         self.history_path = f'{self.name}.json'
         self.load_history()
         self.captured_messages = None
+        self.sleeping = False
+
+    def sleep(self, command):
+        self.sleeping = True
+        self.room.announce(self, '{name} goes to sleep.'.format(name=self.name), exclude_player=True)
+
+    def wake(self, command):
+        self.sleeping = False
+        self.room.announce(self, '{name} wakes up.'.format(name=self.name), exclude_player=True)
 
     def load_history(self):
         try:
@@ -45,6 +54,8 @@ class AIPlayer(Player):
         return self.history[:5] + self.history[-5:]
 
     def tell(self, message):
+        if self.sleeping:
+            return
         logging.info('aiplayer=%s tell: message="%s"', self.name, message)
         if self.captured_messages is not None:
             self.captured_messages.append(message)
