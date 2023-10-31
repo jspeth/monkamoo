@@ -116,4 +116,4 @@ class Player(Base):
             player.location = self.location
             self.world.add_player(player)
         else:
-            player.location = self.location
+            player.move(self.location)
