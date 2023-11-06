@@ -1,4 +1,4 @@
-import threading
+import asyncio
 import uuid
 
 class Base(object):
@@ -133,4 +133,7 @@ class Base(object):
         pass
 
     def timer(self, interval, function, args=[], kwargs={}):
-        return threading.Timer(interval, function, args, kwargs).start()
+        async def perform_after():
+            await asyncio.sleep(interval)
+            function(*args, **kwargs)
+        asyncio.create_task(perform_after())
