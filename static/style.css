@@ -12,15 +12,22 @@ body {
   width: 100%;
 }
 
-.input_form {
-  padding: 16px;
+#content {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  padding: 12px;
 }
 
-.message_holder {
-  padding: 12px;
+#messages {
+  flex-grow: 1;
+  list-style-type: none;
 }
 
 .message {
   color: darkblue;
   padding: 6px;
+}
+
+#footer {
 }
