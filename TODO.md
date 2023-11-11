@@ -1,7 +1,7 @@
 TODO
 ----
 
-* help
+* make help dynamically generated
 * import of player created classes
 * better class finding for create
 * command aliases

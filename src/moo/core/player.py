@@ -117,3 +117,30 @@ class Player(Base):
             self.world.add_player(player)
         else:
             player.move(self.location)
+
+    def help(self, command):
+        # TODO: help should be dynamically generated and use verb search path
+        help = '''
+Commands:
+player [name]: select an existing player or create a new one
+look [object]: show a description of the object or the current room
+go [direction]: change rooms by moving player in direction
+jump [room name]: go directly to a named room
+dig [direction]: create a new room, adding direction to the current room
+name [object] as [name]: set an object's name
+describe [object] as [description]: set an object's description
+say [message]: say a message to all players in the current room
+emote [expression]: express an action, feeling, or just about anything
+whisper [player] [message]: send a private message directly to another player
+find [player]: find player by name, gives their room name or description
+take [object]: pick up an object by name
+drop [object]: drop an object you are carrying
+create [name] as [class]: create a new object
+
+Shortcuts:
+" -- say (example: `"Hi there.` becomes `say Hi there.`)
+: -- emote (example: `:waves.` becomes `emote waves.`)
+@ -- whisper (example: `@jim Psst...` becomes `whisper jim Psst...`)
+# -- jump (example: `#attic` becomes `jump attic`)
+'''
+        self.tell(help)
