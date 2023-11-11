@@ -234,6 +234,24 @@ class AIPlayer(Player):
                 },
             },
             {
+                'name': 'give',
+                'description': 'Give an object you are carrying to another player.',
+                'parameters': {
+                    'type': 'object',
+                    'properties': {
+                        'player': {
+                            'type': 'string',
+                            'description': 'The name of the player to receive the object, e.g. Jim.',
+                        },
+                        'object': {
+                            'type': 'string',
+                            'description': 'The object to give, e.g. Ball. It must be in your inventory.',
+                        },
+                    },
+                    'required': ['player', 'object'],
+                },
+            },
+            {
                 'name': 'create',
                 'description': 'Create a new object and add it to your inventory.',
                 'parameters': {
@@ -272,6 +290,8 @@ class AIPlayer(Player):
             self.world.parse_command(self, 'take {object}'.format(**arguments))
         elif name == 'drop':
             self.world.parse_command(self, 'drop {object}'.format(**arguments))
+        elif name == 'give':
+            self.world.parse_command(self, 'give {object} to {player}'.format(**arguments))
         elif name == 'create':
             self.world.parse_command(self, 'create {name}'.format(**arguments))
         else:

@@ -64,6 +64,7 @@ Common Commands
 * `find [player]`: find player by name, gives their room name or description
 * `take [object]`: pick up an object by name
 * `drop [object]`: drop an object you are carrying
+* `give [object] to [player]`: give an object to another player
 * `create [name] as [class]`: create a new object
 
 Shortcuts

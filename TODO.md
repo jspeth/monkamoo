@@ -16,14 +16,14 @@ TODO
   * announce when connected
   * queue player messages offline
 * "rooms" command
-* "give" command
 * emojis!
 * security (hah)
-* deployment
 
 Done
 ----
 
+* "give" command
+* deployment
 * "find" command to find room that a player is in
 * "jump" command (#room or @player)
 * direct messages (/m or tell @player)
