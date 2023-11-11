@@ -46,7 +46,7 @@ Players should connect via telnet: `telnet localhost 8888`, then issue the `play
 % ./app.py
 ```
 
-will start the MOO web server at [http://127.0.0.1:5000](http://127.0.0.1:5000)
+will start the MOO web server at [http://127.0.0.1:5432](http://127.0.0.1:5432)
 
 Common Commands
 ---------------
