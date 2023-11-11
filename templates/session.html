@@ -1,7 +1,8 @@
 {% extends "layout.html" %}
 {% block content %}
 <script type="text/javascript">
-  const ws = new WebSocket(`ws://${location.host}/ws`);
+  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const ws = new WebSocket(`${protocol}//${location.host}/ws`);
 
   ws.addEventListener('message', function (event) {
     addMessage(event.data);
