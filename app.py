@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
+import asyncio
 import dotenv
-import eventlet
-import queue
-from flask import Flask, render_template, redirect, request, session, url_for
-from flask_socketio import SocketIO, emit
+from quart import Quart, abort, render_template, redirect, request, session, url_for, websocket
 
+from src.moo.broker import Broker
 from src.moo.core.player import Player
 from src.moo.core.world import World
 
@@ -13,45 +12,51 @@ dotenv.load_dotenv()
 world = World(path='world.json')
 world.load()
 
-app = Flask(__name__)
+app = Quart(__name__)
 app.config['SECRET_KEY'] = 'JGS123#'
-socketio = SocketIO(app)
-
-q = queue.Queue()
+broker = Broker()
 
 class SocketOutput(object):
     def __init__(self, player_name):
         self.player_name = player_name
 
-    def write(self, data):
-        q.put((self.player_name, data))
+    def write(self, message):
+        asyncio.create_task(broker.publish(self.player_name, message))
 
     def flush(self):
         pass
 
-def process_queue():
+async def _receive() -> None:
     while True:
-        try:
-            player_name, data = q.get_nowait()
-            socketio.emit(player_name, { 'message': data })
-        except queue.Empty:
-            pass
-        eventlet.sleep(0)
+        message = await websocket.receive()
+        player_name = session.get('player_name')
+        player = world.find_player(player_name)
+        if player and message:
+            world.parse_command(player, message)
 
-@socketio.on('connect')
-def handle_connect():
-    socketio.start_background_task(target=process_queue)
+@app.websocket('/ws')
+async def ws() -> None:
+    player_name = session.get('player_name')
+    if not player_name:
+        abort(401)
+    try:
+        task = asyncio.ensure_future(_receive())
+        async for message in broker.subscribe(player_name):
+            await websocket.send(message)
+    finally:
+        task.cancel()
+        await task
 
 @app.route('/')
-def index():
-    if 'player_name' in session:
-        return render_template('session.html', player_name=session['player_name'])
-    return redirect(url_for('login'))
+async def index():
+    if 'player_name' not in session:
+        return redirect(url_for('login'))
+    return await render_template('session.html', player_name=session['player_name'])
 
 @app.route('/login', methods=['GET', 'POST'])
-def login():
+async def login():
     if request.method == 'POST':
-        player_name = request.form['player_name']
+        player_name = (await request.form)['player_name']
         if player_name:
             player_name = player_name.lower()
         session['player_name'] = player_name
@@ -61,21 +66,13 @@ def login():
             world.add_player(player)
         player.stdout = SocketOutput(player_name)
         return redirect(url_for('index'))
-    return render_template('login.html')
+    return await render_template('login.html')
 
 @app.route('/logout')
-def logout():
+async def logout():
     session.pop('player_name', None)
     return redirect(url_for('index'))
 
-@socketio.on('chat_event')
-def handle_chat_event(json, methods=['GET', 'POST']):
-    player_name = session.get('player_name')
-    player = world.find_player(player_name)
-    message = json.get('message')
-    if player and message:
-        world.parse_command(player, message)
-
 if __name__ == '__main__':
     print('Server starting...')
-    socketio.run(app, debug=True, port=5432)
+    app.run(debug=True, port=5432)
