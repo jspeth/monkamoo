@@ -3,7 +3,6 @@ import json
 import logging
 import openai
 import os
-import threading
 
 from .player import Player
 from ..line_parser import Command
@@ -60,13 +59,7 @@ class AIPlayer(Player):
         if self.captured_messages is not None:
             self.captured_messages.append(message)
         else:
-            thread = threading.Thread(target=self.run_async, args=(message,))
-            thread.start()
-
-    def run_async(self, message):
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        loop.run_until_complete(self.handle_message({'role': 'user', 'content': message}))
+            asyncio.create_task(self.handle_message({'role': 'user', 'content': message}))
 
     async def handle_message(self, message):
         logging.info('aiplayer=%s handle_message: message=%s', self.name, message)
