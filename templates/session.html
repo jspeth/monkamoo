@@ -8,6 +8,10 @@
     addMessage(event.data);
   });
 
+  setInterval(() => {
+    ws.send('');
+  }, 33000);
+
   function send(event) {
     const message = new FormData(event.target).get('message');
     if (message) {
