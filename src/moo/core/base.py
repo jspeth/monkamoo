@@ -105,6 +105,11 @@ class Base(object):
         return [obj for obj in self if not isinstance(obj, Player)]
 
     def find_room(self, name):
+        # Allow using `@Player` to find the room the player is in
+        if name.startswith('@'):
+            player = self.find_player(name.strip('@'))
+            if player:
+                return player.location
         for room in self.rooms:
             if room.name and room.name.lower() == name.lower():
                 return room
