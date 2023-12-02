@@ -47,8 +47,8 @@
     "308caa19-edbc-487a-a993-b562d7fb87d6": {
       "description": "The lobby of the Raven is a sight to behold. The walls are adorned with ornate carvings and intricate gold trimmings, and there are plush velvet couches and chairs scattered about. The chandelier in the center of the room casts a warm glow, and the marble floors shine brightly. The front desk is made of polished wood, and behind it sits a grand piano that is often played by our resident musician. The air is scented with the aroma of freshly brewed coffee and baked goods from our in-house bakery. It's a warm and inviting space that welcomes guests with open arms.",
       "exits": {
-        "south": "3ae78699-ee6c-4f2f-9929-44ddce92fa91",
-        "north": "0"
+        "north": "0",
+        "south": "3ae78699-ee6c-4f2f-9929-44ddce92fa91"
       },
       "id": "308caa19-edbc-487a-a993-b562d7fb87d6",
       "location": null,
@@ -63,13 +63,13 @@
       "type": "AIPlayer"
     },
     "3ae78699-ee6c-4f2f-9929-44ddce92fa91": {
-      "description": null,
+      "description": "Poe's office is a sanctuary of Victorian elegance, shrouded in the ambiance of the 19th century. The walls are lined with dark mahogany wood, and the shelves are filled with an array of leather-bound books, ranging from classical literature to extensive encyclopedias on a multitude of subjects. The center of the room is dominated by a large, antique desk, covered with various papers, a quill, and an inkwell, hinting at Poe's preference for the traditional methods of correspondence. A holographic display flickers subtly in one corner, a concession to the necessity of modern technology. The office is dimly lit by a series of gas lamps that cast a warm glow across the room, and an ornate fireplace provides both warmth and a comforting crackle of burning wood. Large, heavy curtains are drawn over the windows, ensuring privacy and creating a feeling of seclusion from the outside world. This is a place of thought and repose, a retreat from the bustling activity of the hotel.",
       "exits": {
         "North": "308caa19-edbc-487a-a993-b562d7fb87d6"
       },
       "id": "3ae78699-ee6c-4f2f-9929-44ddce92fa91",
       "location": null,
-      "name": null,
+      "name": "Office",
       "type": "Room"
     },
     "4e5a5953-a52e-43e5-9abb-8c8adc441d57": {
@@ -100,7 +100,7 @@
     "5f2db66e-a79e-49db-9105-dda9522f81ec": {
       "description": "Jim, the ancient and wise wizard, stands tall and proud, his long white beard cascading down to his chest. Clad in robes adorned with intricate symbols of arcane power, his eyes sparkle with the wisdom of centuries. With a mere flick of his staff, he conjured the very world we now inhabit, shaping its landscapes and breathing life into its inhabitants. Jim's presence commands reverence and respect, for he is not only the creator of this realm but also its eternal guardian, ensuring balance and harmony in its every corner.",
       "id": "5f2db66e-a79e-49db-9105-dda9522f81ec",
-      "location": "0",
+      "location": "3ae78699-ee6c-4f2f-9929-44ddce92fa91",
       "name": "Jim",
       "type": "Player"
     },
