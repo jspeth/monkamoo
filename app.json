@@ -1,0 +1,23 @@
+{
+  "name": "MonkaMOO",
+  "description": "A Python-based learning MOO in the spirit of LambdaMOO",
+  "repository": "https://github.com/jspeth/monkamoo",
+  "keywords": ["python", "moo", "game", "text-adventure", "ai"],
+  "env": {
+    "OPENAI_API_KEY": {
+      "description": "OpenAI API key for AI players",
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "buildpacks": [
+    {
+      "url": "heroku/python"
+    }
+  ]
+}
