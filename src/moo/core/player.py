@@ -72,7 +72,10 @@ class Player(Base):
         name, message = parts
         player = self.world.find_player(name)
         if player and message:
-            player.tell('{name} whispers, "{message}"'.format(name=self.name, message=message))
+            if hasattr(player, 'handle_whisper'):
+                player.handle_whisper(message)
+            else:
+                player.tell('{name} whispers, "{message}"'.format(name=self.name, message=message), 'whisper')
 
     def find(self, command):
         name = command.direct_object_str

@@ -52,14 +52,18 @@ class AIPlayer(Player):
             return self.history
         return self.history[:5] + self.history[-5:]
 
-    def tell(self, message):
+    def handle_whisper(self, message):
+        asyncio.create_task(self.handle_message({'role': 'system', 'content': message}))
+
+    def tell(self, message, type=None):
         if self.sleeping:
             return
         logging.info('aiplayer=%s tell: message="%s"', self.name, message)
         if self.captured_messages is not None:
             self.captured_messages.append(message)
         else:
-            asyncio.create_task(self.handle_message({'role': 'user', 'content': message}))
+            role = type == 'whisper' and 'system' or 'user'
+            asyncio.create_task(self.handle_message({'role': role, 'content': message}))
 
     async def handle_message(self, message):
         logging.info('aiplayer=%s handle_message: message=%s', self.name, message)
@@ -91,12 +95,12 @@ class AIPlayer(Player):
 
     async def get_gpt(self):
         response = await openai.ChatCompletion.acreate(
-            model='gpt-3.5-turbo-0613',
+            model='o4-mini-2025-04-16',
             messages=self.filtered_history(),
             # max_tokens=50,
             # n=1,
             # stop=None,
-            temperature=0.8,
+            # temperature=0.8,
             functions=self.get_functions(),
             function_call='auto'
         )
