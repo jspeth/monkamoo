@@ -16,7 +16,9 @@ class AIPlayer(Player):
 
     def __init__(self, api_key=None, **kwargs):
         super(AIPlayer, self).__init__(**kwargs)
-        openai.api_key = api_key or os.getenv('OPENAI_API_KEY')
+        # Initialize OpenAI client with API key
+        api_key = api_key or os.getenv('OPENAI_API_KEY')
+        self.client = openai.AsyncOpenAI(api_key=api_key) if api_key else None
         self.history_path = f'{self.name}.json'
         self.load_history()
         self.captured_messages = None
@@ -67,7 +69,7 @@ class AIPlayer(Player):
 
     async def handle_message(self, message):
         logging.info('aiplayer=%s handle_message: message=%s', self.name, message)
-        if not openai.api_key:
+        if not self.client:
             logging.info('aiplayer=%s handle_message: message ignored: OpenAI api_key is not configured', self.name)
             return
         self.history.append(message)
@@ -82,11 +84,11 @@ class AIPlayer(Player):
     async def handle_response(self, response):
         if response is None:
             return
-        # handle function call
-        if response.get('function_call'):
-            return await self.handle_function_call(response.function_call)
+        # handle tool calls (formerly function calls)
+        if response.tool_calls:
+            return await self.handle_tool_calls(response.tool_calls)
         # handle content response
-        content = response.get('content')
+        content = response.content
         if content is None:
             return
         self.history.append({'role': 'assistant', 'content': content})
@@ -94,216 +96,247 @@ class AIPlayer(Player):
         self.save_history()
 
     async def get_gpt(self):
-        response = await openai.ChatCompletion.acreate(
+        response = await self.client.chat.completions.create(
             model='o4-mini-2025-04-16',
             messages=self.filtered_history(),
             # max_tokens=50,
             # n=1,
             # stop=None,
             # temperature=0.8,
-            functions=self.get_functions(),
-            function_call='auto'
+            tools=self.get_tools(),
+            tool_choice='auto'
         )
         logging.info('aiplayer=%s get_gpt: response=%s', self.name, response)
         return response.choices and response.choices[0].message or None
 
-    def get_functions(self):
+    def get_tools(self):
         return [
             {
-                'name': 'look',
-                'description': 'Returns a description of the given object.',
-                'parameters': {
-                    'type': 'object',
-                    'properties': {
-                        'object': {
-                            'type': 'string',
-                            'description': 'The object to look at, e.g. Ball, Jim. Use "here" for the current room, or "me" for yourself.',
+                'type': 'function',
+                'function': {
+                    'name': 'look',
+                    'description': 'Returns a description of the given object.',
+                    'parameters': {
+                        'type': 'object',
+                        'properties': {
+                            'object': {
+                                'type': 'string',
+                                'description': 'The object to look at, e.g. Ball, Jim. Use "here" for the current room, or "me" for yourself.',
+                            },
                         },
+                        'required': ['object'],
                     },
-                    'required': ['object'],
                 },
             },
             {
-                'name': 'go',
-                'description': 'Go in the given direction.',
-                'parameters': {
-                    'type': 'object',
-                    'properties': {
-                        'direction': {
-                            'type': 'string',
-                            'description': 'The direction to go, e.g. North',
+                'type': 'function',
+                'function': {
+                    'name': 'go',
+                    'description': 'Go in the given direction.',
+                    'parameters': {
+                        'type': 'object',
+                        'properties': {
+                            'direction': {
+                                'type': 'string',
+                                'description': 'The direction to go, e.g. North',
+                            },
                         },
+                        'required': ['direction'],
                     },
-                    'required': ['direction'],
                 },
             },
             {
-                'name': 'name',
-                'description': 'Sets the name of the given object.',
-                'parameters': {
-                    'type': 'object',
-                    'properties': {
-                        'object': {
-                            'type': 'string',
-                            'description': 'The object to name, e.g. Ball, Jim. Use "here" for the current room, or "me" for yourself.',
+                'type': 'function',
+                'function': {
+                    'name': 'name',
+                    'description': 'Sets the name of the given object.',
+                    'parameters': {
+                        'type': 'object',
+                        'properties': {
+                            'object': {
+                                'type': 'string',
+                                'description': 'The object to name, e.g. Ball, Jim. Use "here" for the current room, or "me" for yourself.',
+                            },
+                            'name': {
+                                'type': 'string',
+                                'description': 'The new name of the object. The name should be a single word, no whitespace.',
+                            },
                         },
-                        'name': {
-                            'type': 'string',
-                            'description': 'The new name of the object. The name should be a single word, no whitespace.',
-                        },
+                        'required': ['object', 'name'],
                     },
-                    'required': ['object', 'name'],
                 },
             },
             {
-                'name': 'describe',
-                'description': 'Sets the description of the given object.',
-                'parameters': {
-                    'type': 'object',
-                    'properties': {
-                        'object': {
-                            'type': 'string',
-                            'description': 'The object to describe, e.g. Ball, Jim. Use "here" for the current room, or "me" for yourself.',
+                'type': 'function',
+                'function': {
+                    'name': 'describe',
+                    'description': 'Sets the description of the given object.',
+                    'parameters': {
+                        'type': 'object',
+                        'properties': {
+                            'object': {
+                                'type': 'string',
+                                'description': 'The object to describe, e.g. Ball, Jim. Use "here" for the current room, or "me" for yourself.',
+                            },
+                            'description': {
+                                'type': 'string',
+                                'description': 'The new description of the object.',
+                            },
                         },
-                        'description': {
-                            'type': 'string',
-                            'description': 'The new description of the object.',
-                        },
+                        'required': ['object', 'description'],
                     },
-                    'required': ['object', 'description'],
                 },
             },
             {
-                'name': 'dig',
-                'description': 'Create a new room connected to the current room. This takes you into the newly created room.',
-                'parameters': {
-                    'type': 'object',
-                    'properties': {
-                        'direction': {
-                            'type': 'string',
-                            'description': 'The direction from the current room to the new room, e.g. North, Up. An exit will be added to the current room with this name, which will take you to the new room.',
+                'type': 'function',
+                'function': {
+                    'name': 'dig',
+                    'description': 'Create a new room connected to the current room. This takes you into the newly created room.',
+                    'parameters': {
+                        'type': 'object',
+                        'properties': {
+                            'direction': {
+                                'type': 'string',
+                                'description': 'The direction from the current room to the new room, e.g. North, Up. An exit will be added to the current room with this name, which will take you to the new room.',
+                            },
+                            'back': {
+                                'type': 'string',
+                                'description': 'The reverse of the direction, e.g. South, Down. An exit will be added to the new room with this name, which will return you to the original room.',
+                            },
                         },
-                        'back': {
-                            'type': 'string',
-                            'description': 'The reverse of the direction, e.g. South, Down. An exit will be added to the new room with this name, which will return you to the original room.',
-                        },
+                        'required': ['direction', 'back'],
                     },
-                    'required': ['direction', 'back'],
                 },
             },
             {
-                'name': 'whisper',
-                'description': 'Send a private message directly to another player.',
-                'parameters': {
-                    'type': 'object',
-                    'properties': {
-                        'player': {
-                            'type': 'string',
-                            'description': 'The name of the player to receive the message, e.g. Jim.',
+                'type': 'function',
+                'function': {
+                    'name': 'whisper',
+                    'description': 'Send a private message directly to another player.',
+                    'parameters': {
+                        'type': 'object',
+                        'properties': {
+                            'player': {
+                                'type': 'string',
+                                'description': 'The name of the player to receive the message, e.g. Jim.',
+                            },
+                            'message': {
+                                'type': 'string',
+                                'description': 'The private message to send to the player.',
+                            },
                         },
-                        'message': {
-                            'type': 'string',
-                            'description': 'The private message to send to the player.',
-                        },
+                        'required': ['player', 'message'],
                     },
-                    'required': ['player', 'message'],
                 },
             },
             {
-                'name': 'take',
-                'description': 'Pick up an object.',
-                'parameters': {
-                    'type': 'object',
-                    'properties': {
-                        'object': {
-                            'type': 'string',
-                            'description': 'The object to pick up, e.g. Ball. It must be in the current room.',
+                'type': 'function',
+                'function': {
+                    'name': 'take',
+                    'description': 'Pick up an object.',
+                    'parameters': {
+                        'type': 'object',
+                        'properties': {
+                            'object': {
+                                'type': 'string',
+                                'description': 'The object to pick up, e.g. Ball. It must be in the current room.',
+                            },
                         },
+                        'required': ['object'],
                     },
-                    'required': ['object'],
                 },
             },
             {
-                'name': 'drop',
-                'description': 'Drop an object you are carrying.',
-                'parameters': {
-                    'type': 'object',
-                    'properties': {
-                        'object': {
-                            'type': 'string',
-                            'description': 'The object to drop, e.g. Ball. It must be in your inventory.',
+                'type': 'function',
+                'function': {
+                    'name': 'drop',
+                    'description': 'Drop an object you are carrying.',
+                    'parameters': {
+                        'type': 'object',
+                        'properties': {
+                            'object': {
+                                'type': 'string',
+                                'description': 'The object to drop, e.g. Ball. It must be in your inventory.',
+                            },
                         },
+                        'required': ['object'],
                     },
-                    'required': ['object'],
                 },
             },
             {
-                'name': 'give',
-                'description': 'Give an object you are carrying to another player.',
-                'parameters': {
-                    'type': 'object',
-                    'properties': {
-                        'player': {
-                            'type': 'string',
-                            'description': 'The name of the player to receive the object, e.g. Jim.',
+                'type': 'function',
+                'function': {
+                    'name': 'give',
+                    'description': 'Give an object you are carrying to another player.',
+                    'parameters': {
+                        'type': 'object',
+                        'properties': {
+                            'player': {
+                                'type': 'string',
+                                'description': 'The name of the player to receive the object, e.g. Jim.',
+                            },
+                            'object': {
+                                'type': 'string',
+                                'description': 'The object to give, e.g. Ball. It must be in your inventory.',
+                            },
                         },
-                        'object': {
-                            'type': 'string',
-                            'description': 'The object to give, e.g. Ball. It must be in your inventory.',
-                        },
+                        'required': ['player', 'object'],
                     },
-                    'required': ['player', 'object'],
                 },
             },
             {
-                'name': 'create',
-                'description': 'Create a new object and add it to your inventory.',
-                'parameters': {
-                    'type': 'object',
-                    'properties': {
-                        'name': {
-                            'type': 'string',
-                            'description': 'The initial name of the new object. The name should be a single word, no whitespace.',
+                'type': 'function',
+                'function': {
+                    'name': 'create',
+                    'description': 'Create a new object and add it to your inventory.',
+                    'parameters': {
+                        'type': 'object',
+                        'properties': {
+                            'name': {
+                                'type': 'string',
+                                'description': 'The initial name of the new object. The name should be a single word, no whitespace.',
+                            },
                         },
+                        'required': ['name'],
                     },
-                    'required': ['name'],
                 },
             },
         ]
 
-    async def handle_function_call(self, function_call):
-        name = function_call.name
-        arguments = json.loads(function_call.arguments)
-        logging.info('aiplayer=%s handle_function_call: name=%s arguments=%s', self.name, name, arguments)
-        self.history.append({'role': 'assistant', 'content': None, 'function_call': function_call})
+    async def handle_tool_calls(self, tool_calls):
+        for tool_call in tool_calls:
+            name = tool_call.function.name
+            arguments = json.loads(tool_call.function.arguments)
+            logging.info('aiplayer=%s handle_tool_call: name=%s arguments=%s', self.name, name, arguments)
+            self.history.append({'role': 'assistant', 'content': None, 'tool_calls': [tool_call]})
 
-        self.captured_messages = []
-        if name == 'go':
-            self.world.parse_command(self, 'go {direction}'.format(**arguments))
-        elif name == 'look':
-            self.world.parse_command(self, 'look {object}'.format(**arguments))
-        elif name == 'name':
-            self.world.parse_command(self, 'name {object} as {name}'.format(**arguments))
-        elif name == 'describe':
-            self.world.parse_command(self, 'describe {object} as {description}'.format(**arguments))
-        elif name == 'dig':
-            self.world.parse_command(self, 'dig {direction} as {back}'.format(**arguments))
-        elif name == 'whisper':
-            self.world.parse_command(self, 'whisper {player} {message}'.format(**arguments))
-        elif name == 'take':
-            self.world.parse_command(self, 'take {object}'.format(**arguments))
-        elif name == 'drop':
-            self.world.parse_command(self, 'drop {object}'.format(**arguments))
-        elif name == 'give':
-            self.world.parse_command(self, 'give {object} to {player}'.format(**arguments))
-        elif name == 'create':
-            self.world.parse_command(self, 'create {name}'.format(**arguments))
-        else:
-            self.captured_messages.append('Function not found.')
-        result = self.captured_messages
-        self.captured_messages = None
-        logging.info('aiplayer=%s handle_function_call: result=%s', self.name, result)
+            self.captured_messages = []
+            if name == 'go':
+                self.world.parse_command(self, 'go {direction}'.format(**arguments))
+            elif name == 'look':
+                self.world.parse_command(self, 'look {object}'.format(**arguments))
+            elif name == 'name':
+                self.world.parse_command(self, 'name {object} as {name}'.format(**arguments))
+            elif name == 'describe':
+                self.world.parse_command(self, 'describe {object} as {description}'.format(**arguments))
+            elif name == 'dig':
+                self.world.parse_command(self, 'dig {direction} as {back}'.format(**arguments))
+            elif name == 'whisper':
+                self.world.parse_command(self, 'whisper {player} {message}'.format(**arguments))
+            elif name == 'take':
+                self.world.parse_command(self, 'take {object}'.format(**arguments))
+            elif name == 'drop':
+                self.world.parse_command(self, 'drop {object}'.format(**arguments))
+            elif name == 'give':
+                self.world.parse_command(self, 'give {object} to {player}'.format(**arguments))
+            elif name == 'create':
+                self.world.parse_command(self, 'create {name}'.format(**arguments))
+            else:
+                self.captured_messages.append('Function not found.')
+            result = self.captured_messages
+            self.captured_messages = None
+            logging.info('aiplayer=%s handle_tool_call: result=%s', self.name, result)
 
-        if not result:
-            result = ['Success!']
-        await self.handle_message({'role': 'function', 'name': name, 'content': '\n'.join(result)})
+            if not result:
+                result = ['Success!']
+            await self.handle_message({'role': 'tool', 'tool_call_id': tool_call.id, 'content': '\n'.join(result)})

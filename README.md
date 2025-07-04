@@ -11,14 +11,76 @@ To create a simple, multi-player, text-based virtual reality, that I can collabo
 In addition to navigating, extending the world, and communicating with other players, you should be
 able to code MOO objects in Python and interact with them in the world.
 
+Setup
+-----
+
+### First Time Setup
+
+1. **Clone the repository:**
+   ```bash
+   git clone <repository-url>
+   cd monkamoo
+   ```
+
+2. **Create and activate virtual environment:**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+### Automatic Environment Activation (Recommended)
+
+To automatically activate the virtual environment when entering the project directory:
+
+1. **Install direnv:**
+   ```bash
+   brew install direnv  # macOS
+   # or: sudo apt install direnv  # Ubuntu/Debian
+   ```
+
+2. **Add direnv to your shell:**
+   ```bash
+   echo 'eval "$(direnv hook zsh)"' >> ~/.zshrc  # For zsh
+   # or: echo 'eval "$(direnv hook bash)"' >> ~/.bashrc  # For bash
+   ```
+
+3. **Restart your shell or run:**
+   ```bash
+   source ~/.zshrc  # or ~/.bashrc
+   ```
+
+4. **Allow the .envrc file:**
+   ```bash
+   direnv allow
+   ```
+
+Now when you `cd` into the project directory, the virtual environment will automatically activate (you'll see `(venv)` in your prompt).
+
+### Manual Environment Activation
+
+If you prefer to manually activate the environment:
+
+```bash
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+### Environment Variables
+
+Copy the example environment file and configure your OpenAI API key:
+
+```bash
+cp .env.example .env
+```
+
+Edit `.env` and set the `OPENAI_API_KEY` value for AI player functionality.
+
 Running
 -------
-
-Install dependencies:
-
-```
-% pip install -r requirements.txt
-```
 
 The MOO can be run locally for a single player or as a server for multiple players.
 

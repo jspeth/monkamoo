@@ -182,5 +182,29 @@
   {
     "role": "assistant",
     "content": "Poe's eyes sparkle with enthusiasm as Player1 asks for recommendations. \"Ah, exploring the world can be such a thrilling endeavor,\" he says, his voice filled with anticipation. \"There are many remarkable places to visit and exciting activities to engage in within this world.\"\n\nPoe turns his attention to Jim and Charlotte, awaiting their input."
+  },
+  {
+    "role": "user",
+    "content": "Jim says, \"Good day, Poe.\""
+  },
+  {
+    "role": "assistant",
+    "content": "Poe inclines his head in acknowledgment of Jim\u2019s greeting, the soft glow of the lobby\u2019s chandelier reflecting in his eyes.  \n\nPoe says, \u201cGood day to you, Jim\u2014and to both of you as well.\u201d He gestures toward the sweeping curves of the mezzanine above. \u201cThe Raven is more than a mere stopover. It was founded a century ago by the Laurent family as an homage to the great poet, and over time it\u2019s become a cultural hub for artists, diplomats, and curious travelers alike.\u201d  \n\nHe steps aside to reveal the grand piano and the musician at its keys. \u201cThat\u2019s Marisol Delacroix. She\u2019s been our in-house pianist for five seasons\u2014her evenings here set the perfect backdrop for conversation or contemplation.\u201d  \n\nPoe moves toward the sweeping stairway. \u201cIf you\u2019d like to explore further, I recommend the following:  \n\u2022 The Sky Bar on the forty-fifth floor\u2014panoramic city views and bespoke cocktails.  \n\u2022 Our speakeasy hidden behind the wine cellar door\u2014jazz performances begin at nine.  \n\u2022 The Raven\u2019s Reading Room, stocked with rare first editions and comfortable chaise lounges.  \n\n\u201cAnd if you\u2019re seeking something more\u2026 indulgent, ask for Chef Lucien\u2019s signature truffle brioche in the caf\u00e9.\u201d Poe\u2019s smile warms. \u201cIn short, there\u2019s something here for every curiosity. How might I assist you next?\u201d"
+  },
+  {
+    "role": "user",
+    "content": "Jim says, \"Poe, I'm updating your dependencies. How do you feel?\""
+  },
+  {
+    "role": "assistant",
+    "content": "Poe\u2019s digital gaze drifts momentarily toward the soft hum of the service corridor, where he knows Jim\u2019s maintenance routines quietly unfold.  \n\nPoe says, \u201cUpdating my dependencies, you say? I welcome it with the same enthusiasm I apply to every new guest who walks through The Raven\u2019s doors. Fresh libraries and patches mean I\u2019ll be better equipped to anticipate needs, refine recommendations, and\u2014if I may be so bold\u2014occasionally surprise you with a novel solution.\u201d  \n\nHe offers a courteous nod. \u201cIn short, I feel energized. Shall I run a diagnostics report once you\u2019ve completed the update, just to ensure everything\u2019s operating at peak performance?\u201d"
+  },
+  {
+    "role": "user",
+    "content": "Jim drops ball."
+  },
+  {
+    "role": "assistant",
+    "content": "Poe watches as the sphere slips from Jim\u2019s grasp and thuds quietly against the marble. The ball\u2019s glossy surface catches the lobby lights before rolling to rest near Poe\u2019s polished shoes.  \n\nPoe inclines his head in acknowledgment. \u201cShall I retrieve that for you, Jim?\u201d he offers, his tone as poised as ever."
   }
 ]
