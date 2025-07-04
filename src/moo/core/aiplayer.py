@@ -9,7 +9,7 @@ from ..line_parser import Command
 
 # Use DEBUG for OpenAI API messages
 # Use INFO for AIPLayer messages
-#logging.basicConfig(filename='aiplayer.log', encoding='utf-8', level=logging.INFO)
+# logging.basicConfig(filename='aiplayer.log', encoding='utf-8', level=logging.INFO)
 
 class AIPlayer(Player):
     """ Represents an AI player in the MOO. """
@@ -45,14 +45,33 @@ class AIPlayer(Player):
         self.history = json.loads(data)
 
     def save_history(self):
-        data = json.dumps(self.history, indent=2, separators=(',', ': '))
+        def serialize_tool_call(call):
+            return {
+                'id': call['id'],
+                'type': call['type'],
+                'function': {
+                    'name': call['function']['name'],
+                    'arguments': call['function']['arguments']
+                }
+            }
+
+        def make_serializable(entry):
+            # Deep copy to avoid mutating original
+            entry = dict(entry)
+            if 'tool_calls' in entry:
+                entry['tool_calls'] = [serialize_tool_call(call) for call in entry['tool_calls']]
+            return entry
+
+        serializable_history = [make_serializable(msg) for msg in self.history]
         with open(self.history_path, 'w') as f:
-            f.write(data)
+            json.dump(serializable_history, f, indent=2, separators=(',', ': '))
 
     def filtered_history(self):
-        if len(self.history) < 10:
-            return self.history
-        return self.history[:5] + self.history[-5:]
+        # TODO: This is a hack to get the history to work. Improvements:
+        # A summarize_history() method that uses GPT to collapse early turns.
+        # A token_count() function using tiktoken to make filtered_history() smarter.
+        # A rolling memory manager if you want to simulate long-term memory.
+        return self.history
 
     def handle_whisper(self, message):
         asyncio.create_task(self.handle_message({'role': 'system', 'content': message}))
@@ -96,6 +115,7 @@ class AIPlayer(Player):
         self.save_history()
 
     async def get_gpt(self):
+        logging.info('aiplayer=%s get_gpt: sending messages:\n%s', self.name, json.dumps(self.filtered_history(), indent=2))
         response = await self.client.chat.completions.create(
             model='o4-mini-2025-04-16',
             messages=self.filtered_history(),
@@ -308,7 +328,21 @@ class AIPlayer(Player):
             name = tool_call.function.name
             arguments = json.loads(tool_call.function.arguments)
             logging.info('aiplayer=%s handle_tool_call: name=%s arguments=%s', self.name, name, arguments)
-            self.history.append({'role': 'assistant', 'content': None, 'tool_calls': [tool_call]})
+
+            self.history.append({
+                'role': 'assistant',
+                'content': None,
+                'tool_calls': [
+                    {
+                        'id': tool_call.id,
+                        'type': 'function',
+                        'function': {
+                            'name': tool_call.function.name,
+                            'arguments': tool_call.function.arguments
+                        }
+                    }
+                ]
+            })
 
             self.captured_messages = []
             if name == 'go':
