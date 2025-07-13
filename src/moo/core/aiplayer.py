@@ -19,7 +19,7 @@ class AIPlayer(Player):
         # Initialize OpenAI client with API key
         api_key = api_key or os.getenv('OPENAI_API_KEY')
         self.client = openai.AsyncOpenAI(api_key=api_key) if api_key else None
-        self.history_path = f'{self.name}.json'
+        self.history_path = f'bots/{self.name}.json'
         self.load_history()
         self.captured_messages = None
         self.sleeping = False
@@ -61,6 +61,9 @@ class AIPlayer(Player):
             if 'tool_calls' in entry:
                 entry['tool_calls'] = [serialize_tool_call(call) for call in entry['tool_calls']]
             return entry
+
+        # Ensure bots directory exists
+        os.makedirs(os.path.dirname(self.history_path), exist_ok=True)
 
         serializable_history = [make_serializable(msg) for msg in self.history]
         with open(self.history_path, 'w') as f:
