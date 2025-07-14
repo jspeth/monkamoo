@@ -1,8 +1,6 @@
-import json
-from pathlib import Path
-
 from .. import line_parser
 from ..logging_config import get_logger
+from ..storage import get_storage_with_fallback
 from .aiplayer import AIPlayer
 from .ball import Ball
 from .base import Base
@@ -25,21 +23,21 @@ class World(Base):
     def __init__(self, path=None, **kwargs):
         super().__init__(**kwargs)
         self.path = path
+        self.storage = get_storage_with_fallback(world_path=path or "world.json")
         if not self.contents:
             self.contents = {"0": Room(id="0", description="This is the beginning of the world.")}
 
     def json_dictionary(self):
         return {"contents": self.contents}
 
-    def load(self, path=None):
-        path = path or self.path
-        logger.info("Loading world from: %s", path)
-        with Path(path).open() as f:
-            data = f.read()
-        if not data:
-            logger.warning("No data found in world file: %s", path)
+    def load(self, _path=None):
+        logger.info("Loading world using storage abstraction")
+        world_data = self.storage.load_world()
+        if not world_data:
+            logger.warning("No world data found in storage")
             return
-        world = json.loads(data)
+
+        world = world_data
         all_contents = {}
         loaded_objects = 0
         for object_dict in world.get("contents", {}).values():
@@ -67,13 +65,14 @@ class World(Base):
                 obj.location = self.contents[obj.location]
         logger.info("World loaded successfully: %d objects", loaded_objects)
 
-    def save(self, path=None):
-        path = path or self.path
-        logger.info("Saving world to: %s", path)
-        data = json.dumps(self, default=lambda o: o.json_dictionary(), sort_keys=True, indent=2, separators=(",", ": "))
-        with Path(path).open("w") as f:
-            f.write(data)
-        logger.info("World saved successfully")
+    def save(self, _path=None):
+        logger.info("Saving world using storage abstraction")
+        world_data = self.json_dictionary()
+        success = self.storage.save_world(world_data)
+        if success:
+            logger.info("World saved successfully")
+        else:
+            logger.error("Failed to save world")
 
     def add(self, obj):
         if not hasattr(obj, "id"):

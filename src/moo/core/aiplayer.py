@@ -1,11 +1,11 @@
 import asyncio
 import json
 import os
-from pathlib import Path
 
 import openai
 
 from src.moo.logging_config import get_logger
+from src.moo.storage import get_storage_with_fallback
 
 from .player import Player
 
@@ -21,7 +21,7 @@ class AIPlayer(Player):
         # Initialize OpenAI client with API key
         api_key = api_key or os.getenv("OPENAI_API_KEY")
         self.client = openai.AsyncOpenAI(api_key=api_key) if api_key else None
-        self.history_path = f"bots/{self.name}.json"
+        self.storage = get_storage_with_fallback()
         self.load_history()
         self.captured_messages = None
         self.sleeping = False
@@ -35,12 +35,8 @@ class AIPlayer(Player):
         self.room.announce(self, f"{self.name} wakes up.", exclude_player=True)
 
     def load_history(self):
-        try:
-            with Path(self.history_path).open() as f:
-                data = f.read()
-        except FileNotFoundError:
-            data = None
-        if not data:
+        history = self.storage.load_ai_history(self.name)
+        if not history:
             self.history = [
                 {
                     "role": "system",
@@ -48,7 +44,7 @@ class AIPlayer(Player):
                 },
             ]
             return
-        self.history = json.loads(data)
+        self.history = history
 
     def save_history(self):
         def serialize_tool_call(call):
@@ -65,12 +61,10 @@ class AIPlayer(Player):
                 entry["tool_calls"] = [serialize_tool_call(call) for call in entry["tool_calls"]]
             return entry
 
-        # Ensure bots directory exists
-        Path(self.history_path).parent.mkdir(parents=True, exist_ok=True)
-
         serializable_history = [make_serializable(msg) for msg in self.history]
-        with Path(self.history_path).open("w") as f:
-            json.dump(serializable_history, f, indent=2, separators=(",", ": "))
+        success = self.storage.save_ai_history(self.name, serializable_history)
+        if not success:
+            logger.error("Failed to save AI history for %s", self.name)
 
     def filtered_history(self):
         # TODO: This is a hack to get the history to work. Improvements:
