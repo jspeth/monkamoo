@@ -25,6 +25,11 @@ class AIPlayer(Player):
         self.load_history()
         self.captured_messages = None
         self.sleeping = False
+        self.debugging = False
+
+    def debug(self, _command):
+        self.debugging = not self.debugging
+        self.room.announce(self, f"{self.name} debugging is now {self.debugging}.", exclude_player=True)
 
     def sleep(self, _command):
         self.sleeping = True
@@ -47,6 +52,9 @@ class AIPlayer(Player):
         self.history = history
 
     def save_history(self):
+        if self.debugging:
+            return
+
         def serialize_tool_call(call):
             return {
                 "id": call["id"],
