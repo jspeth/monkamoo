@@ -8,6 +8,7 @@ from .logging_config import get_logger
 # Get logger for this module
 logger = get_logger("monkamoo.interpreter")
 
+
 @contextlib.contextmanager
 def stdoutIO(stdout=None):
     old = sys.stdout
@@ -33,10 +34,10 @@ class MOOInteractiveConsole(code.InteractiveConsole):
         self.stdout.write(prompt)
         self.stdout.flush()
         line = self.stdin.readline()
-        if line == '':
+        if line == "":
             raise EOFError
-        line = line.rstrip('\n\r')
-        if line == 'exit':
+        line = line.rstrip("\n\r")
+        if line == "exit":
             logger.info("Interactive console received exit command")
             raise EOFError
         logger.debug("Interactive console input: %s", line)
@@ -51,7 +52,7 @@ class MOOInteractiveConsole(code.InteractiveConsole):
         except SystemExit:
             raise
         except Exception as e:
-            logger.error("Interactive console error: %s", e)
+            logger.exception("Interactive console error: %s", e)
             self.showtraceback()
 
 

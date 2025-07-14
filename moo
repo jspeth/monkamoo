@@ -2,9 +2,10 @@
 
 import argparse
 import asyncio
-import dotenv
 import os
 import sys
+
+import dotenv
 
 # Detect mode and configure logging BEFORE any src.moo imports
 parser = argparse.ArgumentParser(description='MonkaMOO')
@@ -14,7 +15,7 @@ args, unknown = parser.parse_known_args()
 
 # Configure logging based on mode
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
-from moo.logging_config import setup_logging, get_logger
+from moo.logging_config import get_logger, setup_logging
 
 if args.interact or args.server:
     # Console logging for interactive Python shell and telnet server
@@ -24,10 +25,8 @@ else:
     setup_logging(mode="file")
 
 # Now import the rest of the app
-from src.moo import interpreter
-from src.moo import server
-from src.moo import shell
-from src.moo.core.world import World
+from moo import interpreter, server, shell
+from moo.core.world import World
 
 dotenv.load_dotenv()
 

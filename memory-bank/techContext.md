@@ -3,6 +3,7 @@
 ## Technology Stack
 
 ### Core Technologies
+
 - **Python 3.10+**: Primary programming language
 - **Quart**: Async web framework (Flask-compatible)
 - **WebSockets**: Real-time communication
@@ -10,17 +11,20 @@
 - **Socket Programming**: Telnet server implementation
 
 ### Web Technologies
+
 - **HTML/CSS/JavaScript**: Frontend interface
 - **WebSocket API**: Browser-based real-time communication
 - **Session Management**: User authentication and state
 
 ### Development Tools
+
 - **Git**: Version control
 - **pip**: Python package management
 - **venv**: Virtual environment isolation
 - **direnv**: Automatic environment activation (optional)
 
 ### Deployment Technologies
+
 - **Heroku**: Cloud deployment platform
 - **Gunicorn**: WSGI server for production
 - **Procfile**: Heroku process configuration
@@ -29,6 +33,7 @@
 ## Development Environment Setup
 
 ### Prerequisites
+
 ```bash
 # Python 3.10 or higher
 python --version
@@ -41,6 +46,7 @@ pip --version
 ```
 
 ### Local Development Setup
+
 ```bash
 # Clone repository
 git clone <repository-url>
@@ -58,6 +64,7 @@ echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
 ```
 
 ### Environment Variables
+
 - **OPENAI_API_KEY**: Required for AI player functionality
 - **SECRET_KEY**: Web session security (default: 'JGS123#')
 - **PORT**: Web server port (default: 5432)
@@ -66,20 +73,27 @@ echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
 ## Dependencies
 
 ### Core Dependencies (requirements.txt)
+
 ```
 quart>=0.18.4          # Async web framework
 python-dotenv>=1.0.0   # Environment variable management
 openai>=1.0.0          # OpenAI API integration
 ```
 
-### Development Dependencies
+### Development Dependencies (requirements-dev.txt)
+
 ```
+ruff>=0.1.0            # Fast Python linter (replaces flake8)
+black>=23.0.0          # Code formatter
+isort>=5.12.0          # Import sorting
+mypy>=1.5.0            # Static type checking
+pre-commit>=3.3.0      # Git hooks (optional)
 pytest>=7.0.0          # Testing framework
-black>=23.0.0          # Code formatting
-flake8>=6.0.0          # Linting
+pytest-asyncio>=0.21.0 # Async testing support
 ```
 
 ### Optional Dependencies
+
 ```
 direnv>=2.30.0         # Automatic environment activation
 heroku>=7.60.0         # Heroku CLI for deployment
@@ -88,22 +102,26 @@ heroku>=7.60.0         # Heroku CLI for deployment
 ## Architecture Components
 
 ### Web Interface (`app.py`)
+
 - **Quart Application**: Main web server
 - **WebSocket Support**: Real-time communication
 - **Session Management**: User authentication
 - **Template Rendering**: HTML interface
 
 ### Telnet Server (`server.py`)
+
 - **Socket Programming**: Raw TCP connections
 - **Command Processing**: Direct command execution
 - **Multi-client Support**: Multiple simultaneous connections
 
 ### Interactive Shell (`shell.py`)
+
 - **Python REPL**: Interactive development environment
 - **World Integration**: Direct access to world objects
 - **Debugging Support**: Development and testing tool
 
 ### Core Engine (`src/moo/`)
+
 - **World Management**: Central game logic
 - **Object System**: OOP-based entity management
 - **Command Parser**: Natural language processing
@@ -112,18 +130,21 @@ heroku>=7.60.0         # Heroku CLI for deployment
 ## Technical Constraints
 
 ### Performance Constraints
+
 - **Single-threaded**: Python GIL limitations
 - **Memory Usage**: JSON-based persistence limits scalability
 - **Network Latency**: Real-time communication requirements
 - **CPU Usage**: Command parsing overhead
 
 ### Scalability Constraints
+
 - **Single Server**: No distributed architecture
 - **File-based Storage**: No database backend
 - **In-memory State**: Limited by available RAM
 - **Connection Limits**: Socket connection limits
 
 ### Security Constraints
+
 - **Simple Authentication**: No advanced security features
 - **Code Execution**: Limited sandboxing
 - **Input Validation**: Basic command validation
@@ -132,12 +153,14 @@ heroku>=7.60.0         # Heroku CLI for deployment
 ## Development Workflow
 
 ### Local Development
+
 1. **Start Web Server**: `python app.py`
 2. **Start Telnet Server**: `./moo -s`
 3. **Interactive Shell**: `./moo`
 4. **Testing**: Manual testing through interfaces
 
 ### Code Organization
+
 ```
 monkamoo/
 ├── app.py              # Web application entry point
@@ -155,20 +178,34 @@ monkamoo/
 ```
 
 ### Testing Strategy
+
 - **Manual Testing**: Interactive testing through interfaces
 - **Unit Testing**: Individual component testing
 - **Integration Testing**: End-to-end functionality testing
 - **User Testing**: Family-based usability testing
 
+### Code Quality & Linting
+
+- **Ruff**: Fast Python linter with auto-fix capabilities
+- **Black**: Code formatter with 120-character line length
+- **isort**: Import sorting compatible with Black
+- **mypy**: Static type checking (optional but recommended)
+- **VS Code Integration**: Real-time linting and formatting
+- **Makefile Commands**: `make lint`, `make format`, `make fix`, `make type-check`
+- **Configuration**: `pyproject.toml` for all tool settings
+- **Line Length**: 120 characters across all tools
+
 ## Deployment Considerations
 
 ### Heroku Deployment
+
 - **Buildpack**: Python buildpack
 - **Process Types**: Web dyno for web interface
 - **Environment Variables**: Configured via Heroku dashboard
 - **Scaling**: Manual dyno scaling
 
 ### Local Deployment
+
 - **Development Server**: `python app.py`
 - **Production Server**: Gunicorn with UvicornWorker
 - **Process Management**: Manual process management
@@ -177,6 +214,7 @@ monkamoo/
 ## Monitoring and Debugging
 
 ### Logging System
+
 - **Centralized Configuration**: `src/moo/logging_config.py` provides unified logging setup
 - **Heroku Compatibility**: All logs output to stdout/stderr for `heroku logs` integration
 - **Structured Format**: Consistent timestamp and module-based logging
@@ -184,6 +222,7 @@ monkamoo/
 - **Module-Specific Loggers**: Each component has its own logger with appropriate namespacing
 
 ### Logging Components
+
 - **Web Server**: `monkamoo.web` - HTTP requests, WebSocket connections, user sessions
 - **Telnet Server**: `monkamoo.server` - Client connections, command processing
 - **Shell Interface**: `monkamoo.shell` - Interactive commands, user input
@@ -194,6 +233,7 @@ monkamoo/
 - **Interpreter**: `monkamoo.interpreter` - Code execution, errors
 
 ### Debugging Tools
+
 - **Interactive Shell**: Direct world manipulation
 - **Web Interface**: Visual debugging capabilities
 - **Telnet Interface**: Command-line debugging
@@ -203,19 +243,22 @@ monkamoo/
 ## Future Technical Considerations
 
 ### Scalability Improvements
+
 - **Database Backend**: PostgreSQL or MongoDB integration
 - **Distributed Architecture**: Multi-server deployment
 - **Caching Layer**: Redis for performance optimization
 - **Load Balancing**: Multiple server instances
 
 ### Security Enhancements
+
 - **Advanced Authentication**: OAuth or JWT-based auth
 - **Code Sandboxing**: Safe code execution environment
 - **Input Sanitization**: Comprehensive input validation
 - **Rate Limiting**: Command execution throttling
 
 ### Performance Optimizations
+
 - **Async Processing**: Background task processing
 - **Connection Pooling**: Efficient client management
 - **Caching Strategies**: Object and command caching
-- **Compression**: Network traffic optimization 
+- **Compression**: Network traffic optimization

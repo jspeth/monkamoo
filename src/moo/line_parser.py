@@ -1,50 +1,50 @@
-class Preposition(object):
+class Preposition:
 
-    WITH = 'with'
-    AT = 'at'
-    IN_FRONT = 'in_front'
-    INTO = 'into'
-    ONTO = 'onto'
-    FROM = 'from'
-    OVER = 'over'
-    THROUGH = 'through'
-    UNDER = 'under'
-    BEHIND = 'behind'
-    BESIDE = 'beside'
-    FOR = 'for'
-    IS = 'is'
-    AS = 'as'
-    OFF = 'off'
+    WITH = "with"
+    AT = "at"
+    IN_FRONT = "in_front"
+    INTO = "into"
+    ONTO = "onto"
+    FROM = "from"
+    OVER = "over"
+    THROUGH = "through"
+    UNDER = "under"
+    BEHIND = "behind"
+    BESIDE = "beside"
+    FOR = "for"
+    IS = "is"
+    AS = "as"
+    OFF = "off"
 
     keys = {
-        'with': WITH,
-        'using': WITH,
-        'at': AT,
-        'to': AT,
-        'in front of': IN_FRONT,
-        'in': INTO,
-        'inside': INTO,
-        'into': INTO,
-        'on top of': ONTO,
-        'on': ONTO,
-        'onto': ONTO,
-        'upon': ONTO,
-        'out of': FROM,
-        'from inside': FROM,
-        'from': FROM,
-        'over': OVER,
-        'through': THROUGH,
-        'under': UNDER,
-        'underneath': UNDER,
-        'beneath': UNDER,
-        'behind': BEHIND,
-        'beside': BESIDE,
-        'for': FOR,
-        'about': FOR,
-        'is': IS,
-        'as': AS,
-        'off': OFF,
-        'off of': OFF
+        "with": WITH,
+        "using": WITH,
+        "at": AT,
+        "to": AT,
+        "in front of": IN_FRONT,
+        "in": INTO,
+        "inside": INTO,
+        "into": INTO,
+        "on top of": ONTO,
+        "on": ONTO,
+        "onto": ONTO,
+        "upon": ONTO,
+        "out of": FROM,
+        "from inside": FROM,
+        "from": FROM,
+        "over": OVER,
+        "through": THROUGH,
+        "under": UNDER,
+        "underneath": UNDER,
+        "beneath": UNDER,
+        "behind": BEHIND,
+        "beside": BESIDE,
+        "for": FOR,
+        "about": FOR,
+        "is": IS,
+        "as": AS,
+        "off": OFF,
+        "off of": OFF,
     }
 
     @classmethod
@@ -52,7 +52,7 @@ class Preposition(object):
         return [s for s in cls.keys if cls.keys[s] == preposition]
 
 
-class Command(object):
+class Command:
 
     def __init__(self, line, verb=None, direct_object_str=None, preposition=None, indirect_object_str=None):
         self.player = None
@@ -64,28 +64,32 @@ class Command(object):
         self.indirect_object = None
         self.indirect_object_str = indirect_object_str
         # create args
-        words = line.split(' ') 
+        words = line.split(" ")
         if len(words) > 1:
             self.args = words[1:]
-            self.args_str = ' '.join(self.args)
+            self.args_str = " ".join(self.args)
         else:
             self.args = None
             self.args_str = None
+
         # indirect args
         def get_remainder(string, word):
             for preposition in Preposition.synonyms(word):
                 index = string.find(preposition)
                 if index == -1:
                     continue
-                return string[index + len(preposition):].strip()
+                return string[index + len(preposition) :].strip()
             return None
+
         self.indirect_args = preposition and get_remainder(line, preposition) or None
 
     def __repr__(self):
-        return '<Command verb={verb} dobj={direct_object} prep={preposition} iobj={indirect_object}>'.format(**self.__dict__)
+        return "<Command verb={verb} dobj={direct_object} prep={preposition} iobj={indirect_object}>".format(
+            **self.__dict__,
+        )
 
     def resolve(self, world, player):
-        """ Identify direct and indirect objects in the command relative to player.
+        """Identify direct and indirect objects in the command relative to player.
 
         Varies from LambdaMOO slightly:
             '@name' identifies player by name
@@ -94,31 +98,33 @@ class Command(object):
 
         Otherwise it looks for the objects in the player contents then the player's room contents.
         """
+
         def resolve_object(name):
             if not name:
                 return None
             name = name.lower()
-            if name == 'me':
+            if name == "me":
                 return player
-            if name == 'here':
+            if name == "here":
                 return player.location
-            if name.startswith('@'):
-                return world.find_player(name.strip('@'))
-            if name.startswith('#'):
-                return world.find_room(name.strip('#'))
-            if name.startswith('$'):
-                return world.contents.get(name.strip('$'))
+            if name.startswith("@"):
+                return world.find_player(name.strip("@"))
+            if name.startswith("#"):
+                return world.find_room(name.strip("#"))
+            if name.startswith("$"):
+                return world.contents.get(name.strip("$"))
             for obj in list(player.contents.values()) + list(player.location.contents.values()):
                 if obj.name.lower() == name:
                     return obj
             return None
+
         self.player = player
         self.direct_object = resolve_object(self.direct_object_str)
         self.indirect_object = resolve_object(self.indirect_object_str)
 
 
-class Parser(object):
-    """ MOO command parser.
+class Parser:
+    """MOO command parser.
 
     Structure:
         verb
@@ -131,15 +137,15 @@ class Parser(object):
         put yellow bird in cuckoo clock
     """
 
-    articles = ['a', 'an', 'the']
+    articles = ["a", "an", "the"]
 
     @classmethod
     def parse(cls, line):
-        """ Parse a line of text into a MOO command. """
+        """Parse a line of text into a MOO command."""
         if not line:
             return None
         # split line into words
-        words = line.strip(' .').split(' ')
+        words = line.strip(" .").split(" ")
         words = [w for w in words if w.lower() not in Parser.articles]
         if not words:
             return None
@@ -159,35 +165,27 @@ class Parser(object):
         direct_object = None
         indirect_object = None
         if preposition:
-            direct_object = ' '.join(words[1:i]) or None
-            indirect_object = ' '.join(words[i + 1:]) or None
+            direct_object = " ".join(words[1:i]) or None
+            indirect_object = " ".join(words[i + 1 :]) or None
         else:
-            direct_object = ' '.join(words[1:])
+            direct_object = " ".join(words[1:])
         # return command
         return Command(line, verb, direct_object, preposition, indirect_object)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     tests = [
-        'look',
-        'look me',
-        'look at sky',
-        'look at',
-        'take ball',
-        'take ball at',
-        'take the ball.',
-        'look under rock',
-        'hide ball under sand',
-        'put yellow bird in cuckoo clock',
-        'describe here as A room in the MOO.'
+        "look",
+        "look me",
+        "look at sky",
+        "look at",
+        "take ball",
+        "take ball at",
+        "take the ball.",
+        "look under rock",
+        "hide ball under sand",
+        "put yellow bird in cuckoo clock",
+        "describe here as A room in the MOO.",
     ]
     for line in tests:
         command = Parser.parse(line)
-        print('{line} -> [verb={verb} dobj={dobj} prep={prep} iobj={iobj} iargs={iargs}]'.format(
-            line=repr(line),
-            verb=repr(command.verb),
-            dobj=repr(command.direct_object_str),
-            prep=repr(command.preposition),
-            iobj=repr(command.indirect_object_str),
-            iargs=repr(command.indirect_args)
-        ))

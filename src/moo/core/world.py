@@ -1,56 +1,53 @@
 import json
-import sys
 
 from .. import line_parser
 from ..logging_config import get_logger
-
+from .aiplayer import AIPlayer
 from .ball import Ball
 from .base import Base
 from .object import Object
 from .player import Player
 from .room import Room
-from .aiplayer import AIPlayer
+
+# These imports are used dynamically via globals() lookup in the load() method
+__all__ = ["AIPlayer", "Ball", "Base", "Object", "Player", "Room", "World"]
 
 # Get logger for this module
 logger = get_logger("monkamoo.world")
 
-class World(Base):
-    """ The root container of all MOO objects. """
 
-    shortcuts = {
-        '"': 'say',
-        ':': 'emote',
-        '@': 'whisper',
-        '#': 'jump'
-    }
+class World(Base):
+    """The root container of all MOO objects."""
+
+    shortcuts = {'"': "say", ":": "emote", "@": "whisper", "#": "jump"}
 
     def __init__(self, path=None, **kwargs):
-        super(World, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.path = path
         if not self.contents:
-            self.contents = {'0': Room(id='0', description='This is the beginning of the world.')}
+            self.contents = {"0": Room(id="0", description="This is the beginning of the world.")}
 
     def json_dictionary(self):
-        return {'contents': self.contents}
+        return {"contents": self.contents}
 
     def load(self, path=None):
         path = path or self.path
         logger.info("Loading world from: %s", path)
-        data = open(path, 'r').read()
+        data = open(path).read()
         if not data:
             logger.warning("No data found in world file: %s", path)
             return
         world = json.loads(data)
         all_contents = {}
         loaded_objects = 0
-        for object_dict in world.get('contents', {}).values():
+        for object_dict in world.get("contents", {}).values():
             # get object class
-            class_name = object_dict.get('type')
+            class_name = object_dict.get("type")
             cls = globals().get(class_name)
             if not cls:
-                logger.error('Class not found: %s', class_name)
+                logger.error("Class not found: %s", class_name)
                 continue
-            del object_dict['type']
+            del object_dict["type"]
             # create object, building contents map
             obj = cls(**object_dict)
             if obj.location:
@@ -71,14 +68,14 @@ class World(Base):
     def save(self, path=None):
         path = path or self.path
         logger.info("Saving world to: %s", path)
-        data = json.dumps(self, default=lambda o: o.json_dictionary(), sort_keys=True, indent=2, separators=(',', ': '))
-        with open(path, 'w') as f:
+        data = json.dumps(self, default=lambda o: o.json_dictionary(), sort_keys=True, indent=2, separators=(",", ": "))
+        with open(path, "w") as f:
             f.write(data)
         logger.info("World saved successfully")
 
     def add(self, obj):
-        if not hasattr(obj, 'id'):
-            raise ValueError()
+        if not hasattr(obj, "id"):
+            raise ValueError
         self.contents[obj.id] = obj
         obj.world = self
 
@@ -86,7 +83,7 @@ class World(Base):
         logger.info("Adding player to world: %s", player.name)
         self.add(player)
         if not player.location:
-            player.location = self.contents['0']
+            player.location = self.contents["0"]
         player.location.contents[player.id] = player
         logger.info("Player %s added to room: %s", player.name, player.location.id)
 
@@ -94,12 +91,12 @@ class World(Base):
         logger.debug("Parsing command for player %s: %s", player.name, line)
         for key in self.shortcuts:
             if line.startswith(key):
-                line = self.shortcuts[key] + ' ' + line.strip(key + ' ')
+                line = self.shortcuts[key] + " " + line.strip(key + " ")
                 break
         command = line_parser.Parser.parse(line)
         if not command:
             logger.debug("Command not understood: %s", line)
-            player.tell('I didn\'t understand that.')
+            player.tell("I didn't understand that.")
             return
         command.resolve(self, player)
         self.handle_command(command)
@@ -108,7 +105,7 @@ class World(Base):
         func = self.find_function(command)
         if not func:
             logger.debug("No function found for command: %s", command.verb)
-            command.player.tell('I didn\'t understand that.')
+            command.player.tell("I didn't understand that.")
             return
         logger.debug("Executing command: %s for player %s", command.verb, command.player.name)
         func(command)
