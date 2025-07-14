@@ -1,8 +1,8 @@
 import logging
 import os
-from typing import Optional
 
-def setup_logging(mode: str = "console", log_level: Optional[str] = None) -> None:
+
+def setup_logging(mode: str = "console", log_level: str | None = None) -> None:
     """
     Set up logging configuration for MonkaMOO.
 
@@ -12,10 +12,10 @@ def setup_logging(mode: str = "console", log_level: Optional[str] = None) -> Non
                   If None, uses LOG_LEVEL env var or defaults to INFO
     """
     if log_level is None:
-        log_level = os.getenv('LOG_LEVEL', 'INFO').upper()
+        log_level = os.getenv("LOG_LEVEL", "INFO").upper()
 
-    log_format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    log_datefmt = '%Y-%m-%d %H:%M:%S'
+    log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    log_datefmt = "%Y-%m-%d %H:%M:%S"
 
     if mode == "file":
         # File logging
@@ -23,7 +23,7 @@ def setup_logging(mode: str = "console", log_level: Optional[str] = None) -> Non
             level=getattr(logging, log_level),
             format=log_format,
             datefmt=log_datefmt,
-            handlers=[logging.FileHandler('log.txt')]
+            handlers=[logging.FileHandler("log.txt")],
         )
     else:
         # Console logging
@@ -31,8 +31,9 @@ def setup_logging(mode: str = "console", log_level: Optional[str] = None) -> Non
             level=getattr(logging, log_level),
             format=log_format,
             datefmt=log_datefmt,
-            handlers=[logging.StreamHandler()]
+            handlers=[logging.StreamHandler()],
         )
+
 
 def get_logger(name: str = None) -> logging.Logger:
     """

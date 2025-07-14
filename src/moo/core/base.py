@@ -1,8 +1,9 @@
 import asyncio
 import uuid
 
-class Base(object):
-    """ The base class of all MOO objects. """
+
+class Base:
+    """The base class of all MOO objects."""
 
     def __init__(self, **kwargs):
         self.id = str(uuid.uuid4())
@@ -14,19 +15,19 @@ class Base(object):
         self.__dict__.update(kwargs)
 
     def __repr__(self):
-        return '<%s 0x%x name="%s">' % (self.__class__.__name__, id(self), self.name)
+        return f'<{self.__class__.__name__} 0x{id(self):x} name="{self.name}">'
 
     def json_dictionary(self):
         return {
-            'type': self.__class__.__name__,
-            'id': self.id,
-            'name': self.name,
-            'description': self.description,
-            'location': self.location and self.location.id or None
+            "type": self.__class__.__name__,
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "location": self.location and self.location.id or None,
         }
 
     def __contains__(self, obj):
-        return hasattr(obj, 'id') and obj.id in self.contents
+        return hasattr(obj, "id") and obj.id in self.contents
 
     def __iter__(self):
         return iter(self.contents.values())
@@ -40,14 +41,14 @@ class Base(object):
         return self
 
     def add(self, obj):
-        if not hasattr(obj, 'id'):
-            raise ValueError()
+        if not hasattr(obj, "id"):
+            raise ValueError
         self.world.add(obj)
         self.contents[obj.id] = obj
 
     def remove(self, obj):
-        if not hasattr(obj, 'id'):
-            raise ValueError()
+        if not hasattr(obj, "id"):
+            raise ValueError
         del self.contents[obj.id]
 
     def move(self, location, direction=None):
@@ -74,6 +75,7 @@ class Base(object):
     @property
     def room(self):
         from .room import Room
+
         if isinstance(self, Room):
             return self
         if self.location:
@@ -83,6 +85,7 @@ class Base(object):
     @property
     def player(self):
         from .player import Player
+
         if isinstance(self, Player):
             return self
         if self.location:
@@ -92,22 +95,25 @@ class Base(object):
     @property
     def rooms(self):
         from .room import Room
+
         return [obj for obj in self if isinstance(obj, Room)]
 
     @property
     def players(self):
         from .player import Player
+
         return [obj for obj in self if isinstance(obj, Player)]
 
     @property
     def things(self):
         from .player import Player
+
         return [obj for obj in self if not isinstance(obj, Player)]
 
     def find_room(self, name):
         # Allow using `@Player` to find the room the player is in
-        if name.startswith('@'):
-            player = self.find_player(name.strip('@'))
+        if name.startswith("@"):
+            player = self.find_player(name.strip("@"))
             if player:
                 return player.location
         for room in self.rooms:
@@ -128,7 +134,7 @@ class Base(object):
         return None
 
     def get_function(self, verb):
-        for key in [verb, 'do_' + verb]:
+        for key in [verb, "do_" + verb]:
             method = getattr(self, key, None)
             if method and callable(method):
                 return method
@@ -137,8 +143,13 @@ class Base(object):
     def tell(self, message=None):
         pass
 
-    def timer(self, interval, function, args=[], kwargs={}):
+    def timer(self, interval, function, args=None, kwargs=None):
+        if kwargs is None:
+            kwargs = {}
+        if args is None:
+            args = []
         async def perform_after():
             await asyncio.sleep(interval)
             function(*args, **kwargs)
+
         asyncio.create_task(perform_after())
