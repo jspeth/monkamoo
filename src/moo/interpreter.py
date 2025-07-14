@@ -44,7 +44,6 @@ class MOOInteractiveConsole(code.InteractiveConsole):
         return line
 
     def runcode(self, code):
-        logger.debug("Interactive console executing code: %s", code[:100] + "..." if len(code) > 100 else code)
         try:
             with stdout_io() as s:
                 exec(code, self.locals)
