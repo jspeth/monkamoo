@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import asyncio
 
 from . import shell
@@ -39,7 +41,7 @@ class MonkaMOOServer:
     async def start_server(self):
         self.server = await asyncio.start_server(self.handle_client, "0.0.0.0", 8888)
         addr = self.server.sockets[0].getsockname()
-        logger.info(f"Telnet server started on {addr}")
+        logger.info("Telnet server started on %s", addr)
 
     async def handle_client(self, reader, writer):
         client_addr = writer.get_extra_info("peername")
@@ -54,8 +56,8 @@ class MonkaMOOServer:
             # run shell command loop
             client_shell = shell.Shell(self.world, stdin=wrapped_reader, stdout=wrapped_writer)
             await client_shell.cmdloop()
-        except Exception as e:
-            logger.exception("Telnet client error for %s: %s", client_addr, e)
+        except Exception:
+            logger.exception("Telnet client error for %s", client_addr)
         finally:
             # close connection
             self.clients.remove(writer)

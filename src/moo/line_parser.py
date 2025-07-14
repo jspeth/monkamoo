@@ -74,11 +74,11 @@ class Command:
 
         # indirect args
         def get_remainder(string, word):
-            for preposition in Preposition.synonyms(word):
-                index = string.find(preposition)
+            for prep in Preposition.synonyms(word):
+                index = string.find(prep)
                 if index == -1:
                     continue
-                return string[index + len(preposition) :].strip()
+                return string[index + len(prep) :].strip()
             return None
 
         self.indirect_args = preposition and get_remainder(line, preposition) or None
@@ -169,7 +169,6 @@ class Parser:
             indirect_object = " ".join(words[i + 1 :]) or None
         else:
             direct_object = " ".join(words[1:])
-        # return command
         return Command(line, verb, direct_object, preposition, indirect_object)
 
 

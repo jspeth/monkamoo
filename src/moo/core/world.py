@@ -1,4 +1,5 @@
 import json
+from pathlib import Path
 
 from .. import line_parser
 from ..logging_config import get_logger
@@ -33,7 +34,8 @@ class World(Base):
     def load(self, path=None):
         path = path or self.path
         logger.info("Loading world from: %s", path)
-        data = open(path).read()
+        with Path(path).open() as f:
+            data = f.read()
         if not data:
             logger.warning("No data found in world file: %s", path)
             return
@@ -69,7 +71,7 @@ class World(Base):
         path = path or self.path
         logger.info("Saving world to: %s", path)
         data = json.dumps(self, default=lambda o: o.json_dictionary(), sort_keys=True, indent=2, separators=(",", ": "))
-        with open(path, "w") as f:
+        with Path(path).open("w") as f:
             f.write(data)
         logger.info("World saved successfully")
 
