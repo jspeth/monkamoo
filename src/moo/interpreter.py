@@ -3,6 +3,11 @@ import contextlib
 import io
 import sys
 
+from .logging_config import get_logger
+
+# Get logger for this module
+logger = get_logger("monkamoo.interpreter")
+
 @contextlib.contextmanager
 def stdoutIO(stdout=None):
     old = sys.stdout
@@ -32,21 +37,26 @@ class MOOInteractiveConsole(code.InteractiveConsole):
             raise EOFError
         line = line.rstrip('\n\r')
         if line == 'exit':
+            logger.info("Interactive console received exit command")
             raise EOFError
+        logger.debug("Interactive console input: %s", line)
         return line
 
     def runcode(self, code):
+        logger.debug("Interactive console executing code: %s", code[:100] + "..." if len(code) > 100 else code)
         try:
             with stdoutIO() as s:
                 exec(code, self.locals)
             self.write(s.getvalue())
         except SystemExit:
             raise
-        except:
+        except Exception as e:
+            logger.error("Interactive console error: %s", e)
             self.showtraceback()
 
 
 def interact(banner=None, local=None, stdin=None, stdout=None):
+    logger.info("Starting interactive console")
     stdin = stdin or sys.stdin
     stdout = stdout or sys.stdout
     console = MOOInteractiveConsole(local, stdin=stdin, stdout=stdout)

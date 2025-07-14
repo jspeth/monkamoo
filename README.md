@@ -133,6 +133,7 @@ The app is configured for Heroku deployment with the following files:
 4. **Set environment variables:**
    ```bash
    heroku config:set OPENAI_API_KEY=your_openai_api_key_here
+   heroku config:set LOG_LEVEL=INFO
    ```
 
 5. **Deploy the app:**
@@ -151,7 +152,8 @@ The app is configured for Heroku deployment with the following files:
 
 1. Connect your GitHub repository to Heroku
 2. Set the `OPENAI_API_KEY` environment variable in the Heroku dashboard
-3. Enable automatic deploys or deploy manually
+3. Set the `LOG_LEVEL` environment variable (optional, defaults to INFO)
+4. Enable automatic deploys or deploy manually
 
 #### Heroku App Structure
 
@@ -159,6 +161,7 @@ The app is configured for Heroku deployment with the following files:
 - **WebSocket Support**: Real-time communication via WebSockets
 - **AI Players**: Configured to work with OpenAI API
 - **Persistent World**: World state is maintained between sessions
+- **Comprehensive Logging**: All logs available via `heroku logs` command
 
 Running
 -------
@@ -199,6 +202,91 @@ The following shortcuts can be used:
 * `:` -- `emote` (example: `:waves.` becomes `emote waves.`)
 * `@` -- `whisper` (example: `@jim Psst...` becomes `whisper jim Psst...`)
 * `#` -- `jump` (example: `#attic` becomes `jump attic`)
+
+Logging
+-------
+
+MonkaMOO includes comprehensive logging that works across all environments.
+
+### Logging Configuration
+
+The logging system is configured in `src/moo/logging_config.py` and provides:
+
+- **Heroku Compatibility**: All logs output to stdout/stderr for `heroku logs`
+- **Structured Format**: Consistent timestamps and module-based logging
+- **Environment Configuration**: LOG_LEVEL environment variable support
+- **Module-Specific Loggers**: Each component has appropriate namespacing
+
+### Viewing Logs
+
+#### Local Development
+
+When running locally, logs appear in your terminal:
+
+```bash
+# Web server logs
+python app.py
+
+# Telnet server logs
+./moo -s
+
+# Interactive shell logs
+./moo
+```
+
+#### Heroku Deployment
+
+View logs on Heroku using the Heroku CLI:
+
+```bash
+# View recent logs
+heroku logs
+
+# Follow logs in real-time
+heroku logs --tail
+
+# View logs for specific time period
+heroku logs --since 1h
+
+# View logs for specific dyno
+heroku logs --dyno web.1
+```
+
+#### Environment Variables
+
+Configure logging level via environment variable:
+
+```bash
+# Set log level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+export LOG_LEVEL=INFO
+
+# For Heroku
+heroku config:set LOG_LEVEL=INFO
+```
+
+### Log Components
+
+The following components provide detailed logging:
+
+- **Web Server** (`monkamoo.web`): HTTP requests, WebSocket connections, user sessions
+- **Telnet Server** (`monkamoo.server`): Client connections, command processing
+- **Shell Interface** (`monkamoo.shell`): Interactive commands, user input
+- **World Engine** (`monkamoo.world`): World loading/saving, object management
+- **Player System** (`monkamoo.player`): Player actions, movements, interactions
+- **AI Players** (`monkamoo.aiplayer`): OpenAI API calls, AI responses
+- **Communication** (`monkamoo.broker`): Message publishing, subscriptions
+- **Interpreter** (`monkamoo.interpreter`): Code execution, errors
+
+### Example Log Output
+
+```
+2025-07-13 21:46:52 - monkamoo.web - INFO - Server starting on port 5432...
+2025-07-13 21:46:52 - monkamoo.world - INFO - Loading world from: world.json
+2025-07-13 21:46:52 - monkamoo.world - INFO - World loaded successfully: 21 objects
+2025-07-13 21:46:52 - monkamoo.web - INFO - WebSocket connection established for player: jim
+2025-07-13 21:46:52 - monkamoo.player - INFO - Player jim creating object: flower as Object
+2025-07-13 21:46:52 - monkamoo.world - INFO - Player jim successfully created object: flower
+```
 
 AI Players
 ----------

@@ -4,3 +4,4 @@
 .env
 venv
 bots/
+log.txt
