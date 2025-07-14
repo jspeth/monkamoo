@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import asyncio
-import os
 import sys
+from pathlib import Path
 
 import dotenv
 from quart import (
@@ -17,15 +17,16 @@ from quart import (
 )
 
 # Configure logging BEFORE importing any modules that use logging
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))
+sys.path.insert(0, str(Path(__file__).parent / "src"))
 from moo.logging_config import get_logger, setup_logging
 
 # Set up console logging for web server
 setup_logging(mode="console")
 
-from src.moo.broker import Broker
-from src.moo.core.player import Player
-from src.moo.core.world import World
+# Import after logging setup to avoid circular dependencies
+from src.moo.broker import Broker  # noqa: E402
+from src.moo.core.player import Player  # noqa: E402
+from src.moo.core.world import World  # noqa: E402
 
 # Set up logger for this script
 logger = get_logger("monkamoo.web")
@@ -73,8 +74,8 @@ async def ws() -> None:
         task = asyncio.ensure_future(_receive())
         async for message in broker.subscribe(player_name):
             await websocket.send(message)
-    except Exception as e:
-        logger.exception("WebSocket error for player %s: %s", player_name, e)
+    except Exception:
+        logger.exception("WebSocket error for player %s", player_name)
     finally:
         task.cancel()
         await task

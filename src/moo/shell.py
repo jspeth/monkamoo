@@ -77,7 +77,7 @@ class Shell:
             self.world.parse_command(self.player, line)
         return None
 
-    async def do_interact(self, arg):
+    async def do_interact(self, _arg):
         globals().update(((p.name.lower()), p) for p in self.world.players)
         interpreter.interact(local=globals(), stdin=self.stdin, stdout=self.stdout)
 

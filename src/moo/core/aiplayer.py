@@ -1,6 +1,7 @@
 import asyncio
 import json
 import os
+from pathlib import Path
 
 import openai
 
@@ -25,17 +26,18 @@ class AIPlayer(Player):
         self.captured_messages = None
         self.sleeping = False
 
-    def sleep(self, command):
+    def sleep(self, _command):
         self.sleeping = True
         self.room.announce(self, f"{self.name} goes to sleep.", exclude_player=True)
 
-    def wake(self, command):
+    def wake(self, _command):
         self.sleeping = False
         self.room.announce(self, f"{self.name} wakes up.", exclude_player=True)
 
     def load_history(self):
         try:
-            data = open(self.history_path).read()
+            with Path(self.history_path).open() as f:
+                data = f.read()
         except FileNotFoundError:
             data = None
         if not data:
@@ -64,10 +66,10 @@ class AIPlayer(Player):
             return entry
 
         # Ensure bots directory exists
-        os.makedirs(os.path.dirname(self.history_path), exist_ok=True)
+        Path(self.history_path).parent.mkdir(parents=True, exist_ok=True)
 
         serializable_history = [make_serializable(msg) for msg in self.history]
-        with open(self.history_path, "w") as f:
+        with Path(self.history_path).open("w") as f:
             json.dump(serializable_history, f, indent=2, separators=(",", ": "))
 
     def filtered_history(self):
@@ -98,8 +100,8 @@ class AIPlayer(Player):
         self.history.append(message)
         try:
             response = await self.get_gpt()
-        except Exception as err:
-            logger.exception("aiplayer=%s handle_message: error=%s", self.name, err)
+        except Exception:
+            logger.exception("aiplayer=%s handle_message: error", self.name)
             self.location.announce(self, f"{self.name} appears to be offline.", exclude_player=True)
             return
         await self.handle_response(response)
@@ -121,15 +123,13 @@ class AIPlayer(Player):
 
     async def get_gpt(self):
         logger.info(
-            "aiplayer=%s get_gpt: sending messages:\n%s", self.name, json.dumps(self.filtered_history(), indent=2),
+            "aiplayer=%s get_gpt: sending messages:\n%s",
+            self.name,
+            json.dumps(self.filtered_history(), indent=2),
         )
         response = await self.client.chat.completions.create(
             model="o4-mini-2025-04-16",
             messages=self.filtered_history(),
-            # max_tokens=50,
-            # n=1,
-            # stop=None,
-            # temperature=0.8,
             tools=self.get_tools(),
             tool_choice="auto",
         )

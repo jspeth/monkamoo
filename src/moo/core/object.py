@@ -10,7 +10,9 @@ class Object(Base):
         self.move(player)
         player.tell(f"You take {self.name}.")
         self.room.announce(
-            player, f"{player.name} takes {self.name}.", exclude_player=True,
+            player,
+            f"{player.name} takes {self.name}.",
+            exclude_player=True,
         )
 
     def drop(self, command):
@@ -18,7 +20,9 @@ class Object(Base):
         self.move(player.room)
         player.tell(f"You drop {self.name}.")
         self.room.announce(
-            player, f"{player.name} drops {self.name}.", exclude_player=True,
+            player,
+            f"{player.name} drops {self.name}.",
+            exclude_player=True,
         )
 
     def give(self, command):

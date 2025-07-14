@@ -80,6 +80,7 @@ ignore = [
     "PLR0911",  # too many return statements
     "PLR2004",  # magic value used in comparison
     "TID252",  # allow relative imports from parent modules
+    "PLC0415",  # allow lazy imports to avoid circular dependencies
 ]
 
 # Allow unused variables when underscore-prefixed.

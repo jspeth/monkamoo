@@ -14,10 +14,10 @@ class Player(Base):
         self.stdout = None
         super().__init__(**kwargs)
 
-    def do_load(self, command):
+    def do_load(self, _command):
         self.world.load()
 
-    def do_save(self, command):
+    def do_save(self, _command):
         self.world.save()
 
     def tell(self, message):
@@ -126,6 +126,7 @@ class Player(Base):
         logger.info("Player %s creating bot: %s", self.name, name)
         player = self.world.find_player(name)
         if not player:
+            # isort: skip
             from .aiplayer import AIPlayer
 
             player = AIPlayer(name=name)
@@ -136,7 +137,7 @@ class Player(Base):
             player.move(self.location)
             logger.info("Existing player moved to current location: %s", name)
 
-    def help(self, command):
+    def help(self, _command):
         # TODO: help should be dynamically generated and use verb search path
         help = """
 Commands:

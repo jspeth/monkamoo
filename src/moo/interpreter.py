@@ -10,7 +10,7 @@ logger = get_logger("monkamoo.interpreter")
 
 
 @contextlib.contextmanager
-def stdoutIO(stdout=None):
+def stdout_io(stdout=None):
     old = sys.stdout
     if stdout is None:
         stdout = io.StringIO()
@@ -46,13 +46,13 @@ class MOOInteractiveConsole(code.InteractiveConsole):
     def runcode(self, code):
         logger.debug("Interactive console executing code: %s", code[:100] + "..." if len(code) > 100 else code)
         try:
-            with stdoutIO() as s:
+            with stdout_io() as s:
                 exec(code, self.locals)
             self.write(s.getvalue())
         except SystemExit:
             raise
-        except Exception as e:
-            logger.exception("Interactive console error: %s", e)
+        except Exception:
+            logger.exception("Interactive console error")
             self.showtraceback()
 
 

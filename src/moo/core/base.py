@@ -63,7 +63,7 @@ class Base:
             self.location.on_enter(self, direction)
         return True
 
-    def accept(self, obj):
+    def accept(self, _obj):
         return True
 
     def on_enter(self, obj, direction=None):
@@ -74,6 +74,7 @@ class Base:
 
     @property
     def room(self):
+        # isort: skip
         from .room import Room
 
         if isinstance(self, Room):
@@ -84,6 +85,7 @@ class Base:
 
     @property
     def player(self):
+        # isort: skip
         from .player import Player
 
         if isinstance(self, Player):
@@ -94,18 +96,21 @@ class Base:
 
     @property
     def rooms(self):
+        # isort: skip
         from .room import Room
 
         return [obj for obj in self if isinstance(obj, Room)]
 
     @property
     def players(self):
+        # isort: skip
         from .player import Player
 
         return [obj for obj in self if isinstance(obj, Player)]
 
     @property
     def things(self):
+        # isort: skip
         from .player import Player
 
         return [obj for obj in self if not isinstance(obj, Player)]
@@ -148,6 +153,7 @@ class Base:
             kwargs = {}
         if args is None:
             args = []
+
         async def perform_after():
             await asyncio.sleep(interval)
             function(*args, **kwargs)

@@ -25,7 +25,7 @@ class Room(Base):
                 continue
             obj.tell(message)
 
-    def on_enter(self, player, direction=None):
+    def on_enter(self, player, _direction=None):
         if not isinstance(player, Player):
             return
         self.announce(player, f"{player.name} enters the room.", exclude_player=True)
@@ -64,7 +64,8 @@ class Room(Base):
         if players:
             lines.append(
                 "{players} {are} here.".format(
-                    players=join_strings(players, "and"), are=len(players) > 1 and "are" or "is",
+                    players=join_strings(players, "and"),
+                    are=len(players) > 1 and "are" or "is",
                 ),
             )
         # show room contents
