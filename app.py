@@ -5,7 +5,16 @@ import os
 import sys
 
 import dotenv
-from quart import Quart, abort, redirect, render_template, request, session, url_for, websocket
+from quart import (
+    Quart,
+    abort,
+    redirect,
+    render_template,
+    request,
+    session,
+    url_for,
+    websocket,
+)
 
 # Configure logging BEFORE importing any modules that use logging
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "src"))

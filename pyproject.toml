@@ -59,7 +59,17 @@ src_paths = ["src", "app.py", "moo"]
 
 [tool.ruff]
 # Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`) codes by default.
+
+# The following options are now in [tool.ruff.lint]
+# select = [...]
+# fixable = [...]
+# unfixable = [...]
+target-version = "py310"
+
+[tool.ruff.lint]
 select = ["E", "F", "I", "W", "B", "C4", "UP", "N", "ARG", "PIE", "T20", "SIM", "TCH", "Q", "RSE", "RET", "SLF", "SLOT", "TID", "TCH", "ARG", "PIE", "SIM", "LOG", "INP", "PTH", "ERA", "PD", "PGH", "PL", "TRY", "NPY", "AIR", "PERF", "FURB", "C4", "BLE", "COM", "DTZ", "T10", "EM", "EXE", "ISC", "ICN", "G", "INP", "M", "PIE", "T20", "TID", "UP", "W", "YTT"]
+fixable = ["ALL"]
+unfixable = []
 ignore = [
     "E501",  # line too long, handled by black
     "B008",  # do not perform function calls in argument defaults
@@ -72,9 +82,8 @@ ignore = [
     "TID252",  # allow relative imports from parent modules
 ]
 
-# Allow autofix for all enabled rules (when `--fix`) is provided.
-fixable = ["ALL"]
-unfixable = []
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
 
 # Exclude a variety of commonly ignored directories.
 exclude = [
@@ -100,15 +109,6 @@ exclude = [
     "node_modules",
     "venv",
 ]
-
-# Same as Black.
-line-length = 120
-
-# Allow unused variables when underscore-prefixed.
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
-# Assume Python 3.10
-target-version = "py310"
 
 [tool.ruff.format]
 # Like Black, use double quotes for strings.
