@@ -1,15 +1,14 @@
 import asyncio
 import json
-import logging
 import openai
 import os
 
 from .player import Player
 from ..line_parser import Command
+from ..logging_config import get_logger
 
-# Use DEBUG for OpenAI API messages
-# Use INFO for AIPLayer messages
-# logging.basicConfig(filename='aiplayer.log', encoding='utf-8', level=logging.INFO)
+# Get logger for this module
+logger = get_logger("monkamoo.aiplayer")
 
 class AIPlayer(Player):
     """ Represents an AI player in the MOO. """
@@ -82,7 +81,7 @@ class AIPlayer(Player):
     def tell(self, message, type=None):
         if self.sleeping:
             return
-        logging.info('aiplayer=%s tell: message="%s"', self.name, message)
+        logger.info('aiplayer=%s tell: message="%s"', self.name, message)
         if self.captured_messages is not None:
             self.captured_messages.append(message)
         else:
@@ -90,15 +89,15 @@ class AIPlayer(Player):
             asyncio.create_task(self.handle_message({'role': role, 'content': message}))
 
     async def handle_message(self, message):
-        logging.info('aiplayer=%s handle_message: message=%s', self.name, message)
+        logger.info('aiplayer=%s handle_message: message=%s', self.name, message)
         if not self.client:
-            logging.info('aiplayer=%s handle_message: message ignored: OpenAI api_key is not configured', self.name)
+            logger.info('aiplayer=%s handle_message: message ignored: OpenAI api_key is not configured', self.name)
             return
         self.history.append(message)
         try:
             response = await self.get_gpt()
         except Exception as err:
-            logging.error('aiplayer=%s handle_message: error=%s', self.name, err)
+            logger.error('aiplayer=%s handle_message: error=%s', self.name, err)
             self.location.announce(self, f'{self.name} appears to be offline.', exclude_player=True)
             return
         await self.handle_response(response)
@@ -118,7 +117,7 @@ class AIPlayer(Player):
         self.save_history()
 
     async def get_gpt(self):
-        logging.info('aiplayer=%s get_gpt: sending messages:\n%s', self.name, json.dumps(self.filtered_history(), indent=2))
+        logger.info('aiplayer=%s get_gpt: sending messages:\n%s', self.name, json.dumps(self.filtered_history(), indent=2))
         response = await self.client.chat.completions.create(
             model='o4-mini-2025-04-16',
             messages=self.filtered_history(),
@@ -129,7 +128,7 @@ class AIPlayer(Player):
             tools=self.get_tools(),
             tool_choice='auto'
         )
-        logging.info('aiplayer=%s get_gpt: response=%s', self.name, response)
+        logger.info('aiplayer=%s get_gpt: response=%s', self.name, response)
         return response.choices and response.choices[0].message or None
 
     def get_tools(self):
@@ -330,7 +329,7 @@ class AIPlayer(Player):
         for tool_call in tool_calls:
             name = tool_call.function.name
             arguments = json.loads(tool_call.function.arguments)
-            logging.info('aiplayer=%s handle_tool_call: name=%s arguments=%s', self.name, name, arguments)
+            logger.info('aiplayer=%s handle_tool_call: name=%s arguments=%s', self.name, name, arguments)
 
             self.history.append({
                 'role': 'assistant',
@@ -372,7 +371,7 @@ class AIPlayer(Player):
                 self.captured_messages.append('Function not found.')
             result = self.captured_messages
             self.captured_messages = None
-            logging.info('aiplayer=%s handle_tool_call: result=%s', self.name, result)
+            logger.info('aiplayer=%s handle_tool_call: result=%s', self.name, result)
 
             if not result:
                 result = ['Success!']

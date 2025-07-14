@@ -3,30 +3,53 @@
 import argparse
 import asyncio
 import dotenv
+import os
+import sys
 
+# Detect mode and configure logging BEFORE any src.moo imports
+parser = argparse.ArgumentParser(description='MonkaMOO')
+parser.add_argument('-i', '--interact', action='store_true', help='Run python shell')
+parser.add_argument('-s', '--server', action='store_true', help='Start moo server')
+args, unknown = parser.parse_known_args()
+
+# Configure logging based on mode
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
+from moo.logging_config import setup_logging, get_logger
+
+if args.interact or args.server:
+    # Console logging for interactive Python shell and telnet server
+    setup_logging(mode="console")
+else:
+    # File logging for interactive shell
+    setup_logging(mode="file")
+
+# Now import the rest of the app
 from src.moo import interpreter
 from src.moo import server
 from src.moo import shell
-
 from src.moo.core.world import World
 
 dotenv.load_dotenv()
-world = World(path='world.json')
-world.load()
 
 async def main():
-    parser = argparse.ArgumentParser(description='MonkaMOO')
-    parser.add_argument('-i', '--interact', action='store_true', help='Run python shell')
-    parser.add_argument('-s', '--server', action='store_true', help='Start moo server')
-    args = parser.parse_args()
+    # Use the already-parsed args
+    # Set up logger for this script
+    logger = get_logger("monkamoo.main")
+    
+    world = World(path='world.json')
+    world.load()
+    logger.info("World loaded successfully")
+    
     if args.interact:
+        logger.info("Starting interactive Python shell")
         globals().update(((p.name.lower()), p) for p in world.players)
         interpreter.interact(local=globals())
     elif args.server:
-        print('Starting server...')
+        logger.info("Starting telnet server")
         moo_server = server.MonkaMOOServer(world)
         await moo_server.run()
     else:
+        logger.info("Starting interactive shell")
         me = world.find_player('Jim')
         await shell.Shell(world, me).cmdloop()
 

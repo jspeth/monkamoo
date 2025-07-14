@@ -176,17 +176,29 @@ monkamoo/
 
 ## Monitoring and Debugging
 
-### Logging
-- **Standard Output**: Console-based logging
-- **Error Tracking**: Exception handling and reporting
-- **Performance Monitoring**: Basic timing measurements
-- **User Activity**: Command and interaction logging
+### Logging System
+- **Centralized Configuration**: `src/moo/logging_config.py` provides unified logging setup
+- **Heroku Compatibility**: All logs output to stdout/stderr for `heroku logs` integration
+- **Structured Format**: Consistent timestamp and module-based logging
+- **Environment Configuration**: LOG_LEVEL environment variable support (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+- **Module-Specific Loggers**: Each component has its own logger with appropriate namespacing
+
+### Logging Components
+- **Web Server**: `monkamoo.web` - HTTP requests, WebSocket connections, user sessions
+- **Telnet Server**: `monkamoo.server` - Client connections, command processing
+- **Shell Interface**: `monkamoo.shell` - Interactive commands, user input
+- **World Engine**: `monkamoo.world` - World loading/saving, object management
+- **Player System**: `monkamoo.player` - Player actions, movements, interactions
+- **AI Players**: `monkamoo.aiplayer` - OpenAI API calls, AI responses
+- **Communication**: `monkamoo.broker` - Message publishing, subscriptions
+- **Interpreter**: `monkamoo.interpreter` - Code execution, errors
 
 ### Debugging Tools
 - **Interactive Shell**: Direct world manipulation
 - **Web Interface**: Visual debugging capabilities
 - **Telnet Interface**: Command-line debugging
 - **State Inspection**: JSON world state examination
+- **Comprehensive Logs**: Detailed activity tracking across all components
 
 ## Future Technical Considerations
 
