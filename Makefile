@@ -17,6 +17,9 @@ lint: ## Run Ruff linter
 lint-fix: ## Run Ruff linter with auto-fix
 	ruff check --fix .
 
+lint-fix-unsafe: ## Run Ruff linter with auto-fix unsafe-fixes
+	ruff check --fix --unsafe-fixes .
+
 type-check: ## Run mypy type checking
 	mypy .
 
