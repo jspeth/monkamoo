@@ -32,10 +32,12 @@ class LocalFileStorage(StorageInterface):
 
         logger.info("LocalFileStorage initialized: world=%s, bots=%s", self.world_path, self.bots_dir)
 
-    def save_world(self, world_data: dict) -> bool:
+    def save_world(self, world) -> bool:
         try:
             logger.debug("Saving world to local file: %s", self.world_path)
-            data = json.dumps(world_data, sort_keys=True, indent=2, separators=(",", ": "))
+            data = json.dumps(
+                world, default=lambda o: o.json_dictionary(), sort_keys=True, indent=2, separators=(",", ": ")
+            )
             with self.world_path.open("w") as f:
                 f.write(data)
             logger.info("World saved successfully to local file")

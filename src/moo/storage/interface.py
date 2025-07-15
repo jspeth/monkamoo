@@ -11,11 +11,11 @@ class StorageInterface(ABC):
     """Abstract base class for storage implementations."""
 
     @abstractmethod
-    def save_world(self, world_data: dict) -> bool:
+    def save_world(self, world) -> bool:
         """Save world state data.
 
         Args:
-            world_data: Dictionary containing world state
+            world: World object to save
 
         Returns:
             True if save was successful, False otherwise

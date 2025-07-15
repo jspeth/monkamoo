@@ -67,8 +67,7 @@ class World(Base):
 
     def save(self, _path=None):
         logger.info("Saving world using storage abstraction")
-        world_data = self.json_dictionary()
-        success = self.storage.save_world(world_data)
+        success = self.storage.save_world(self)
         if success:
             logger.info("World saved successfully")
         else:
