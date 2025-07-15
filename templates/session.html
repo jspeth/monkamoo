@@ -1,41 +1,84 @@
-{% extends "layout.html" %}
-{% block content %}
+{% extends "layout.html" %} {% block content %}
 <script type="text/javascript">
-  const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
+  const protocol = location.protocol === "https:" ? "wss:" : "ws:";
   const ws = new WebSocket(`${protocol}//${location.host}/ws`);
+  let messagesContainer;
+  let messageInput;
 
-  ws.addEventListener('message', function (event) {
+  ws.addEventListener("message", function (event) {
     addMessage(event.data);
+    scrollToBottom();
   });
 
+  ws.addEventListener("open", function () {
+    console.log("WebSocket connection established");
+  });
+
+  ws.addEventListener("error", function (error) {
+    console.error("WebSocket error:", error);
+  });
+
+  ws.addEventListener("close", function () {
+    console.log("WebSocket connection closed");
+  });
+
+  // Keep connection alive
   setInterval(() => {
-    ws.send('');
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send("");
+    }
   }, 33000);
 
-  function send(event) {
-    const message = new FormData(event.target).get('message');
+  function sendMessage(event) {
+    event.preventDefault();
+    const message = messageInput.value.trim();
     if (message) {
-      addMessage(`<i>${message}</i>`);
+      addMessage(`<span class="user-message">${message}</span>`, "user");
       ws.send(message);
+      messageInput.value = "";
     }
-    event.target.reset();
     return false;
   }
 
-  function addMessage(message) {
-    const li = document.createElement('li');
-    li.className = 'message';
-    li.innerHTML = message.replace(/\n/g, '<br/>');
-    document.getElementById('messages').appendChild(li);
+  function addMessage(message, type = "system") {
+    const messageDiv = document.createElement("div");
+    messageDiv.className = `message ${type}-message`;
+    messageDiv.innerHTML = message.replace(/\n/g, "<br/>");
+    messagesContainer.appendChild(messageDiv);
   }
+
+  function scrollToBottom() {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  // Initialize everything when DOM is loaded
+  document.addEventListener("DOMContentLoaded", function () {
+    messagesContainer = document.getElementById("messages");
+    messageInput = document.getElementById("message-input");
+
+    // Handle Enter key submission
+    messageInput.addEventListener("keypress", function (event) {
+      if (event.key === "Enter") {
+        sendMessage(event);
+      }
+    });
+
+    scrollToBottom();
+  });
 </script>
 
-<div>
-  <ul id="messages"></ul>
+<div class="chat-container">
+  <div id="messages" class="messages-area"></div>
 
-  <form onsubmit="return send(event)">
-    <input type="text" name="message" minlength="1" placeholder="Enter a message" />
-    <button type="submit">Send</button>
+  <form class="input-area" onsubmit="return sendMessage(event)">
+    <input
+      type="text"
+      id="message-input"
+      name="message"
+      placeholder="Enter a message..."
+      autocomplete="off"
+      autofocus
+    />
   </form>
 </div>
 {% endblock %}

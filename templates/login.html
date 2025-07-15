@@ -1,7 +1,22 @@
-{% extends "layout.html" %}
-{% block content %}
-  <form class="input_form" method="post">
-    <p><input type=text name=player_name placeholder="Enter a player name">
-    <p><input type=submit>
-  </form>
+{% extends "layout.html" %} {% block content %}
+<div class="login-container">
+  <div class="login-card">
+    <h2>Welcome to MonkaMOO</h2>
+    <p class="login-subtitle">Enter your player name to begin your adventure</p>
+
+    <form class="login-form" method="post">
+      <div class="form-group">
+        <input
+          type="text"
+          name="player_name"
+          placeholder="Enter your player name"
+          required
+          autofocus
+          class="login-input"
+        />
+      </div>
+      <button type="submit" class="login-button">Start Playing</button>
+    </form>
+  </div>
+</div>
 {% endblock %}
