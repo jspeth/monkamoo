@@ -1,20 +1,38 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
     {% block head %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0"
+    />
+    <meta
+      name="description"
+      content="MonkaMOO - A family-friendly learning MOO"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='style.css') }}"
+    />
     <title>MonkaMOO</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no, maximum-scale=1">
     {% endblock %}
   </head>
   <body>
     <div id="header">
-      <div style="float: left;">Welcome to MonkaMOO!</div>
-      <div style="float: right; margin-top: 6px; margin-right: 20px; font-size: 22px;">
+      <div style="float: left">Welcome to MonkaMOO!</div>
+      <div
+        style="
+          float: right;
+          margin-top: 6px;
+          margin-right: 20px;
+          font-size: 22px;
+        "
+      >
         <span id="username">{{ player_name }}</span>
-        <a href="/logout" style="color: #fff; margin-left: 10px;">Logout</a>
+        <a href="/logout" style="color: #fff; margin-left: 10px">Logout</a>
       </div>
-      <div style="clear: both;"></div>
+      <div style="clear: both"></div>
     </div>
     <div id="content">{% block content %}{% endblock %}</div>
     <div id="footer">{% block footer %}{% endblock %}</div>
