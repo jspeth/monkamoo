@@ -41,6 +41,12 @@ class AIPlayer(Player):
         self.sleeping = False
         self.debugging = False
 
+    def do_model(self, command):
+        if command.indirect_object_str:
+            self.model = command.indirect_object_str
+            self.use_tools = True
+        self.room.announce(self, f"{self.name} model is now {self.model}.", exclude_player=True)
+
     def debug(self, _command):
         self.debugging = not self.debugging
         self.room.announce(self, f"{self.name} debugging is now {self.debugging}.", exclude_player=True)
