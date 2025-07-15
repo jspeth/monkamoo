@@ -28,14 +28,14 @@ class Player(Base):
 
     def jump(self, command):
         room_name = command.direct_object_str
-        logger.info("Player %s attempting to jump to room: %s", self.name, room_name)
+        logger.debug("Player %s attempting to jump to room: %s", self.name, room_name)
         room = self.world.find_room(room_name)
         if not room:
             logger.debug("Player %s tried to jump to non-existent room: %s", self.name, room_name)
             self.tell(f"I couldn't find {room_name}.")
             return
         self.move(room)
-        logger.info("Player %s jumped to room: %s", self.name, room_name)
+        logger.debug("Player %s jumped to room: %s", self.name, room_name)
 
     def look(self, command):
         obj = command.direct_object
@@ -75,7 +75,7 @@ class Player(Base):
             self.tell("What do you want to tell them?")
             return
         name, message = parts
-        logger.info("Player %s whispering to %s: %s", self.name, name, message)
+        logger.debug("Player %s whispering to %s: %s", self.name, name, message)
         player = self.world.find_player(name)
         if player and message:
             if hasattr(player, "handle_whisper"):
@@ -106,7 +106,7 @@ class Player(Base):
         class_name = "Object"
         if command.preposition == Preposition.AS and command.indirect_object_str:
             class_name = command.indirect_object_str
-        logger.info("Player %s creating object: %s as %s", self.name, name, class_name)
+        logger.debug("Player %s creating object: %s as %s", self.name, name, class_name)
         cls = globals().get(class_name)
         if not cls:
             logger.debug("Player %s tried to create object with non-existent class: %s", self.name, class_name)
@@ -116,14 +116,14 @@ class Player(Base):
         obj = cls(name=name)
         obj.move(self)
         self.tell(f"You created {name}.")
-        logger.info("Player %s successfully created object: %s", self.name, name)
+        logger.debug("Player %s successfully created object: %s", self.name, name)
 
     def bot(self, command):
         name = command.direct_object_str
         if not name:
             self.tell("You must provide a player name.")
             return
-        logger.info("Player %s creating bot: %s", self.name, name)
+        logger.debug("Player %s creating bot: %s", self.name, name)
         player = self.world.find_player(name)
         if not player:
             # isort: skip
@@ -132,10 +132,10 @@ class Player(Base):
             player = AIPlayer(name=name)
             player.location = self.location
             self.world.add_player(player)
-            logger.info("New AI player created: %s", name)
+            logger.debug("New AI player created: %s", name)
         else:
             player.move(self.location)
-            logger.info("Existing player moved to current location: %s", name)
+            logger.debug("Existing player moved to current location: %s", name)
 
     def help(self, _command):
         # TODO: help should be dynamically generated and use verb search path

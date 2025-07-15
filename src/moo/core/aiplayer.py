@@ -33,7 +33,7 @@ class AIPlayer(Player):
             logger.info("aiplayer=%s: Created client with model %s", self.name, self.model)
         else:
             self.client = None
-            logger.info("aiplayer=%s: No API key configured, AI functionality disabled", self.name)
+            logger.warning("aiplayer=%s: No API key configured, AI functionality disabled", self.name)
 
         self.storage = get_storage_with_fallback()
         self.load_history()
@@ -101,7 +101,6 @@ class AIPlayer(Player):
     def tell(self, message, type=None):
         if self.sleeping:
             return
-        logger.info('aiplayer=%s tell: message="%s"', self.name, message)
         if self.captured_messages is not None:
             self.captured_messages.append(message)
         else:
@@ -109,13 +108,13 @@ class AIPlayer(Player):
             asyncio.create_task(self.handle_message({"role": role, "content": message}))
 
     async def handle_message(self, message):
-        logger.info("aiplayer=%s handle_message: message=%s", self.name, message)
+        logger.debug("aiplayer=%s handle_message: message=%s", self.name, message)
         if not self.client:
-            logger.info("aiplayer=%s handle_message: message ignored: OpenAI api_key is not configured", self.name)
+            logger.warning("aiplayer=%s handle_message: message ignored: OpenAI api_key is not configured", self.name)
             return
         self.history.append(message)
         try:
-            response = await self.get_gpt()
+            response = await self.generate()
         except Exception:
             logger.exception("aiplayer=%s handle_message: error", self.name)
             self.location.announce(self, f"{self.name} appears to be offline.", exclude_player=True)
@@ -137,9 +136,9 @@ class AIPlayer(Player):
         self.save_history()
         return None
 
-    async def get_gpt(self):
-        logger.info(
-            "aiplayer=%s get_gpt: sending messages:\n%s",
+    async def generate(self):
+        logger.debug(
+            "aiplayer=%s generate: sending messages:\n%s",
             self.name,
             json.dumps(self.filtered_history(), indent=2),
         )
@@ -165,12 +164,12 @@ class AIPlayer(Player):
                     model=self.model,
                     messages=self.filtered_history(),
                 )
-                logger.info("aiplayer=%s get_gpt: response=%s", self.name, response)
+                logger.debug("aiplayer=%s generate: response=%s", self.name, response)
                 return response.choices and response.choices[0].message or None
             # Re-raise if it's not a tool-related error
             raise
 
-        logger.info("aiplayer=%s get_gpt: response=%s", self.name, response)
+        logger.debug("aiplayer=%s generate: response=%s", self.name, response)
         return response.choices and response.choices[0].message or None
 
     def get_tools(self):
@@ -373,7 +372,7 @@ class AIPlayer(Player):
         for tool_call in tool_calls:
             name = tool_call.function.name
             arguments = json.loads(tool_call.function.arguments)
-            logger.info("aiplayer=%s handle_tool_call: name=%s arguments=%s", self.name, name, arguments)
+            logger.debug("aiplayer=%s handle_tool_call: name=%s arguments=%s", self.name, name, arguments)
 
             self.history.append(
                 {
@@ -414,7 +413,7 @@ class AIPlayer(Player):
                 self.captured_messages.append("Function not found.")
             result = self.captured_messages
             self.captured_messages = None
-            logger.info("aiplayer=%s handle_tool_call: result=%s", self.name, result)
+            logger.debug("aiplayer=%s handle_tool_call: result=%s", self.name, result)
 
             if not result:
                 result = ["Success!"]

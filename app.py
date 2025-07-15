@@ -59,7 +59,7 @@ async def _receive() -> None:
         player_name = session.get("player_name")
         player = world.find_player(player_name)
         if player and message:
-            logger.info("WebSocket message from %s: %s", player_name, message)
+            logger.debug("WebSocket message from %s: %s", player_name, message)
             world.parse_command(player, message)
 
 
