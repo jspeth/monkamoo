@@ -56,7 +56,11 @@ class CloudStorage(StorageInterface):
         try:
             key = self._get_world_key()
             data = json.dumps(
-                world, default=lambda o: o.json_dictionary(), sort_keys=True, indent=2, separators=(",", ": ")
+                world,
+                default=lambda o: o.json_dictionary(),
+                sort_keys=True,
+                indent=2,
+                separators=(",", ": "),
             )
             logger.debug("Saving world to S3: bucket=%s, key=%s", self.bucket_name, key)
             self.s3_client.put_object(

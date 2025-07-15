@@ -36,7 +36,11 @@ class LocalFileStorage(StorageInterface):
         try:
             logger.debug("Saving world to local file: %s", self.world_path)
             data = json.dumps(
-                world, default=lambda o: o.json_dictionary(), sort_keys=True, indent=2, separators=(",", ": ")
+                world,
+                default=lambda o: o.json_dictionary(),
+                sort_keys=True,
+                indent=2,
+                separators=(",", ": "),
             )
             with self.world_path.open("w") as f:
                 f.write(data)
