@@ -52,10 +52,12 @@ class CloudStorage(StorageInterface):
         """Get S3 key for AI player history."""
         return f"bots/{player_name}.json"
 
-    def save_world(self, world_data: dict) -> bool:
+    def save_world(self, world) -> bool:
         try:
             key = self._get_world_key()
-            data = json.dumps(world_data, sort_keys=True, indent=2, separators=(",", ": "))
+            data = json.dumps(
+                world, default=lambda o: o.json_dictionary(), sort_keys=True, indent=2, separators=(",", ": ")
+            )
             logger.debug("Saving world to S3: bucket=%s, key=%s", self.bucket_name, key)
             self.s3_client.put_object(
                 Bucket=self.bucket_name,
