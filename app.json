@@ -5,8 +5,16 @@
   "keywords": ["python", "moo", "game", "text-adventure", "ai"],
   "env": {
     "OPENAI_API_KEY": {
-      "description": "OpenAI API key for AI players",
+      "description": "OpenAI API key for AI players (also works with OpenRouter)",
       "required": true
+    },
+    "OPENAI_BASE_URL": {
+      "description": "Base URL for AI API (e.g., https://openrouter.ai/api/v1 for OpenRouter)",
+      "required": false
+    },
+    "AI_MODEL": {
+      "description": "AI model to use (e.g., openai/gpt-4o-mini, anthropic/claude-3.5-sonnet)",
+      "required": false
     }
   },
   "formation": {

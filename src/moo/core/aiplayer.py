@@ -18,9 +18,23 @@ class AIPlayer(Player):
 
     def __init__(self, api_key=None, **kwargs):
         super().__init__(**kwargs)
-        # Initialize OpenAI client with API key
+
+        # Initialize AI client with API key and configuration
         api_key = api_key or os.getenv("OPENAI_API_KEY")
-        self.client = openai.AsyncOpenAI(api_key=api_key) if api_key else None
+        base_url = os.getenv("OPENAI_BASE_URL")
+        self.use_tools = os.getenv("AI_USE_TOOLS", "true").lower() == "true"
+        self.model = os.getenv("AI_MODEL", "o4-mini-2025-04-16")
+
+        if api_key:
+            self.client = openai.AsyncOpenAI(
+                api_key=api_key,
+                base_url=base_url,
+            )
+            logger.info("aiplayer=%s: Created client with model %s", self.name, self.model)
+        else:
+            self.client = None
+            logger.info("aiplayer=%s: No API key configured, AI functionality disabled", self.name)
+
         self.storage = get_storage_with_fallback()
         self.load_history()
         self.captured_messages = None
@@ -129,16 +143,39 @@ class AIPlayer(Player):
             self.name,
             json.dumps(self.filtered_history(), indent=2),
         )
-        response = await self.client.chat.completions.create(
-            model="o4-mini-2025-04-16",
-            messages=self.filtered_history(),
-            tools=self.get_tools(),
-            tool_choice="auto",
-        )
+
+        tools = self.get_tools()
+        try:
+            response = await self.client.chat.completions.create(
+                model=self.model,
+                messages=self.filtered_history(),
+                tools=tools,
+                tool_choice="auto" if tools else "none",
+            )
+        except openai.NotFoundError as e:
+            if "tool use" in str(e).lower():
+                logger.warning(
+                    "aiplayer=%s: Model %s doesn't support tools, falling back to text-only mode",
+                    self.name,
+                    self.model,
+                )
+                # Fallback to text-only mode
+                self.use_tools = False
+                response = await self.client.chat.completions.create(
+                    model=self.model,
+                    messages=self.filtered_history(),
+                )
+                logger.info("aiplayer=%s get_gpt: response=%s", self.name, response)
+                return response.choices and response.choices[0].message or None
+            # Re-raise if it's not a tool-related error
+            raise
+
         logger.info("aiplayer=%s get_gpt: response=%s", self.name, response)
         return response.choices and response.choices[0].message or None
 
     def get_tools(self):
+        if not self.use_tools:
+            return None
         return [
             {
                 "type": "function",

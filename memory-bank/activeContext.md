@@ -14,6 +14,18 @@ Establishing comprehensive documentation and Memory Bank foundation for the Monk
 
 ## Recent Changes
 
+### OpenRouter Support Implementation ✅ COMPLETED
+
+- **Added OpenRouter support**: Implemented configuration for OpenRouter API compatibility
+- **New environment variables**: Added `OPENAI_BASE_URL` and `AI_MODEL` for flexible AI provider selection
+- **Backward compatibility**: Existing OpenAI setup continues to work unchanged
+- **Enhanced AIPlayer class**: Updated initialization to support multiple AI providers
+- **Updated documentation**: README.md and app.json updated with OpenRouter setup instructions
+- **Configuration priority**: Clear fallback logic for different provider setups
+- **Comprehensive logging**: Added logging for AI provider and model selection
+- **Tool support detection**: Automatic fallback to text-only mode for models without tool support
+- **Error handling**: Graceful handling of unsupported features with informative logging
+
 ### Storage Abstraction Implementation ✅ COMPLETED
 
 - **Implemented storage abstraction layer**: Created unified interface for local and cloud storage
@@ -66,7 +78,7 @@ Establishing comprehensive documentation and Memory Bank foundation for the Monk
 - **Basic MOO Functionality**: Player movement, object creation, communication
 - **World Persistence**: JSON-based state saving and loading with cloud storage support
 - **Real-time Communication**: WebSocket support for live updates
-- **AI Player Integration**: OpenAI API integration for AI-driven players
+- **AI Player Integration**: OpenAI API integration for AI-driven players with OpenRouter support
 - **Deployment Ready**: Heroku deployment configuration complete with persistent storage
 - **Comprehensive Logging**: Heroku-compatible logging system with structured output
 - **Storage Abstraction**: ✅ Unified local and cloud storage with automatic fallback
