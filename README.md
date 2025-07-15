@@ -119,10 +119,20 @@ The system automatically falls back to local storage if cloud storage is unavail
 
 ## Environment Variables
 
-- **OPENAI_API_KEY**: Required for AI player functionality
+### AI Configuration
+
+- **OPENAI_API_KEY**: Required for AI player functionality (works with OpenAI and OpenRouter)
+- **OPENAI_BASE_URL**: Base URL for AI API (e.g., "https://openrouter.ai/api/v1" for OpenRouter)
+- **AI_MODEL**: AI model to use (e.g., "openai/gpt-4o-mini", "anthropic/claude-3.5-sonnet")
+
+### Server Configuration
+
 - **SECRET_KEY**: Web session security (default: 'JGS123#')
 - **PORT**: Web server port (default: 5432)
 - **TELNET_PORT**: Telnet server port (default: 8888)
+
+### Storage Configuration
+
 - **STORAGE_TYPE**: Storage backend ('local' or 'heroku')
 - **CLOUD_STORAGE_BUCKET**: S3 bucket name for cloud storage
 - **AWS_ACCESS_KEY_ID**: AWS access key for S3
@@ -169,6 +179,55 @@ Edit `.env` and set the `OPENAI_API_KEY` value.
 ### Creating AI Players
 
 In the MOO, type `bot [name]` to create an AI player. Then say something to it to give it an initial prompt.
+
+### OpenRouter Support
+
+MonkaMOO supports OpenRouter, which provides access to hundreds of AI models through a single API. This allows you to use different models like Claude, Gemini, and others.
+
+#### Setup for OpenRouter
+
+1. **Get an OpenRouter API key** from [openrouter.ai](https://openrouter.ai)
+2. **Configure environment variables:**
+
+   ```bash
+   # For local development
+   export OPENAI_API_KEY=your_openrouter_api_key
+   export OPENAI_BASE_URL=https://openrouter.ai/api/v1
+   export AI_MODEL=anthropic/claude-3.5-sonnet  # or any other model
+
+   # For Heroku deployment
+   heroku config:set OPENAI_API_KEY=your_openrouter_api_key
+   heroku config:set OPENAI_BASE_URL=https://openrouter.ai/api/v1
+   heroku config:set AI_MODEL=anthropic/claude-3.5-sonnet
+   ```
+
+#### Popular Models
+
+**Models with Tool Support (Recommended):**
+
+- `openai/gpt-4o-mini` - Fast and cost-effective
+- `anthropic/claude-3.5-sonnet` - Good reasoning capabilities
+- `openai/gpt-4o` - More capable but more expensive
+
+**Models without Tool Support (Text-only):**
+
+- `google/gemini-pro` - Google's latest model
+- `meta-llama/llama-3.1-8b-instruct` - Open source option
+- Most free models on OpenRouter
+
+**Note:** Models without tool support will still work but won't be able to perform actions like moving, creating objects, etc. They'll only be able to chat.
+
+#### Configuration Priority
+
+1. If `OPENAI_BASE_URL` is set → Use OpenRouter/custom endpoint
+2. If `AI_MODEL` is set → Use specified model
+3. Fallback to OpenAI with default model
+
+#### Tool Support
+
+The system automatically detects if your chosen model supports tools (function calling). If a model doesn't support tools, it will fall back to text-only mode. You'll see a warning message in the logs when this happens.
+
+For the best experience, use models that support tools so AI players can perform actions in the world.
 
 ### Notes
 

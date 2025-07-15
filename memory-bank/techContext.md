@@ -61,11 +61,21 @@ pip install -r requirements.txt
 
 # Set up environment variables
 echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
+# Optional: For OpenRouter support
+echo "OPENAI_BASE_URL=https://openrouter.ai/api/v1" >> .env
+echo "AI_MODEL=anthropic/claude-3.5-sonnet" >> .env
 ```
 
 ### Environment Variables
 
-- **OPENAI_API_KEY**: Required for AI player functionality
+#### AI Configuration
+
+- **OPENAI_API_KEY**: Required for AI player functionality (works with OpenAI and OpenRouter)
+- **OPENAI_BASE_URL**: Base URL for AI API (e.g., "https://openrouter.ai/api/v1" for OpenRouter)
+- **AI_MODEL**: AI model to use (e.g., "openai/gpt-4o-mini", "anthropic/claude-3.5-sonnet")
+
+#### Server Configuration
+
 - **SECRET_KEY**: Web session security (default: 'JGS123#')
 - **PORT**: Web server port (default: 5432)
 - **TELNET_PORT**: Telnet server port (default: 8888)

@@ -21,6 +21,8 @@
 ### AI Integration ✅
 
 - **AI Players**: OpenAI API integration for AI-driven players
+- **OpenRouter Support**: Multi-provider AI support with OpenRouter compatibility
+- **Model Selection**: Configurable AI models via environment variables
 - **Bot Configuration**: Configurable AI player personalities
 - **Intelligent Responses**: Context-aware AI interactions
 - **Family-Friendly AI**: Appropriate content and behavior
