@@ -51,15 +51,50 @@
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
   }
 
+  // iOS Safari detection
+  function isIOS() {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+  }
+
+  // Handle iOS Safari viewport adjustments
+  function handleIOSViewport() {
+    if (isIOS()) {
+      // Add iOS-specific class for styling
+      document.body.classList.add("ios-safari");
+
+      // Handle viewport height changes
+      let vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty("--vh", `${vh}px`);
+
+      window.addEventListener("resize", () => {
+        vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty("--vh", `${vh}px`);
+      });
+    }
+  }
+
   // Initialize everything when DOM is loaded
   document.addEventListener("DOMContentLoaded", function () {
     messagesContainer = document.getElementById("messages");
     messageInput = document.getElementById("message-input");
 
+    // Handle iOS Safari viewport
+    handleIOSViewport();
+
     // Handle Enter key submission
     messageInput.addEventListener("keypress", function (event) {
       if (event.key === "Enter") {
         sendMessage(event);
+      }
+    });
+
+    // Enhanced focus handling for mobile
+    messageInput.addEventListener("focus", function () {
+      if (isIOS()) {
+        // Small delay to ensure keyboard is shown
+        setTimeout(() => {
+          scrollToBottom();
+        }, 300);
       }
     });
 
