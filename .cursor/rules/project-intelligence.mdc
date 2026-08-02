@@ -1,0 +1,32 @@
+---
+description: MonkaMOO project intelligence — critical invariants and patterns
+globs:
+alwaysApply: true
+---
+# MonkaMOO Project Intelligence
+
+## Current State (August 2026)
+
+- The project is **Node.js (ESM, plain JavaScript — no TypeScript)**, ported from Python on the `jspeth/node` branch. The Python implementation (`src/moo/`, `app.py`, `./moo`) is intentionally kept in-tree until the port is settled; do not modify it, and do not delete it without being asked.
+- Read `memory-bank/activeContext.md` and `memory-bank/progress.md` for current status.
+
+## Critical Invariants
+
+1. **`world.json` format is frozen.** `sortedJSONStringify` (src/utils.js) must keep producing byte-identical output to Python's `json.dumps(sort_keys=True, indent=2)`. The round-trip test in `test/world.test.js` enforces this — never weaken that test.
+2. **Command dispatch must stay synchronous.** No `await` inside `World.parseCommand` → verb methods. `AIPlayer.handleToolCalls` captures command output via `capturedMessages` between two synchronous statements; async anywhere in that path silently breaks AI tool results.
+3. **The class serialized as `"Object"` is named `Thing`** (src/core/thing.js) — `Object` collides with the JS built-in. The mapping lives in the class registry; keep `static typeName` values matching world.json.
+4. **Class registration avoids an ESM cycle.** New world classes must: extend Base/Thing, set `static typeName`, call `registerClass(...)` at module bottom, and be imported from `src/core/registry.js`. Never import `registry.js` from a class module — import `classRegistry.js` (the leaf) instead.
+5. **Verb dispatch is security-guarded.** `Base.getFunction` skips anything on `Object.prototype`. Preserve this when touching dispatch.
+
+## Conventions
+
+- Verb methods are named after the verb the player types (`look`, `dig`) or `do_verb` (`do_name`, `do_save`) — this snake_case is a dispatch convention, not a style slip; Biome's naming rule is off for this reason.
+- Logger names mirror the Python era (`monkamoo.web`, `monkamoo.world`, ...); `src/logger.js` uses printf-style interpolation like Python logging.
+- Lint/format with Biome (`npm run lint`); test with `node:test` (`npm test`). Parser behavior is pinned by golden fixtures generated from the Python parser.
+
+## Gotchas
+
+- The repo `venv` is broken (dangling pyenv symlink); system `python3` works only for dependency-free modules like `src/moo/line_parser.py`.
+- `bots/*.json` is runtime data (gitignored) — AI conversation histories in OpenAI chat format, shared with the Python implementation.
+- The web session is a hand-rolled HMAC-signed cookie (`monkamoo_session` in server.js), not compatible with old Quart sessions.
+- The interact REPL exits with `.exit` (node:repl), not `exit`.

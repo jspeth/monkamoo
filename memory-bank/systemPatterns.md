@@ -2,206 +2,146 @@
 
 ## Architecture Overview
 
-MonkaMOO follows a modular, object-oriented architecture with clear separation of concerns:
+MonkaMOO follows a modular, object-oriented architecture with clear separation of concerns. As of August 2026 the implementation is Node.js (ESM, plain JavaScript); the retired Python implementation mirrors the same architecture.
 
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Web Interface │    │  Telnet Server  │    │ Interactive     │
-│   (Quart/WS)   │    │   (Socket)      │    │   Shell         │
+│  (Express/ws)   │    │   (node:net)    │    │   Shell         │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
          │                       │                       │
          └───────────────────────┼───────────────────────┘
                                  │
                     ┌─────────────────┐
                     │   World Engine  │
-                    │   (Core Logic)  │
+                    │ (src/core/*.js) │
                     └─────────────────┘
                                  │
                     ┌─────────────────┐
                     │  Object System  │
-                    │  (Python OOP)   │
+                    │   (JS classes)  │
                     └─────────────────┘
 ```
 
 ## Core Design Patterns
 
 ### 1. **Object-Oriented MOO Pattern**
+
 - **Purpose**: Represent everything in the world as objects
-- **Implementation**: All game entities inherit from `base.Object`
+- **Implementation**: All game entities extend `Base` (`src/core/base.js`): `Room`, `Player`, `AIPlayer`, `Thing`, `Ball`
+- **Note**: The class serialized as `"Object"` in world.json is named `Thing` in JS (the name `Object` collides with the JS built-in); the class registry maps the type name
 - **Benefits**: Consistent interface, easy extension, natural programming model
 
-```python
-class Object:
-    def __init__(self, name, description):
-        self.name = name
-        self.description = description
-        self.contents = []
-        self.verbs = {}
-    
-    def add_verb(self, name, func):
-        self.verbs[name] = func
+```javascript
+export class Base {
+  constructor(props = {}) {
+    this.id = randomUUID();
+    this.world = null;
+    this.name = null;
+    this.description = null;
+    this.location = null;
+    this.contents = {};
+    Object.assign(this, props);
+  }
+}
 ```
 
-### 2. **Command Parser Pattern**
-- **Purpose**: Parse natural language commands into executable actions
-- **Implementation**: `line_parser.py` with regex-based matching
-- **Benefits**: Intuitive user interface, extensible command system
+### 2. **Verb Dispatch Pattern**
 
-### 3. **Event-Driven Communication Pattern**
+- **Purpose**: Route parsed commands to methods on world objects
+- **Implementation**: `World.findFunction` searches player → room → direct object → indirect object; `Base.getFunction(verb)` looks up `verb` or `do_verb` methods dynamically
+- **Safety**: lookups skip anything on `Object.prototype` (`constructor`, `toString`, `__proto__`, ...) so players can't dispatch into JS internals
+- **Benefits**: Verbs live on the objects they belong to; new objects bring their own verbs
+
+### 3. **Class Registry Pattern** (replaces Python's `globals()` lookup)
+
+- **Purpose**: Look up classes by name for world loading (`"type"` field) and the `create x as Class` command
+- **Implementation**: `src/core/classRegistry.js` is a leaf module (no imports); each class module calls `registerClass(name, cls)` at definition time; `src/core/registry.js` imports all class modules to guarantee registration
+- **Rationale**: avoids the ESM import cycle player → registry → aiplayer → player, which breaks under some import orders (TDZ on `extends Player`)
+
+### 4. **Command Parser Pattern**
+
+- **Purpose**: Parse natural-language commands into `verb / direct-object / preposition / indirect-object`
+- **Implementation**: `src/lineParser.js` — word-splitting with article removal and a preposition synonym table (insertion order matters and matches the Python dict order)
+- **Parity**: golden tests in `test/lineParser.test.js` were generated from the Python parser
+
+### 5. **Event-Driven Communication Pattern**
+
 - **Purpose**: Real-time updates across multiple interfaces
-- **Implementation**: `broker.py` with WebSocket support
-- **Benefits**: Responsive UI, scalable to multiple clients
+- **Implementation**: `src/broker.js` — per-channel (player name) sets of async message queues; WebSocket handlers subscribe and pump messages; `player.stdout` duck-typed writers (`{write, flush?}`) bridge game output to any interface
+- **Benefits**: Responsive UI, multiple simultaneous clients per player
 
-### 4. **World Persistence Pattern**
+### 6. **World Persistence Pattern**
+
 - **Purpose**: Save and restore world state
-- **Implementation**: JSON-based serialization in `world.py`
-- **Benefits**: State preservation, easy debugging, backup capability
+- **Implementation**: JSON serialization via `toJSON()` on each class; `sortedJSONStringify` (`src/utils.js`) reproduces Python's `json.dumps(sort_keys=True, indent=2)` **byte-for-byte** — this is the compatibility contract with the Python implementation and is enforced by a round-trip test
+- **Structure**: flat `contents` map keyed by id; objects store `location` as an id, rebuilt into object references (and per-object `contents` maps) at load time
+
+### 7. **Synchronous Command Execution** (load-bearing invariant)
+
+- Command parse/dispatch (`World.parseCommand` → verb methods) is fully synchronous
+- `AIPlayer.handleToolCalls` depends on this: it sets `capturedMessages = []`, runs a command, and collects everything the command told the player — this only works because no `await` occurs inside command execution
+- Async boundaries live at the edges: AI API calls, storage I/O, broker delivery
 
 ## Key Technical Decisions
 
-### 1. **Python as Core Language**
-- **Decision**: Use Python for all core logic
-- **Rationale**: 
-  - Family-friendly and accessible
-  - Rich ecosystem for web development
-  - Easy to learn and teach
-  - Strong object-oriented support
-- **Trade-offs**: Performance vs. accessibility
+### 1. **JavaScript/Node.js as Core Language** (August 2026, supersedes Python)
 
-### 2. **Async Web Framework (Quart)**
-- **Decision**: Use Quart instead of Flask for async support
-- **Rationale**:
-  - WebSocket support for real-time communication
-  - Async/await for better concurrency
-  - Compatible with existing Python knowledge
-- **Trade-offs**: Learning curve vs. performance benefits
+- **Rationale**: one language across server and browser; Node's event loop natively matches the app's async model (the Python version was asyncio anyway); simpler deployment (no gunicorn/uvicorn layers)
+- **Style**: plain JS + ESM, no TypeScript — keeps the family-learning accessibility goal
+
+### 2. **Express + ws + Nunjucks for the Web Tier**
+
+- Nunjucks reads the existing Jinja templates unchanged
+- Sessions are a hand-rolled HMAC-SHA256 signed cookie (`monkamoo_session`) — small, dependency-free, verified during the WebSocket upgrade
 
 ### 3. **JSON for World Persistence**
-- **Decision**: Use JSON for world state storage
-- **Rationale**:
-  - Human-readable format
-  - Easy debugging and manual editing
-  - No external database dependencies
-  - Version control friendly
-- **Trade-offs**: Performance vs. simplicity
+
+- Human-readable, version-control friendly, no database dependency
+- Format is frozen while the Python implementation remains in the tree
 
 ### 4. **Multiple Interface Support**
-- **Decision**: Support web, telnet, and shell interfaces
-- **Rationale**:
-  - Different user preferences
-  - Accessibility for various technical levels
-  - Development and debugging flexibility
-- **Trade-offs**: Complexity vs. flexibility
+
+- Web (`server.js`), telnet (`src/telnetServer.js`), shell and JS REPL (`bin/moo.js`)
+- All interfaces share `Shell`/`LineReader` or the broker; the world engine is interface-agnostic
 
 ## Component Relationships
 
-### Core Components
-
-#### `World` Class
-- **Role**: Central coordinator and state manager
-- **Responsibilities**:
-  - Manage all objects and players
-  - Handle command parsing and execution
-  - Coordinate world persistence
-  - Manage player connections
-
-#### `Player` Class
-- **Role**: Represents a user in the world
-- **Responsibilities**:
-  - Track player location and inventory
-  - Handle player-specific commands
-  - Manage communication channels
-  - Store player state
-
-#### `Room` Class
-- **Role**: Represents locations in the world
-- **Responsibilities**:
-  - Manage room contents and exits
-  - Handle room-specific verbs
-  - Coordinate player movement
-  - Manage room descriptions
-
-#### `Object` Class
-- **Role**: Base class for all world entities
-- **Responsibilities**:
-  - Provide common object functionality
-  - Support verb system
-  - Handle object relationships
-  - Manage object state
+- **`World`** (`src/core/world.js`): central coordinator — object registry, command parsing/dispatch, load/save via storage
+- **`Player`** (`src/core/player.js`): user representation; most player verbs (look, jump, whisper, create, bot, help)
+- **`AIPlayer`** (`src/core/aiplayer.js`): extends Player; OpenAI chat loop with tool calls that re-enter `world.parseCommand`
+- **`Room`** (`src/core/room.js`): exits, announcements, look/go/dig/say/emote
+- **`Thing`/`Ball`** (`src/core/thing.js`, `ball.js`): portable objects with take/drop/give (+ bounce/roll/throw)
+- **Storage** (`src/storage/`): `LocalFileStorage`, `CloudStorage` (S3), async factory with health-check fallback
 
 ### Communication Flow
 
 ```
-User Input → Parser → World Engine → Object System → 
-Response → Broker → Client Interface → User Output
+User Input → Parser → World Engine → Object Verbs →
+tell()/announce() → player.stdout (stream or Broker) → Client Interface
 ```
-
-## Design Principles
-
-### 1. **Everything is an Object**
-- All game entities inherit from `Object`
-- Consistent interface across all entities
-- Easy to extend with new object types
-
-### 2. **Verb-Based Interaction**
-- All interactions go through the verb system
-- Natural language command parsing
-- Extensible command vocabulary
-
-### 3. **Separation of Concerns**
-- Clear boundaries between components
-- Minimal coupling between modules
-- Easy to test and modify individual parts
-
-### 4. **Family-Friendly Design**
-- Simple, intuitive interfaces
-- Safe experimentation environment
-- Progressive complexity building
 
 ## Extension Patterns
 
 ### Adding New Object Types
-1. Inherit from appropriate base class
-2. Define object-specific verbs
-3. Register with world system
-4. Add to persistence system
+
+1. Create a class extending `Base` (or `Thing`) in `src/core/`
+2. Set `static typeName` (the name used in world.json and `create ... as X`)
+3. Call `registerClass(typeName, Class)` at the bottom of the module
+4. Import the module from `src/core/registry.js`
 
 ### Adding New Commands
-1. Define command function
-2. Add to parser vocabulary
-3. Register with appropriate objects
-4. Update help system
+
+- Add a method named after the verb (or `do_verb`) to the class that should own it — the dispatch search path (player, room, objects) finds it automatically
 
 ### Adding New Interfaces
-1. Implement interface-specific input/output
-2. Connect to broker system
-3. Handle session management
-4. Integrate with world engine
 
-## Performance Considerations
-
-### Current Optimizations
-- Lazy loading of object properties
-- Efficient command parsing with regex
-- Minimal state serialization
-- Async I/O for web interface
-
-### Future Optimization Opportunities
-- Command caching for frequently used verbs
-- Object property caching
-- Database backend for large worlds
-- Connection pooling for multiple clients
+1. Produce lines of input and an object with `write()` for output
+2. Either drive a `Shell` (stream-based interfaces) or call `world.parseCommand` directly and subscribe to the `Broker` (message-based interfaces)
 
 ## Security Patterns
 
-### Current Security Model
-- Simple session-based authentication
-- No permanent damage possible
-- Safe object creation and modification
-- Family-friendly content restrictions
-
-### Security Considerations
-- Input validation on all commands
-- Safe code execution environment
-- Rate limiting for commands
-- Content filtering for family safety 
+- Verb dispatch is guarded against JS prototype internals (see pattern 2)
+- Command handler exceptions are caught and reported, never crash the server
+- Signed session cookies (HMAC-SHA256) with timing-safe comparison
+- Otherwise a family-trust security model: no permissions system, no sandboxing (the interact REPL is intentionally full-power and only reachable from shell/telnet)

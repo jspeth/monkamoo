@@ -1,13 +1,13 @@
 # Project Brief: MonkaMOO
 
 ## Vision
-A Python-based learning MOO (Multi-User Dungeon, Object Oriented) in the spirit of LambdaMOO, designed for family collaboration and learning.
+A JavaScript (Node.js) learning MOO (Multi-User Dungeon, Object Oriented) in the spirit of LambdaMOO, designed for family collaboration and learning. Originally implemented in Python; fully ported to Node.js in August 2026.
 
 ## Core Goals
 1. **Family Collaboration**: Enable collaboration between family members (parent-child, grandparent-grandchild)
 2. **Learning Platform**: Provide a safe environment for learning programming concepts through object-oriented design
 3. **Text-Based Virtual Reality**: Create an immersive, multi-user text-based world
-4. **Python Integration**: Allow coding MOO objects in Python and interacting with them in the world
+4. **JavaScript Integration**: Allow coding MOO objects in JavaScript and interacting with them in the world
 
 ## Key Requirements
 
@@ -21,7 +21,7 @@ A Python-based learning MOO (Multi-User Dungeon, Object Oriented) in the spirit 
 - **Multiple Interfaces**: Web interface, telnet server, and interactive shell
 
 ### Technical Requirements
-- **Python-Based**: Core implementation in Python for accessibility
+- **JavaScript-Based**: Core implementation in Node.js — one language across server and browser
 - **Async Architecture**: Support for real-time communication via WebSockets
 - **Extensible**: Easy to add new features and objects
 - **Deployable**: Can be deployed to cloud platforms (Heroku)
@@ -44,5 +44,5 @@ A Python-based learning MOO (Multi-User Dungeon, Object Oriented) in the spirit 
 ## Constraints
 - **Family-Friendly**: Content and interactions must be appropriate for all ages
 - **Educational Focus**: Primary goal is learning, not entertainment
-- **Python Ecosystem**: Leverage existing Python libraries and tools
+- **JavaScript Ecosystem**: Leverage existing Node.js libraries and tools
 - **Open Source**: Code should be accessible and modifiable 

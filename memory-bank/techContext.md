@@ -4,66 +4,51 @@
 
 ### Core Technologies
 
-- **Python 3.10+**: Primary programming language
-- **Quart**: Async web framework (Flask-compatible)
-- **WebSockets**: Real-time communication
-- **JSON**: World state persistence
-- **Socket Programming**: Telnet server implementation
+- **Node.js 20+**: Primary runtime (ported from Python in August 2026)
+- **JavaScript (ESM)**: Plain modern JS, `"type": "module"`, no TypeScript
+- **Express**: Web framework
+- **ws**: WebSocket server for real-time communication
+- **Nunjucks**: Template rendering (Jinja-compatible, reuses the original templates)
+- **JSON**: World state persistence (`world.json`, `bots/*.json`)
+- **node:net / node:repl / node:readline**: Telnet server, interact REPL, shell input
 
-### Web Technologies
+### Legacy (being retired)
 
-- **HTML/CSS/JavaScript**: Frontend interface
-- **WebSocket API**: Browser-based real-time communication
-- **Session Management**: User authentication and state
+- The original **Python implementation** still lives in `src/moo/`, `app.py`, and `./moo` until the port is fully settled. It shares the same world.json format. The repo `venv` is broken (dangling pyenv symlink), so it won't run without recreating the venv.
 
 ### Development Tools
 
+- **npm**: Package management (`package.json`, `package-lock.json`)
+- **Biome**: Linting and formatting (`biome.json`; 120-char lines, double quotes)
+- **node:test**: Built-in test runner (no test dependencies)
 - **Git**: Version control
-- **pip**: Python package management
-- **venv**: Virtual environment isolation
 - **direnv**: Automatic environment activation (optional)
 
 ### Deployment Technologies
 
-- **Heroku**: Cloud deployment platform
-- **Gunicorn**: WSGI server for production
-- **Procfile**: Heroku process configuration
-- **requirements.txt**: Python dependency specification
+- **Heroku**: Cloud deployment platform (`heroku/nodejs` buildpack)
+- **Procfile**: `web: node server.js`
+- **AWS S3**: Cloud persistence via `@aws-sdk/client-s3` when `STORAGE_TYPE=heroku`
 
 ## Development Environment Setup
 
-### Prerequisites
-
 ```bash
-# Python 3.10 or higher
-python --version
-
-# Git for version control
-git --version
-
-# pip for package management
-pip --version
-```
-
-### Local Development Setup
-
-```bash
-# Clone repository
+# Clone and install (requires Node.js 20+)
 git clone <repository-url>
 cd monkamoo
+npm install
 
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+# Environment variables
+cp .env.example .env   # set OPENAI_API_KEY (and optionally OPENAI_BASE_URL, AI_MODEL)
+```
 
-# Install dependencies
-pip install -r requirements.txt
+### Running
 
-# Set up environment variables
-echo "OPENAI_API_KEY=your_openai_api_key_here" > .env
-# Optional: For OpenRouter support
-echo "OPENAI_BASE_URL=https://openrouter.ai/api/v1" >> .env
-echo "AI_MODEL=anthropic/claude-3.5-sonnet" >> .env
+```bash
+npm start          # web server (http://localhost:5432)
+./bin/moo.js       # interactive shell (default player: Jim)
+./bin/moo.js -s    # telnet server (port 8888)
+./bin/moo.js -i    # JS REPL with world + players in scope (.exit to leave)
 ```
 
 ### Environment Variables
@@ -72,203 +57,97 @@ echo "AI_MODEL=anthropic/claude-3.5-sonnet" >> .env
 
 - **OPENAI_API_KEY**: Required for AI player functionality (works with OpenAI and OpenRouter)
 - **OPENAI_BASE_URL**: Base URL for AI API (e.g., "https://openrouter.ai/api/v1" for OpenRouter)
-- **AI_MODEL**: AI model to use (e.g., "openai/gpt-4o-mini", "anthropic/claude-3.5-sonnet")
+- **AI_MODEL**: AI model to use (default: `o4-mini-2025-04-16`)
+- **AI_USE_TOOLS**: Enable tool calling for AI players (default: true)
 
 #### Server Configuration
 
-- **SECRET_KEY**: Web session security (default: 'JGS123#')
+- **SECRET_KEY**: Session-cookie signing key (default: 'JGS123#')
 - **PORT**: Web server port (default: 5432)
 - **TELNET_PORT**: Telnet server port (default: 8888)
+- **LOG_LEVEL**: DEBUG, INFO, WARNING, ERROR, CRITICAL (default: INFO)
 
-## Dependencies
+#### Storage Configuration
 
-### Core Dependencies (requirements.txt)
+- **STORAGE_TYPE**: 'local' (default) or 'heroku' (S3)
+- **CLOUD_STORAGE_BUCKET**, **AWS_ACCESS_KEY_ID**, **AWS_SECRET_ACCESS_KEY**, **AWS_REGION**
 
-```
-quart>=0.18.4          # Async web framework
-python-dotenv>=1.0.0   # Environment variable management
-openai>=1.0.0          # OpenAI API integration
-```
-
-### Development Dependencies (requirements-dev.txt)
+## Dependencies (package.json)
 
 ```
-ruff>=0.1.0            # Fast Python linter (replaces flake8)
-black>=23.0.0          # Code formatter
-isort>=5.12.0          # Import sorting
-mypy>=1.5.0            # Static type checking
-pre-commit>=3.3.0      # Git hooks (optional)
-pytest>=7.0.0          # Testing framework
-pytest-asyncio>=0.21.0 # Async testing support
+express            # web framework
+ws                 # WebSocket server
+nunjucks           # templates (Jinja-compatible)
+openai             # AI player API client
+@aws-sdk/client-s3 # S3 cloud storage
+dotenv             # .env loading
+
+@biomejs/biome     # dev: lint + format
 ```
 
-### Optional Dependencies
-
-```
-direnv>=2.30.0         # Automatic environment activation
-heroku>=7.60.0         # Heroku CLI for deployment
-```
-
-## Architecture Components
-
-### Web Interface (`app.py`)
-
-- **Quart Application**: Main web server
-- **WebSocket Support**: Real-time communication
-- **Session Management**: User authentication
-- **Template Rendering**: HTML interface
-
-### Telnet Server (`server.py`)
-
-- **Socket Programming**: Raw TCP connections
-- **Command Processing**: Direct command execution
-- **Multi-client Support**: Multiple simultaneous connections
-
-### Interactive Shell (`shell.py`)
-
-- **Python REPL**: Interactive development environment
-- **World Integration**: Direct access to world objects
-- **Debugging Support**: Development and testing tool
-
-### Core Engine (`src/moo/`)
-
-- **World Management**: Central game logic
-- **Object System**: OOP-based entity management
-- **Command Parser**: Natural language processing
-- **Persistence**: State saving and loading
-
-## Technical Constraints
-
-### Performance Constraints
-
-- **Single-threaded**: Python GIL limitations
-- **Memory Usage**: JSON-based persistence limits scalability
-- **Network Latency**: Real-time communication requirements
-- **CPU Usage**: Command parsing overhead
-
-### Scalability Constraints
-
-- **Single Server**: No distributed architecture
-- **File-based Storage**: No database backend
-- **In-memory State**: Limited by available RAM
-- **Connection Limits**: Socket connection limits
-
-### Security Constraints
-
-- **Simple Authentication**: No advanced security features
-- **Code Execution**: Limited sandboxing
-- **Input Validation**: Basic command validation
-- **Family Safety**: Content filtering requirements
-
-## Development Workflow
-
-### Local Development
-
-1. **Start Web Server**: `python app.py`
-2. **Start Telnet Server**: `./moo -s`
-3. **Interactive Shell**: `./moo`
-4. **Testing**: Manual testing through interfaces
-
-### Code Organization
+## Code Organization
 
 ```
 monkamoo/
-├── app.py              # Web application entry point
-├── src/moo/           # Core engine
-│   ├── core/          # Game objects and logic
-│   ├── broker.py      # Communication system
-│   ├── interpreter.py # Command interpretation
-│   ├── line_parser.py # Command parsing
-│   ├── server.py      # Telnet server
-│   └── shell.py       # Interactive shell
-├── templates/         # Web interface templates
-├── static/           # Web assets
-├── bots/             # AI player configurations
-└── docs/             # Documentation
+├── server.js            # Web server entry point (Express + ws)
+├── bin/moo.js           # CLI entry point (shell / telnet / REPL)
+├── src/
+│   ├── core/            # World engine
+│   │   ├── base.js      # Base class: ids, contents, move, verb lookup
+│   │   ├── thing.js     # Portable objects (serialized as type "Object")
+│   │   ├── ball.js      # Example object with verbs + timer
+│   │   ├── room.js      # Rooms, exits, announcements
+│   │   ├── player.js    # Players and most verbs
+│   │   ├── aiplayer.js  # OpenAI-driven players with tool calls
+│   │   ├── world.js     # Root container, load/save, command dispatch
+│   │   ├── classRegistry.js # Leaf class registry (no imports)
+│   │   └── registry.js  # Imports all classes to register them
+│   ├── storage/         # local.js, cloud.js (S3), factory.js
+│   ├── broker.js        # Pub/sub message queues for web clients
+│   ├── lineParser.js    # Command parser (Preposition, Command, Parser)
+│   ├── shell.js         # Shell + LineReader (stdin and telnet)
+│   ├── telnetServer.js  # node:net server wrapping Shell
+│   ├── interact.js      # node:repl wrapper
+│   ├── logger.js        # Python-logging-style named loggers
+│   └── utils.js         # joinStrings, stripChars, sortedJSONStringify
+├── test/                # node:test suites + parser golden fixtures
+├── templates/           # Nunjucks/Jinja templates (layout, login, session)
+├── static/              # CSS
+├── bots/                # AI player history (gitignored, runtime data)
+├── world.json           # World state (shared with Python implementation)
+└── src/moo/ + app.py + moo   # Legacy Python implementation (to be removed)
 ```
 
-### Testing Strategy
+## Testing
 
-- **Manual Testing**: Interactive testing through interfaces
-- **Unit Testing**: Individual component testing
-- **Integration Testing**: End-to-end functionality testing
-- **User Testing**: Family-based usability testing
+- **Framework**: `node:test` (built-in); run with `npm test`
+- **Parser parity**: `test/lineParser.test.js` checks against golden values generated from the Python parser (`test/fixtures/parser-golden.json`)
+- **Persistence parity**: `test/world.test.js` asserts `world.json` round-trips byte-for-byte through JS load/save
+- **Command smoke tests**: in-memory world exercising look/dig/go/jump/create/take/drop/give/say/emote/whisper, plus the verb-dispatch security guard
 
-### Code Quality & Linting
+## Code Quality & Linting
 
-- **Ruff**: Fast Python linter with auto-fix capabilities
-- **Black**: Code formatter with 120-character line length
-- **isort**: Import sorting compatible with Black
-- **mypy**: Static type checking (optional but recommended)
-- **VS Code Integration**: Real-time linting and formatting
-- **Makefile Commands**: `make lint`, `make format`, `make fix`, `make type-check`
-- **Configuration**: `pyproject.toml` for all tool settings
-- **Line Length**: 120 characters across all tools
+- **Biome** handles both linting and formatting: `npm run lint`, `npm run lint:fix`, `npm run format`
+- **Makefile** mirrors npm scripts: `make lint`, `make test`, `make start`, `make moo`, `make server`, `make check-all`
+- 120-character line width, double quotes, recommended lint rules (`noDelete` off — dynamic-key deletes are core to the contents-map design; `useNamingConvention` off — verb methods like `do_name` are a dispatch convention)
 
-## Deployment Considerations
+## Logging System
 
-### Heroku Deployment
+- `src/logger.js` mirrors the Python `logging_config` module: named loggers, `LOG_LEVEL` env var, printf-style interpolation
+- **Modes**: `console` (stderr — web and telnet servers) and `file` (`log.txt` — interactive shell, so logs don't mix with game output)
+- **Logger names unchanged from Python**: `monkamoo.web`, `monkamoo.server`, `monkamoo.shell`, `monkamoo.world`, `monkamoo.player`, `monkamoo.aiplayer`, `monkamoo.broker`, `monkamoo.storage.*`
 
-- **Buildpack**: Python buildpack
-- **Process Types**: Web dyno for web interface
-- **Environment Variables**: Configured via Heroku dashboard
-- **Scaling**: Manual dyno scaling
+## Technical Constraints
 
-### Local Deployment
+- **Single process, in-memory world**: state lives in one Node process; JSON persistence on explicit `save`
+- **Persistence format is frozen** while the Python implementation remains: byte-compatible `world.json` is the contract
+- **Synchronous command dispatch is load-bearing**: AIPlayer tool-call result capture depends on no `await` inside command execution
+- **Family-trust security model**: no auth beyond a name, no sandboxing; interact REPL is full-power by design (shell/telnet only)
 
-- **Development Server**: `python app.py`
-- **Production Server**: Gunicorn with UvicornWorker
-- **Process Management**: Manual process management
-- **Logging**: Standard output logging
+## Deployment
 
-## Monitoring and Debugging
-
-### Logging System
-
-- **Centralized Configuration**: `src/moo/logging_config.py` provides unified logging setup
-- **Heroku Compatibility**: All logs output to stdout/stderr for `heroku logs` integration
-- **Structured Format**: Consistent timestamp and module-based logging
-- **Environment Configuration**: LOG_LEVEL environment variable support (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-- **Module-Specific Loggers**: Each component has its own logger with appropriate namespacing
-
-### Logging Components
-
-- **Web Server**: `monkamoo.web` - HTTP requests, WebSocket connections, user sessions
-- **Telnet Server**: `monkamoo.server` - Client connections, command processing
-- **Shell Interface**: `monkamoo.shell` - Interactive commands, user input
-- **World Engine**: `monkamoo.world` - World loading/saving, object management
-- **Player System**: `monkamoo.player` - Player actions, movements, interactions
-- **AI Players**: `monkamoo.aiplayer` - OpenAI API calls, AI responses
-- **Communication**: `monkamoo.broker` - Message publishing, subscriptions
-- **Interpreter**: `monkamoo.interpreter` - Code execution, errors
-
-### Debugging Tools
-
-- **Interactive Shell**: Direct world manipulation
-- **Web Interface**: Visual debugging capabilities
-- **Telnet Interface**: Command-line debugging
-- **State Inspection**: JSON world state examination
-- **Comprehensive Logs**: Detailed activity tracking across all components
-
-## Future Technical Considerations
-
-### Scalability Improvements
-
-- **Database Backend**: PostgreSQL or MongoDB integration
-- **Distributed Architecture**: Multi-server deployment
-- **Caching Layer**: Redis for performance optimization
-- **Load Balancing**: Multiple server instances
-
-### Security Enhancements
-
-- **Advanced Authentication**: OAuth or JWT-based auth
-- **Code Sandboxing**: Safe code execution environment
-- **Input Sanitization**: Comprehensive input validation
-- **Rate Limiting**: Command execution throttling
-
-### Performance Optimizations
-
-- **Async Processing**: Background task processing
-- **Connection Pooling**: Efficient client management
-- **Caching Strategies**: Object and command caching
-- **Compression**: Network traffic optimization
+- **Heroku** (app: `monkamoo`, live at https://moo.speth.com): `git push heroku <branch>:main`; `heroku/nodejs` buildpack (set on the app with `heroku buildpacks:set` — app.json alone doesn't change existing apps) reads `package.json` engines (`>=20`) and runs the Procfile
+- **npm registry**: the project `.npmrc` pins `registry.npmjs.org`. This is required — the dev machine's global `~/.npmrc` routes through a private work registry, and a lockfile generated against it breaks Heroku builds (npm E401). If `package-lock.json` ever shows `artifactory` URLs, regenerate it.
+- **HTTPS**: Automatic Certificate Management is enabled for the custom domain
+- **Cloud storage**: `STORAGE_TYPE=heroku` + AWS vars for S3-backed world/bot persistence with automatic local fallback (verified in production)
+- **`migrate_to_cloud.py`**: one-time local→S3 migration script from the Python era (still Python; port or drop when Python is removed)
