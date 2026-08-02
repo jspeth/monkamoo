@@ -7,7 +7,7 @@ alwaysApply: true
 
 ## Current State (August 2026)
 
-- The project is **Node.js (ESM, plain JavaScript — no TypeScript)**, ported from Python on the `jspeth/node` branch. The Python implementation (`src/moo/`, `app.py`, `./moo`) is intentionally kept in-tree until the port is settled; do not modify it, and do not delete it without being asked.
+- The project is **Node.js (ESM, plain JavaScript — no TypeScript)**, ported from Python in August 2026. The Python implementation has been removed; it's preserved at the `python-final` git tag.
 - Read `memory-bank/activeContext.md` and `memory-bank/progress.md` for current status.
 
 ## Critical Invariants
@@ -26,7 +26,7 @@ alwaysApply: true
 
 ## Gotchas
 
-- The repo `venv` is broken (dangling pyenv symlink); system `python3` works only for dependency-free modules like `src/moo/line_parser.py`.
-- `bots/*.json` is runtime data (gitignored) — AI conversation histories in OpenAI chat format, shared with the Python implementation.
-- The web session is a hand-rolled HMAC-signed cookie (`monkamoo_session` in server.js), not compatible with old Quart sessions.
+- `bots/*.json` is runtime data (gitignored) — AI conversation histories in OpenAI chat format.
+- The web session is a hand-rolled HMAC-signed cookie (`monkamoo_session` in server.js).
 - The interact REPL exits with `.exit` (node:repl), not `exit`.
+- The parser golden fixtures (`test/fixtures/parser-golden.json`) were generated from the original Python parser and pin its behavior; regenerating them requires checking out the `python-final` tag.

@@ -4,11 +4,11 @@
 
 ### Node.js Port ✅ (August 2026 — current implementation)
 
-- **Full port from Python to Node.js** on the `jspeth/node` branch, verified end-to-end:
+- **Full port from Python to Node.js**, verified end-to-end:
   - Shell (`./bin/moo.js`), telnet (`./bin/moo.js -s`), web (`npm start`), JS REPL (`./bin/moo.js -i`)
   - AI players verified against the live OpenAI API (chat + tool-call plumbing)
   - 28 automated tests passing, including a byte-for-byte `world.json` round-trip and parser golden tests generated from the Python parser
-- **Status**: committed on `jspeth/node` (PR/merge to master pending); Python implementation intentionally kept in-tree until the port is settled
+- **Status**: merged to main (PR #18), deployed to production, and the **Python implementation has been removed** (preserved at the `python-final` git tag)
 
 ### Core MOO Functionality ✅
 
@@ -57,12 +57,6 @@
 
 ## What's Left to Build
 
-### Port Cleanup (near-term)
-
-- **PR and merge** the port (`jspeth/node` → master)
-- **Delete the Python implementation** once settled: `src/moo/`, `app.py`, `moo`, `requirements*.txt`, `pyproject.toml`, `venv/`, Python caches
-- **Port or drop `migrate_to_cloud.py`** (still Python)
-
 ### High Priority TODO Items (carried over from TODO.md)
 
 - **Dynamic Help System**: Generate help from the verb search path
@@ -84,12 +78,9 @@
 
 ## Current Status
 
-- **Phase**: Node port complete and deployed → cleanup phase (merge to master, delete Python)
+- **Phase**: Port complete, merged, deployed, Python removed → back to feature development
 - **Stability**: All interfaces verified locally and in production (https://moo.speth.com)
-- **Branch**: `jspeth/node`, deployed to Heroku from this branch
 - **Known Issues**:
-  - Python venv is broken (dangling pyenv symlink) — Python version needs venv recreation to run
-  - Old Quart session cookies don't carry over (players re-login once)
   - `interact` REPL exits with `.exit` (not `exit` as in the Python version)
 
 ## Recent Achievements
@@ -100,6 +91,7 @@
 - Byte-for-byte world.json compatibility maintained and test-enforced
 - First automated test suite the project has had (28 tests)
 - Four latent Python bugs fixed along the way
+- Merged as PR #18; deployed to Heroku (nodejs buildpack, HTTPS via ACM); Python implementation removed, tagged `python-final`
 
 ### Earlier (Python era)
 
@@ -111,7 +103,6 @@
 
 ## Next Development Priorities
 
-1. **PR + merge the port** (`jspeth/node` → master)
-2. **Family play-testing** on the Node implementation (live at https://moo.speth.com)
-3. **Remove Python code** once confidence is established
-4. **Resume TODO.md features** in JavaScript (dynamic help first)
+1. **Family play-testing** on the Node implementation (live at https://moo.speth.com)
+2. **Resume TODO.md features** in JavaScript (dynamic help first)
+3. **Grow test coverage** (web routes, broker, AI tool-call loop with a mocked client)

@@ -2,7 +2,7 @@
   "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
   "files": {
     "include": ["src/**", "bin/**", "test/**", "server.js"],
-    "ignore": ["node_modules/**", "venv/**", "src/moo/**"]
+    "ignore": ["node_modules/**"]
   },
   "formatter": {
     "enabled": true,

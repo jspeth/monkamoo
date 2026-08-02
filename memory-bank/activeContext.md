@@ -4,15 +4,18 @@
 
 ### Primary Objective
 
-The project has just been **fully ported from Python to Node.js** (August 2026, committed on the `jspeth/node` branch). The current focus is settling the port: merging to master, running both implementations side by side against the shared `world.json`, and eventually retiring the Python code.
+The **Python → Node.js port is complete**: merged to main (PR #18, August 2026), deployed to production, and the Python implementation has been removed from the tree (preserved at the `python-final` git tag). The project is now a pure Node.js codebase; focus shifts back to feature work.
 
 ### Immediate Goals
 
-1. **PR and merge the port** (`jspeth/node` → master)
-2. **Play-test the Node implementation** with real family usage (it's live at https://moo.speth.com)
-3. **Retire the Python implementation** (`src/moo/`, `app.py`, `./moo`, requirements files, `pyproject.toml`) once confidence is established
+1. **Play-test the Node implementation** with real family usage (live at https://moo.speth.com)
+2. **Resume TODO.md feature work** in JavaScript (dynamic help is the top item)
 
 ## Recent Changes
+
+### Python Implementation Removed ✅ COMPLETED (August 2026)
+
+After the port merged to main (PR #18) and was verified in production, the Python implementation was deleted: `src/moo/`, `app.py`, `./moo`, `requirements*.txt`, `pyproject.toml`, `.python-version`, plus the broken venv and Python caches. The final Python revision is tagged **`python-final`**. The S3 migration script was ported to JS as `bin/migrate-to-cloud.js`. Docs, configs (biome.json, .gitignore, Makefile), CLAUDE.md, and the Cursor rules were scrubbed of Python references. The parser golden fixtures remain as the permanent record of the original parser's behavior.
 
 ### Heroku Deployment ✅ COMPLETED (August 2026)
 
@@ -71,30 +74,26 @@ Also added: verb-dispatch guard so `constructor`/`__proto__`/etc. can't reach JS
 
 ### What Needs Attention
 
-- **Python code still in tree** — intentionally kept until the port is settled
-- **The repo venv is broken** (dangling pyenv symlink); the Python version won't run without recreating it
 - **Security**: same basic model as before (family-trust based)
 - **TODO.md items** carry over unchanged (dynamic help, command aliases, periodic save, etc.)
 
 ## Active Decisions and Considerations
 
 - **Plain JS, not TypeScript**: deliberate choice for accessibility and simplicity
-- **Keep Python until settled**: enables A/B behavior comparison (`./moo` vs `./bin/moo.js` on the same world)
-- **Byte-compatible persistence**: treat `world.json` format as frozen; any format change must be bidirectional or happen after Python is retired
+- **Frozen persistence format**: `world.json` keeps the Python-era format (sorted keys, 2-space indent), enforced by the round-trip test — changing it now would only churn the file; revisit only with a real reason
 - **Class self-registration pattern**: classes register in `src/core/classRegistry.js` (a leaf module) to avoid ESM import cycles; `src/core/registry.js` aggregates for entry points
+- **Python history**: preserved at the `python-final` git tag; parser golden fixtures pin the original parser behavior
 
 ## Next Steps
 
 ### Immediate
 
-1. Open a PR from `jspeth/node` to master and merge
-2. Family play-testing on the Node implementation (live at https://moo.speth.com)
+1. Family play-testing on the Node implementation (live at https://moo.speth.com)
 
 ### Short Term
 
-1. Delete the Python implementation (`src/moo/`, `app.py`, `moo`, `requirements*.txt`, `pyproject.toml`, `requirements-dev.txt`, venv) and `migrate_to_cloud.py` (or port it if still needed)
-2. Move JS code from `src/` root into a cleaner layout if desired once Python is gone
-3. Grow the test suite (web routes, broker, AI tool-call loop with a mocked client)
+1. Grow the test suite (web routes, broker, AI tool-call loop with a mocked client)
+2. Consider restructuring `src/` layout now that it's JS-only (optional)
 
 ### Medium Term
 
