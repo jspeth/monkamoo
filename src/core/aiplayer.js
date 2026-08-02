@@ -82,7 +82,36 @@ export class AIPlayer extends Player {
   async loadHistory() {
     const storage = await this.getStorage();
     const history = await storage.loadAIHistory(this.name);
-    this.history = history || this.defaultHistory();
+    this.history = history ? this.migrateLegacyToolCalls(history) : this.defaultHistory();
+  }
+
+  // Bot histories saved before the tool-calling migration use the deprecated
+  // assistant.function_call / role:"function" shape. Sending that alongside
+  // a current `tools` request makes providers reject the whole call (422),
+  // which is why old bots like Aurora appeared "offline". Upgrade in place.
+  migrateLegacyToolCalls(history) {
+    let migrated = false;
+    let pendingToolCallId = null;
+    const result = history.map((message, index) => {
+      if (message.role === "assistant" && message.function_call) {
+        migrated = true;
+        pendingToolCallId = `legacy-${index}`;
+        const { function_call, ...rest } = message;
+        return { ...rest, tool_calls: [{ id: pendingToolCallId, type: "function", function: function_call }] };
+      }
+      if (message.role === "function" && pendingToolCallId) {
+        migrated = true;
+        const toolCallId = pendingToolCallId;
+        pendingToolCallId = null;
+        return { role: "tool", tool_call_id: toolCallId, content: message.content };
+      }
+      pendingToolCallId = null;
+      return message;
+    });
+    if (migrated) {
+      logger.info("aiplayer=%s: migrated legacy function_call history to tool_calls format", this.name);
+    }
+    return result;
   }
 
   async saveHistory() {
