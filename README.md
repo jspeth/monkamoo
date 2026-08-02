@@ -2,7 +2,7 @@
 
 A JavaScript learning MOO (Multi-User Dungeon, Object Oriented) in the spirit of LambdaMOO, designed for family collaboration and learning.
 
-> **Note:** MonkaMOO was recently ported from Python to Node.js. The original Python implementation still lives in `src/moo/`, `app.py`, and `moo` until the port is fully settled; the two implementations share the same `world.json` and `bots/*.json` formats, so either can run against the same world.
+> **History:** MonkaMOO was originally written in Python and ported to Node.js in August 2026. The final Python revision is preserved under the `python-final` git tag; the `world.json` format is unchanged across the port.
 
 ## Features
 
@@ -107,10 +107,10 @@ MonkaMOO supports multiple storage backends for world state and AI player histor
 
 To migrate your local data to S3:
 
-1. **Set up your .env file** with AWS credentials and S3 bucket
-2. **Run the migration script** (from the Python implementation):
+1. **Set up your .env file** with AWS credentials, S3 bucket, and `STORAGE_TYPE=heroku`
+2. **Run the migration script:**
    ```bash
-   python migrate_to_cloud.py
+   ./bin/migrate-to-cloud.js
    ```
 3. **Deploy to Heroku** with the same environment variables
 

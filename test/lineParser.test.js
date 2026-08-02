@@ -3,9 +3,9 @@ import fs from "node:fs";
 import { test } from "node:test";
 import { Parser, Preposition } from "../src/lineParser.js";
 
-// Golden values generated from the Python implementation (src/moo/line_parser.py)
-// to guarantee parser parity. Regenerate by running Parser.parse over each line
-// in Python and dumping the command fields.
+// Golden values generated from the original Python implementation
+// (src/moo/line_parser.py at the `python-final` tag) to pin parser behavior.
+// Regenerate by checking out that tag and running Parser.parse over each line.
 const golden = JSON.parse(fs.readFileSync(new URL("fixtures/parser-golden.json", import.meta.url), "utf8"));
 
 for (const expected of golden) {

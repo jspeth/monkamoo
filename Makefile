@@ -34,4 +34,3 @@ check-all: ## Run all checks (lint, tests)
 
 clean: ## Clean up generated files
 	rm -rf node_modules
-	find . -type d -name "__pycache__" -exec rm -rf {} +

@@ -1,8 +1,6 @@
-*.pyc
 .vscode
 .DS_Store
 .env
-venv
 bots/
 log.txt
 node_modules/

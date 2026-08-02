@@ -17,7 +17,7 @@ This project maintains its documentation of record in `memory-bank/`. **At the s
 
 ## Critical invariants (violating these breaks things silently)
 
-1. **`world.json` format is frozen.** `sortedJSONStringify` (src/utils.js) must produce byte-identical output to Python's `json.dumps(sort_keys=True, indent=2)`. The round-trip test in `test/world.test.js` enforces this — never weaken it. (A legacy Python implementation in `src/moo/` shares this file until it's retired.)
+1. **`world.json` format is frozen.** `sortedJSONStringify` (src/utils.js) must produce byte-identical output to Python's `json.dumps(sort_keys=True, indent=2)` — the format the world file has always had. The round-trip test in `test/world.test.js` enforces this — never weaken it.
 2. **Command dispatch must stay synchronous.** No `await` anywhere in `World.parseCommand` → verb methods. `AIPlayer.handleToolCalls` captures command output via `capturedMessages` between two synchronous statements.
 3. **The class serialized as `"Object"` is named `Thing`** (`src/core/thing.js`) — `Object` collides with the JS built-in; the class registry maps the name.
 4. **New world classes**: extend `Base`/`Thing`, set `static typeName`, call `registerClass(...)` at module bottom, add the import to `src/core/registry.js`. Never import `registry.js` from a class module (ESM cycle) — use `classRegistry.js`.
@@ -41,6 +41,7 @@ Run `npm test` and `npm run lint` before considering any change done.
 
 ## Don'ts
 
-- Don't modify the legacy Python implementation (`src/moo/`, `app.py`, `./moo`) — it's kept only for A/B comparison until retired; don't delete it unless asked.
 - Don't commit `world.json` changes that came from running the game locally unless the user wants the world state saved.
 - `bots/*.json` is runtime data (gitignored AI conversation histories) — never commit or hand-edit.
+
+The original Python implementation was removed after the August 2026 port; it's preserved at the `python-final` git tag if history is needed.

@@ -12,9 +12,9 @@
 - **JSON**: World state persistence (`world.json`, `bots/*.json`)
 - **node:net / node:repl / node:readline**: Telnet server, interact REPL, shell input
 
-### Legacy (being retired)
+### History
 
-- The original **Python implementation** still lives in `src/moo/`, `app.py`, and `./moo` until the port is fully settled. It shares the same world.json format. The repo `venv` is broken (dangling pyenv symlink), so it won't run without recreating the venv.
+- The original **Python implementation** was removed in August 2026 after the port merged and was verified in production. It's preserved at the **`python-final` git tag** (same world.json format, so the tagged version can still run against a copy of the world).
 
 ### Development Tools
 
@@ -114,8 +114,7 @@ monkamoo/
 ├── templates/           # Nunjucks/Jinja templates (layout, login, session)
 ├── static/              # CSS
 ├── bots/                # AI player history (gitignored, runtime data)
-├── world.json           # World state (shared with Python implementation)
-└── src/moo/ + app.py + moo   # Legacy Python implementation (to be removed)
+└── world.json           # World state (format unchanged since the Python era)
 ```
 
 ## Testing
@@ -150,4 +149,4 @@ monkamoo/
 - **npm registry**: the project `.npmrc` pins `registry.npmjs.org`. This is required — the dev machine's global `~/.npmrc` routes through a private work registry, and a lockfile generated against it breaks Heroku builds (npm E401). If `package-lock.json` ever shows `artifactory` URLs, regenerate it.
 - **HTTPS**: Automatic Certificate Management is enabled for the custom domain
 - **Cloud storage**: `STORAGE_TYPE=heroku` + AWS vars for S3-backed world/bot persistence with automatic local fallback (verified in production)
-- **`migrate_to_cloud.py`**: one-time local→S3 migration script from the Python era (still Python; port or drop when Python is removed)
+- **`bin/migrate-to-cloud.js`**: one-time local→S3 migration script (uploads world.json + bots/*.json, then verifies). Careful: it overwrites the cloud world with local data.
