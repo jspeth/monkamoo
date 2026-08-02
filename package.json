@@ -1,0 +1,29 @@
+{
+  "name": "monkamoo",
+  "version": "1.0.0",
+  "description": "A learning MOO (Multi-User Dungeon, Object Oriented) in the spirit of LambdaMOO, designed for family collaboration and learning.",
+  "type": "module",
+  "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "moo": "node bin/moo.js",
+    "test": "node --test test/",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write ."
+  },
+  "dependencies": {
+    "@aws-sdk/client-s3": "^3.600.0",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "nunjucks": "^3.2.4",
+    "openai": "^4.104.0",
+    "ws": "^8.18.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4"
+  }
+}

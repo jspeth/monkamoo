@@ -5,3 +5,5 @@
 venv
 bots/
 log.txt
+node_modules/
+world.json-

@@ -1,0 +1,162 @@
+[
+  {
+    "line": "look",
+    "verb": "look",
+    "directObjectStr": null,
+    "preposition": null,
+    "indirectObjectStr": null,
+    "args": null,
+    "argsStr": null,
+    "indirectArgs": null
+  },
+  {
+    "line": "look me",
+    "verb": "look",
+    "directObjectStr": "me",
+    "preposition": null,
+    "indirectObjectStr": null,
+    "args": ["me"],
+    "argsStr": "me",
+    "indirectArgs": null
+  },
+  {
+    "line": "look at sky",
+    "verb": "look",
+    "directObjectStr": null,
+    "preposition": "at",
+    "indirectObjectStr": "sky",
+    "args": ["at", "sky"],
+    "argsStr": "at sky",
+    "indirectArgs": "sky"
+  },
+  {
+    "line": "look at",
+    "verb": "look",
+    "directObjectStr": null,
+    "preposition": "at",
+    "indirectObjectStr": null,
+    "args": ["at"],
+    "argsStr": "at",
+    "indirectArgs": null
+  },
+  {
+    "line": "take ball",
+    "verb": "take",
+    "directObjectStr": "ball",
+    "preposition": null,
+    "indirectObjectStr": null,
+    "args": ["ball"],
+    "argsStr": "ball",
+    "indirectArgs": null
+  },
+  {
+    "line": "take ball at",
+    "verb": "take",
+    "directObjectStr": "ball",
+    "preposition": "at",
+    "indirectObjectStr": null,
+    "args": ["ball", "at"],
+    "argsStr": "ball at",
+    "indirectArgs": null
+  },
+  {
+    "line": "take the ball.",
+    "verb": "take",
+    "directObjectStr": "ball",
+    "preposition": null,
+    "indirectObjectStr": null,
+    "args": ["the", "ball."],
+    "argsStr": "the ball.",
+    "indirectArgs": null
+  },
+  {
+    "line": "look under rock",
+    "verb": "look",
+    "directObjectStr": null,
+    "preposition": "under",
+    "indirectObjectStr": "rock",
+    "args": ["under", "rock"],
+    "argsStr": "under rock",
+    "indirectArgs": "rock"
+  },
+  {
+    "line": "hide ball under sand",
+    "verb": "hide",
+    "directObjectStr": "ball",
+    "preposition": "under",
+    "indirectObjectStr": "sand",
+    "args": ["ball", "under", "sand"],
+    "argsStr": "ball under sand",
+    "indirectArgs": "sand"
+  },
+  {
+    "line": "put yellow bird in cuckoo clock",
+    "verb": "put",
+    "directObjectStr": "yellow bird",
+    "preposition": "into",
+    "indirectObjectStr": "cuckoo clock",
+    "args": ["yellow", "bird", "in", "cuckoo", "clock"],
+    "argsStr": "yellow bird in cuckoo clock",
+    "indirectArgs": "cuckoo clock"
+  },
+  {
+    "line": "describe here as A room in the MOO.",
+    "verb": "describe",
+    "directObjectStr": "here",
+    "preposition": "as",
+    "indirectObjectStr": "room in MOO",
+    "args": ["here", "as", "A", "room", "in", "the", "MOO."],
+    "argsStr": "here as A room in the MOO.",
+    "indirectArgs": "A room in the MOO."
+  },
+  {
+    "line": "give ball to jim",
+    "verb": "give",
+    "directObjectStr": "ball",
+    "preposition": "at",
+    "indirectObjectStr": "jim",
+    "args": ["ball", "to", "jim"],
+    "argsStr": "ball to jim",
+    "indirectArgs": "jim"
+  },
+  {
+    "line": "say hello there friend",
+    "verb": "say",
+    "directObjectStr": "hello there friend",
+    "preposition": null,
+    "indirectObjectStr": null,
+    "args": ["hello", "there", "friend"],
+    "argsStr": "hello there friend",
+    "indirectArgs": null
+  },
+  {
+    "line": "name flower as rose",
+    "verb": "name",
+    "directObjectStr": "flower",
+    "preposition": "as",
+    "indirectObjectStr": "rose",
+    "args": ["flower", "as", "rose"],
+    "argsStr": "flower as rose",
+    "indirectArgs": "rose"
+  },
+  {
+    "line": "whisper jim hey there",
+    "verb": "whisper",
+    "directObjectStr": "jim hey there",
+    "preposition": null,
+    "indirectObjectStr": null,
+    "args": ["jim", "hey", "there"],
+    "argsStr": "jim hey there",
+    "indirectArgs": null
+  },
+  {
+    "line": "dig north as south",
+    "verb": "dig",
+    "directObjectStr": "north",
+    "preposition": "as",
+    "indirectObjectStr": "south",
+    "args": ["north", "as", "south"],
+    "argsStr": "north as south",
+    "indirectArgs": "south"
+  }
+]

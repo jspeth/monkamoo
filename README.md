@@ -1,6 +1,8 @@
 # MonkaMOO
 
-A Python-based learning MOO (Multi-User Dungeon, Object Oriented) in the spirit of LambdaMOO, designed for family collaboration and learning.
+A JavaScript learning MOO (Multi-User Dungeon, Object Oriented) in the spirit of LambdaMOO, designed for family collaboration and learning.
+
+> **Note:** MonkaMOO was recently ported from Python to Node.js. The original Python implementation still lives in `src/moo/`, `app.py`, and `moo` until the port is fully settled; the two implementations share the same `world.json` and `bots/*.json` formats, so either can run against the same world.
 
 ## Features
 
@@ -24,42 +26,41 @@ git clone <repository-url>
 cd monkamoo
 ```
 
-2. Create a virtual environment:
+2. Install dependencies (requires Node.js 20+):
 
 ```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+npm install
 ```
 
-3. Install dependencies:
-
-```bash
-pip install -r requirements.txt
-```
-
-4. Set up environment variables:
+3. Set up environment variables:
 
 ```bash
 cp .env.example .env
 # Edit .env and set your OPENAI_API_KEY
 ```
 
-5. Start the web server:
+4. Start the web server:
 
 ```bash
-python app.py
+npm start
 ```
 
-6. Or start the telnet server:
+5. Or start the telnet server:
 
 ```bash
-./moo -s
+./bin/moo.js -s
 ```
 
-7. Or use the interactive shell:
+6. Or use the interactive shell:
 
 ```bash
-./moo
+./bin/moo.js
+```
+
+7. Or open a live JavaScript REPL with the world and players in scope (type `.exit` to leave):
+
+```bash
+./bin/moo.js -i
 ```
 
 ### Heroku Deployment
@@ -107,7 +108,7 @@ MonkaMOO supports multiple storage backends for world state and AI player histor
 To migrate your local data to S3:
 
 1. **Set up your .env file** with AWS credentials and S3 bucket
-2. **Run the migration script:**
+2. **Run the migration script** (from the Python implementation):
    ```bash
    python migrate_to_cloud.py
    ```

@@ -1,8 +1,8 @@
 {
   "name": "MonkaMOO",
-  "description": "A Python-based learning MOO in the spirit of LambdaMOO",
+  "description": "A JavaScript learning MOO in the spirit of LambdaMOO",
   "repository": "https://github.com/jspeth/monkamoo",
-  "keywords": ["python", "moo", "game", "text-adventure", "ai"],
+  "keywords": ["node", "javascript", "moo", "game", "text-adventure", "ai"],
   "env": {
     "OPENAI_API_KEY": {
       "description": "OpenAI API key for AI players (also works with OpenRouter)",
@@ -25,7 +25,7 @@
   },
   "buildpacks": [
     {
-      "url": "heroku/python"
+      "url": "heroku/nodejs"
     }
   ]
 }
