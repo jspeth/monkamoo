@@ -4,267 +4,99 @@
 
 ### Primary Objective
 
-Establishing comprehensive documentation and Memory Bank foundation for the MonkaMOO project to enable effective future development work.
+The project has just been **fully ported from Python to Node.js** (August 2026, committed on the `jspeth/node` branch). The current focus is settling the port: merging to master, running both implementations side by side against the shared `world.json`, and eventually retiring the Python code.
 
 ### Immediate Goals
 
-1. **Documentation Foundation**: Create complete Memory Bank documentation
-2. **Project Understanding**: Deep dive into existing codebase and architecture
-3. **Development Readiness**: Prepare for future feature development and improvements
+1. **PR and merge the port** (`jspeth/node` → master)
+2. **Play-test the Node implementation** with real family usage (it's live at https://moo.speth.com)
+3. **Retire the Python implementation** (`src/moo/`, `app.py`, `./moo`, requirements files, `pyproject.toml`) once confidence is established
 
 ## Recent Changes
 
-### Web UI Improvements ✅ COMPLETED
+### Heroku Deployment ✅ COMPLETED (August 2026)
 
-- **Modern Chat Interface**: Completely redesigned session screen with modern chat-like layout
-- **Auto-scrolling Messages**: Messages area automatically scrolls to bottom when new content appears
-- **Full-width Input**: Input field is pinned to bottom of screen with full width and proper padding
-- **Enter Key Submission**: Removed Send button, messages are submitted by pressing Enter
-- **Responsive Design**: Mobile-friendly design that works on tablets and phones
-- **Visual Improvements**: Modern gradient header, clean typography, and smooth animations
-- **Message Styling**: Different styling for user messages vs system messages with color coding
-- **Login Page Enhancement**: Updated login page with modern card-based design
-- **Better UX**: Improved focus states, hover effects, and visual feedback
-- **Accessibility**: Proper semantic HTML, keyboard navigation, and screen reader support
+The Node port is deployed and live at https://moo.speth.com (and http). Getting there required app-level config that `app.json` doesn't cover:
 
-### OpenRouter Support Implementation ✅ COMPLETED
+- **Buildpack switched** on the app: `heroku buildpacks:set heroku/nodejs` (the old Python buildpack built fine but the dyno crashed with `node: command not found`)
+- **Public npm registry pinned**: the dev machine's global `~/.npmrc` routes through Squarespace's private Artifactory, so `package-lock.json` had private `resolved` URLs Heroku couldn't auth to (npm E401). A project-level `.npmrc` (`registry=https://registry.npmjs.org/`) overrides that permanently; lockfile regenerated
+- **Automatic Certificate Management enabled** — `https://moo.speth.com` now works (previously the custom domain was HTTP-only)
+- **Verified in production**: world loads from S3 (`STORAGE_TYPE=heroku`), AI players initialize with the configured OpenRouter model, login/session/static all serve correctly
 
-- **Added OpenRouter support**: Implemented configuration for OpenRouter API compatibility
-- **New environment variables**: Added `OPENAI_BASE_URL` and `AI_MODEL` for flexible AI provider selection
-- **Backward compatibility**: Existing OpenAI setup continues to work unchanged
-- **Enhanced AIPlayer class**: Updated initialization to support multiple AI providers
-- **Updated documentation**: README.md and app.json updated with OpenRouter setup instructions
-- **Configuration priority**: Clear fallback logic for different provider setups
-- **Comprehensive logging**: Added logging for AI provider and model selection
-- **Tool support detection**: Automatic fallback to text-only mode for models without tool support
-- **Error handling**: Graceful handling of unsupported features with informative logging
+### Node.js Port ✅ COMPLETED (August 2026)
 
-### Storage Abstraction Implementation ✅ COMPLETED
+The entire application was ported from Python to JavaScript. The decision: after developing in Python for a while, JS is a better fit (one language across server and browser front-end, event loop matches the app's async model).
 
-- **Implemented storage abstraction layer**: Created unified interface for local and cloud storage
-- **Added AWS S3 support**: Cloud storage implementation for Heroku persistence
-- **Updated core components**: Modified World and AIPlayer classes to use storage abstraction
-- **Created migration script**: `migrate_to_cloud.py` for uploading local data to S3
-- **Added comprehensive logging**: Storage operations logged with appropriate detail
-- **Environment-based configuration**: Automatic fallback from cloud to local storage
-- **Successfully tested migration**: User successfully migrated local data to S3
+- **Runtime/stack**: Node.js 20+, ESM modules, plain JavaScript (no TypeScript)
+- **Web tier**: Express + `ws` + Nunjucks (replaces Quart); hand-rolled HMAC-signed session cookie (`monkamoo_session`) replaces Quart's session — old sessions don't carry over, players just re-login
+- **Telnet server**: `node:net` (replaces asyncio streams)
+- **Shell**: custom `LineReader` over stdin/socket streams (replaces cmd-style loop)
+- **Interact mode**: `node:repl` — a live JS REPL with `world` and players in scope (exit with `.exit`)
+- **AI players**: `openai` npm package, same tool definitions, same `bots/*.json` history format
+- **Storage**: local FS + `@aws-sdk/client-s3`, same factory/fallback pattern
+- **Tooling**: Biome (lint + format), `node:test` (28 tests), npm scripts + updated Makefile
+- **Deploy**: Procfile is now `web: node server.js`; app.json uses `heroku/nodejs` buildpack
 
-### Code Quality Improvements ✅ COMPLETED
+### Compatibility Contract
 
-- **Fixed all linter errors**: Successfully resolved all ruff linting issues
-- **Modernized type annotations**: Updated from `Dict`/`List` to `dict`/`list` and `Optional[T]` to `T | None`
-- **Improved import organization**: Fixed import order and sorting issues
-- **Enhanced exception handling**: Replaced bare `except:` with specific exception types
-- **Fixed unused arguments**: Prefixed unused parameters with underscore instead of using `noqa`
-- **Code structure improvements**: Fixed trailing commas, blank lines, and unnecessary else statements
-- **Final logic fix**: Moved return statement outside try/catch for cleaner flow in migration script
+- **`world.json` and `bots/*.json` are shared between implementations.** `sortedJSONStringify` in `src/utils.js` reproduces Python's `json.dumps(sort_keys=True, indent=2)` byte-for-byte; a round-trip test enforces this. Either implementation can run against the same world.
+- The Python class `Object` was renamed `Thing` in JS (collides with the JS built-in); the class registry maps the `"Object"` type name to it, so world.json is unchanged.
 
-### Logging System Update (Previous Session)
+### Bugs Fixed During the Port
 
-- **Implemented comprehensive logging**: Created centralized logging configuration for Heroku compatibility
-- **Updated all components**: Added logging to web server, telnet server, shell, world, player, broker, and interpreter
-- **Heroku compatibility**: All logs now output to stdout/stderr for `heroku logs` compatibility
-- **Structured logging**: Consistent log format with timestamps and module names
-- **Environment configuration**: Support for LOG_LEVEL environment variable
+The port deliberately fixes four latent Python bugs:
 
-### Memory Bank Creation (Previous Session)
+1. **`create` was broken**: the `globals()` class lookup in `player.py` couldn't see the `Object` class (never imported there) — JS uses an explicit class registry
+2. **Human-to-human whisper crashed**: `Player.tell(message)` was called with an extra `type` arg (TypeError in Python; harmless in JS)
+3. **Fresh worlds were broken**: default room "0" never got its `world` reference, so `dig` crashed on a brand-new world
+4. **Command exceptions could kill the caller's task**: `handleCommand` now catches, logs, and tells the player "Something went wrong."
 
-- **Created projectbrief.md**: Established core project vision and requirements
-- **Created productContext.md**: Defined user experience and problem space
-- **Created systemPatterns.md**: Documented architecture and design patterns
-- **Created techContext.md**: Documented technical stack and constraints
-- **Created activeContext.md**: Capturing current state and next steps
-- **Created progress.md**: Documenting implementation status
+Also added: verb-dispatch guard so `constructor`/`__proto__`/etc. can't reach JS object internals, and the web tier rebinds player output on every WebSocket connection (fixes lost output after server restart).
 
-### Project State Analysis
+### Earlier Milestones (Python era)
 
-- **Explored codebase structure**: Understanding of core components and architecture
-- **Reviewed existing documentation**: README.md, TODO.md, and code comments
-- **Identified key components**: World engine, object system, communication layer
-- **Analyzed current features**: Web interface, telnet server, interactive shell
+- Modern chat web UI with mobile Safari support ✅
+- OpenRouter support (`OPENAI_BASE_URL`, `AI_MODEL`) ✅
+- Storage abstraction with S3 cloud storage and migration script ✅
+- Comprehensive logging system ✅
 
 ## Current Project Status
 
-### What's Working
+### What's Working (verified end-to-end on the Node port)
 
-- **Multi-interface Support**: Web, telnet, and shell interfaces functional
-- **Basic MOO Functionality**: Player movement, object creation, communication
-- **World Persistence**: JSON-based state saving and loading with cloud storage support
-- **Real-time Communication**: WebSocket support for live updates
-- **AI Player Integration**: OpenAI API integration for AI-driven players with OpenRouter support
-- **Deployment Ready**: Heroku deployment configuration complete with persistent storage
-- **Comprehensive Logging**: Heroku-compatible logging system with structured output
-- **Storage Abstraction**: ✅ Unified local and cloud storage with automatic fallback
-- **Code Quality**: ✅ All linting errors resolved, modern Python practices implemented
-- **Modern Web UI**: ✅ Responsive chat interface with auto-scrolling and mobile support
+- **All 28 tests pass**: parser golden tests (generated from the Python parser), world.json byte-for-byte round-trip, command smoke tests
+- **Shell** (`./bin/moo.js`), **telnet** (`./bin/moo.js -s`), **web** (`npm start`) all verified interactively
+- **AI players** verified against the live OpenAI API (bot created, replied, tool plumbing intact)
+- **Interact REPL** (`./bin/moo.js -i`) works with world/players in scope
 
 ### What Needs Attention
 
-- **Testing**: Limited automated testing infrastructure
-- **Security**: Basic security model needs enhancement
-- **Performance**: Scalability considerations for larger worlds
-- **User Experience**: Additional family-friendly features and onboarding improvements
+- **Python code still in tree** — intentionally kept until the port is settled
+- **The repo venv is broken** (dangling pyenv symlink); the Python version won't run without recreating it
+- **Security**: same basic model as before (family-trust based)
+- **TODO.md items** carry over unchanged (dynamic help, command aliases, periodic save, etc.)
 
 ## Active Decisions and Considerations
 
-### Documentation Strategy
-
-- **Decision**: Create comprehensive Memory Bank documentation
-- **Rationale**: Enable effective development after memory resets
-- **Impact**: Improved development velocity and consistency
-
-### Architecture Assessment
-
-- **Current State**: Solid foundation with clear separation of concerns
-- **Strengths**: Modular design, extensible object system, multiple interfaces
-- **Areas for Improvement**: Testing, security, performance optimization
-
-### Development Priorities
-
-1. **Documentation Completion**: Finish Memory Bank foundation
-2. **Code Review**: Deep dive into existing implementation
-3. **Feature Planning**: Identify next development priorities
-4. **Testing Strategy**: Establish automated testing approach
+- **Plain JS, not TypeScript**: deliberate choice for accessibility and simplicity
+- **Keep Python until settled**: enables A/B behavior comparison (`./moo` vs `./bin/moo.js` on the same world)
+- **Byte-compatible persistence**: treat `world.json` format as frozen; any format change must be bidirectional or happen after Python is retired
+- **Class self-registration pattern**: classes register in `src/core/classRegistry.js` (a leaf module) to avoid ESM import cycles; `src/core/registry.js` aggregates for entry points
 
 ## Next Steps
 
-### Immediate (Current Session)
+### Immediate
 
-1. **Memory Bank Update**: ✅ Update documentation with current progress
-2. **Feature Assessment**: Evaluate current TODO items and priorities
-3. **Testing Strategy**: Plan automated testing approach
+1. Open a PR from `jspeth/node` to master and merge
+2. Family play-testing on the Node implementation (live at https://moo.speth.com)
 
-### Short Term (Next Sessions)
+### Short Term
 
-1. **Testing Infrastructure**: Set up automated testing framework
-2. **Security Review**: Assess and improve security model
-3. **Performance Analysis**: Identify optimization opportunities
-4. **User Experience**: Improve family-friendly features
+1. Delete the Python implementation (`src/moo/`, `app.py`, `moo`, `requirements*.txt`, `pyproject.toml`, `requirements-dev.txt`, venv) and `migrate_to_cloud.py` (or port it if still needed)
+2. Move JS code from `src/` root into a cleaner layout if desired once Python is gone
+3. Grow the test suite (web routes, broker, AI tool-call loop with a mocked client)
 
 ### Medium Term
 
-1. **Feature Development**: Implement high-priority TODO items
-2. **Documentation Enhancement**: Create user guides and tutorials
-3. **Deployment Improvements**: Optimize for production use
-4. **Community Building**: Prepare for family and educational use
-
-## Key Insights from Analysis
-
-### Architecture Strengths
-
-- **Clean Separation**: Clear boundaries between components
-- **Extensible Design**: Easy to add new features and objects
-- **Multiple Interfaces**: Flexibility for different user preferences
-- **Object-Oriented Foundation**: Natural programming model
-
-### Development Opportunities
-
-- **Testing Gap**: Limited automated testing infrastructure
-- **Documentation Needs**: Comprehensive documentation for family use
-- **Security Enhancement**: Family-friendly security improvements
-- **Performance Optimization**: Scalability for larger worlds
-
-### Family-Friendly Considerations
-
-- **Simple Interface**: Need for intuitive, non-technical interfaces
-- **Safe Environment**: Content filtering and safety features
-- **Educational Focus**: Progressive learning curve
-- **Collaborative Features**: Family bonding through shared creation
-
-## Current Challenges
-
-### Technical Challenges
-
-- **Testing Strategy**: Need comprehensive testing approach
-- **Security Model**: Family-friendly security implementation
-- **Performance**: Optimization for larger worlds and more users
-- **Documentation**: User-friendly guides for family use
-
-### User Experience Challenges
-
-- **Onboarding**: Simple entry point for non-technical family members
-- **Learning Curve**: Progressive complexity for different skill levels
-- **Collaboration**: Features that encourage family interaction
-- **Safety**: Appropriate content and interaction guidelines
-
-### Development Challenges
-
-- **Memory Management**: Maintaining context across development sessions
-- **Feature Prioritization**: Balancing technical and user experience needs
-- **Quality Assurance**: Ensuring reliability for family use
-- **Deployment**: Production-ready deployment for family access
-
-## Success Metrics
-
-### Documentation Success
-
-- **Complete Memory Bank**: All core files created and maintained
-- **Code Understanding**: Deep knowledge of existing implementation
-- **Development Readiness**: Ability to continue work effectively
-- **Knowledge Transfer**: Clear documentation for future developers
-
-### Project Success
-
-- **Family Adoption**: Successful family use and collaboration
-- **Learning Outcomes**: Programming skill development
-- **Technical Stability**: Reliable and performant system
-- **Educational Value**: Effective learning environment
-
-## Code Quality Status
-
-### Linting Status ✅ COMPLETED
-
-- **All ruff errors resolved**: 0 linting errors remaining
-- **Modern Python practices**: Updated type annotations and imports
-- **Clean code structure**: Proper exception handling and code organization
-- **Consistent formatting**: Trailing commas, blank lines, and import sorting
-
-### Quality Improvements Made
-
-- **Type annotations**: Modernized from `Dict`/`List` to `dict`/`list`
-- **Import organization**: Fixed sorting and order issues
-- **Exception handling**: Specific exception types instead of bare `except:`
-- **Unused parameters**: Proper underscore prefixing
-- **Code structure**: Removed unnecessary else statements and improved flow
-
-## Storage System Status
-
-### Storage Abstraction ✅ COMPLETED
-
-- **Unified Interface**: `StorageInterface` abstract base class implemented
-- **Local Storage**: `LocalFileStorage` for development and local use
-- **Cloud Storage**: `S3Storage` for production deployment on Heroku
-- **Storage Factory**: `StorageFactory` for environment-based selection
-- **Migration Tools**: `migrate_to_cloud.py` for data migration
-- **Environment Configuration**: Automatic storage selection based on environment variables
-- **Error Handling**: Graceful fallback between storage types
-- **Logging Integration**: Comprehensive storage operation logging
-
-### Migration Success ✅ COMPLETED
-
-- **Local to Cloud Migration**: Successfully migrated world.json and bot data to S3
-- **Data Integrity**: Verified data upload and download functionality
-- **Environment Setup**: Proper AWS credentials and bucket configuration
-- **Production Ready**: Cloud storage now available for Heroku deployment
-
-## Web UI Status
-
-### Modern Chat Interface ✅ COMPLETED
-
-- **Responsive Design**: Mobile-friendly layout that works on all screen sizes
-- **Auto-scrolling Messages**: Messages area automatically scrolls to bottom for new content
-- **Full-width Input**: Input field pinned to bottom with proper padding and styling
-- **Enter Key Submission**: Intuitive message submission without Send button
-- **Visual Hierarchy**: Clear distinction between user and system messages
-- **Modern Styling**: Gradient header, clean typography, and smooth animations
-- **Accessibility**: Proper semantic HTML and keyboard navigation
-- **Performance**: Efficient DOM updates and smooth scrolling behavior
-
-### User Experience Improvements
-
-- **Login Page**: Modern card-based design with improved styling
-- **Visual Feedback**: Hover effects, focus states, and smooth transitions
-- **Mobile Optimization**: Touch-friendly interface with proper viewport settings
-- **Cross-browser Compatibility**: Works consistently across different browsers
-- **Loading States**: Proper handling of WebSocket connection states
-- **Error Handling**: Graceful handling of connection issues and errors
+1. Resume TODO.md feature work in JS (dynamic help, command aliases, periodic world save, player connection status, rooms command, emojis)
+2. Consider what "coding MOO objects" means in the JS world — the interact REPL is the seed of this
