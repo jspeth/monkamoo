@@ -21,7 +21,7 @@
 
 ### Multiple Interfaces ✅
 
-- **Web Interface**: Express + ws + Nunjucks; signed-cookie sessions; auto-reconnecting chat UI (mobile-friendly)
+- **Web Interface**: Express + ws + Nunjucks; signed-cookie sessions; story-flow UI (light warm theme, serif narrative panel, auto-growing input; mobile-friendly)
 - **Telnet Server**: `node:net`, multiple simultaneous clients
 - **Interactive Shell**: stdin shell with player switching
 - **Interact Mode**: live JavaScript REPL with `world` and players in scope

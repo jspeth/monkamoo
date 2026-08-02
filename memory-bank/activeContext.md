@@ -13,6 +13,16 @@ The **Python → Node.js port is complete**: merged to main (PR #18, August 2026
 
 ## Recent Changes
 
+### Web UI Redesign ✅ COMPLETED (August 2026)
+
+The web UI was redesigned from a chat-bubble look to a story-flow reading experience (August 2026):
+
+- **Light, warm color scheme** (paper background, ink text, copper accent) via CSS custom properties in `static/style.css`; the old purple-gradient theme is gone
+- **Two-panel layout**: large story panel on top (serif type, centered ~720px column, no bubbles), input at the bottom
+- **Player commands** are echoed client-side as `.command-line` entries with a small uppercase player-name label; world output flows as `.story-line` paragraphs. Server messages carry no attribution yet — adding per-player indicators for *other* players' actions would need backend changes (possible future work)
+- **Auto-growing textarea input** (grows to ~160px; Enter sends, Shift+Enter inserts a newline) with a send button for mobile
+- Message text is now HTML-escaped client-side before insertion (the old code interpolated raw text into `innerHTML`)
+
 ### Python Implementation Removed ✅ COMPLETED (August 2026)
 
 After the port merged to main (PR #18) and was verified in production, the Python implementation was deleted: `src/moo/`, `app.py`, `./moo`, `requirements*.txt`, `pyproject.toml`, `.python-version`, plus the broken venv and Python caches. The final Python revision is tagged **`python-final`**. The S3 migration script was ported to JS as `bin/migrate-to-cloud.js`. Docs, configs (biome.json, .gitignore, Makefile), CLAUDE.md, and the Cursor rules were scrubbed of Python references. The parser golden fixtures remain as the permanent record of the original parser's behavior.

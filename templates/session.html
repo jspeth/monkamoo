@@ -1,12 +1,13 @@
 {% extends "layout.html" %} {% block content %}
 <script type="text/javascript">
+  const playerName = {{ player_name | dump | safe }};
   const protocol = location.protocol === "https:" ? "wss:" : "ws:";
   const ws = new WebSocket(`${protocol}//${location.host}/ws`);
   let messagesContainer;
   let messageInput;
 
   ws.addEventListener("message", function (event) {
-    addMessage(event.data);
+    addStoryLine(event.data);
     scrollToBottom();
   });
 
@@ -33,22 +34,47 @@
     event.preventDefault();
     const message = messageInput.value.trim();
     if (message) {
-      addMessage(`<span class="user-message">${message}</span>`, "user");
+      addCommandLine(message);
+      scrollToBottom();
       ws.send(message);
       messageInput.value = "";
+      autoResizeInput();
     }
+    messageInput.focus();
     return false;
   }
 
-  function addMessage(message, type = "system") {
-    const messageDiv = document.createElement("div");
-    messageDiv.className = `message ${type}-message`;
-    messageDiv.innerHTML = message.replace(/\n/g, "<br/>");
-    messagesContainer.appendChild(messageDiv);
+  function escapeHTML(text) {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function addStoryLine(message) {
+    const line = document.createElement("div");
+    line.className = "story-line";
+    line.innerHTML = escapeHTML(message).replace(/\n/g, "<br/>");
+    messagesContainer.appendChild(line);
+  }
+
+  function addCommandLine(message) {
+    const line = document.createElement("div");
+    line.className = "command-line";
+    const label = document.createElement("span");
+    label.className = "command-player";
+    label.textContent = playerName;
+    line.appendChild(label);
+    line.appendChild(document.createTextNode(message));
+    messagesContainer.appendChild(line);
   }
 
   function scrollToBottom() {
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
+
+  function autoResizeInput() {
+    messageInput.style.height = "auto";
+    messageInput.style.height = `${Math.min(messageInput.scrollHeight, 160)}px`;
   }
 
   // iOS Safari detection
@@ -59,7 +85,6 @@
   // Handle iOS Safari viewport adjustments
   function handleIOSViewport() {
     if (isIOS()) {
-      // Add iOS-specific class for styling
       document.body.classList.add("ios-safari");
 
       // Handle viewport height changes
@@ -78,15 +103,16 @@
     messagesContainer = document.getElementById("messages");
     messageInput = document.getElementById("message-input");
 
-    // Handle iOS Safari viewport
     handleIOSViewport();
 
-    // Handle Enter key submission
-    messageInput.addEventListener("keypress", function (event) {
-      if (event.key === "Enter") {
+    // Enter sends; Shift+Enter inserts a newline
+    messageInput.addEventListener("keydown", function (event) {
+      if (event.key === "Enter" && !event.shiftKey) {
         sendMessage(event);
       }
     });
+
+    messageInput.addEventListener("input", autoResizeInput);
 
     // Enhanced focus handling for mobile
     messageInput.addEventListener("focus", function () {
@@ -98,6 +124,7 @@
       }
     });
 
+    autoResizeInput();
     scrollToBottom();
   });
 </script>
@@ -106,14 +133,17 @@
   <div id="messages" class="messages-area"></div>
 
   <form class="input-area" onsubmit="return sendMessage(event)">
-    <input
-      type="text"
-      id="message-input"
-      name="message"
-      placeholder="Enter a message..."
-      autocomplete="off"
-      autofocus
-    />
+    <div class="input-shell">
+      <textarea
+        id="message-input"
+        name="message"
+        rows="1"
+        placeholder="What do you do?"
+        autocomplete="off"
+        autofocus
+      ></textarea>
+      <button type="submit" class="send-button" aria-label="Send">&#8593;</button>
+    </div>
   </form>
 </div>
 {% endblock %}
